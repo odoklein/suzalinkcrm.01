@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { Edit, Trash2, Eye, Copy, Download, MoreHorizontal } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useOverlay } from "./useOverlay";
 
 // ============================================
 // TYPES
@@ -28,57 +29,73 @@ interface ContextMenuProps {
 // ============================================
 
 export function ContextMenu({ items, position, onClose }: ContextMenuProps) {
-    const menuRef = useRef<HTMLDivElement>(null);
+    // Joins the overlay stack: Escape closes the menu only (not a modal under
+    // it), focus moves to the first item and back to the page on close.
+    const menuRef = useOverlay<HTMLDivElement>({ open: !!position, onClose, lockScroll: false });
     const [mounted, setMounted] = useState(false);
+    const [place, setPlace] = useState<{ left: number; top: number } | null>(null);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
     useEffect(() => {
+        if (!position) return;
         const handleClickOutside = (e: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 onClose();
             }
         };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [position, onClose, menuRef]);
 
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                onClose();
-            }
-        };
-
-        if (position) {
-            document.addEventListener("mousedown", handleClickOutside);
-            document.addEventListener("keydown", handleEscape);
+    // Keep the menu inside the viewport, measured from its real size.
+    useLayoutEffect(() => {
+        if (!position || !menuRef.current) {
+            setPlace(null);
+            return;
         }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("keydown", handleEscape);
-        };
-    }, [position, onClose]);
+        const { offsetWidth: w, offsetHeight: h } = menuRef.current;
+        setPlace({
+            left: Math.max(8, Math.min(position.x, window.innerWidth - w - 8)),
+            top: Math.max(8, Math.min(position.y, window.innerHeight - h - 8)),
+        });
+    }, [position, items.length, menuRef]);
 
     if (!mounted || !position) return null;
 
-    // Calculate position to keep menu in viewport
-    const menuWidth = 200;
-    const menuHeight = items.length * 40;
-    const adjustedX = Math.min(position.x, window.innerWidth - menuWidth - 20);
-    const adjustedY = Math.min(position.y, window.innerHeight - menuHeight - 20);
+    // Arrow keys move between enabled items (WAI-ARIA menu pattern).
+    const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+        if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
+        e.preventDefault();
+        const buttons = Array.from(
+            menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not([disabled])') ?? [],
+        );
+        if (buttons.length === 0) return;
+        const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        const next =
+            e.key === "Home" ? 0
+            : e.key === "End" ? buttons.length - 1
+            : (at + (e.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[next].focus();
+    };
 
     return createPortal(
         <div
             ref={menuRef}
-            className="fixed z-[100] min-w-[180px] bg-surface rounded-xl shadow-lg border border-line py-1 animate-in fade-in zoom-in-95 duration-100"
-            style={{ left: adjustedX, top: adjustedY }}
+            role="menu"
+            tabIndex={-1}
+            onKeyDown={onKeyDown}
+            className="fixed z-[130] min-w-[180px] rounded-panel border border-line bg-surface py-1 shadow-overlay outline-none animate-in fade-in zoom-in-95 duration-100"
+            style={place ?? { left: position.x, top: position.y }}
         >
             {items.map((item, index) => (
-                <div key={index}>
-                    {item.divider && index > 0 && (
-                        <div className="h-px bg-slate-200 my-1" />
-                    )}
+                <div key={index} role="none">
+                    {item.divider && index > 0 && <div role="separator" className="my-1 h-px bg-line-subtle" />}
                     <button
+                        type="button"
+                        role="menuitem"
                         onClick={() => {
                             if (!item.disabled) {
                                 item.onClick();
@@ -86,12 +103,14 @@ export function ContextMenu({ items, position, onClose }: ContextMenuProps) {
                             }
                         }}
                         disabled={item.disabled}
-                        className={`w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors ${item.disabled
-                                ? "text-ink-4 cursor-not-allowed"
+                        className={cn(
+                            "flex w-full items-center gap-3 px-3 py-2 text-sm transition-colors outline-none [&_svg]:size-4 [&_svg]:shrink-0",
+                            item.disabled
+                                ? "cursor-not-allowed text-ink-4"
                                 : item.variant === "danger"
-                                    ? "text-red-600 hover:bg-red-50"
-                                    : "text-ink-2 hover:bg-surface-2"
-                            }`}
+                                    ? "text-danger-ink hover:bg-danger-soft focus-visible:bg-danger-soft"
+                                    : "text-ink-2 hover:bg-surface-2 hover:text-ink focus-visible:bg-surface-2 focus-visible:text-ink",
+                        )}
                     >
                         {item.icon}
                         {item.label}

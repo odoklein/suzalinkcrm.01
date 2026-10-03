@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useId } from "react";
+import { useRef, useId } from "react";
 import { AlertTriangle, OctagonAlert, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Button from "./Button";
 import { FOCUS_RING } from "./recipes";
+import { useOverlay } from "./useOverlay";
 
 // ============================================
 // MODAL COMPONENT
@@ -26,15 +27,12 @@ interface ModalProps {
     contentClassName?: string;
 }
 
-const FOCUSABLE =
-    'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 const SIZES = {
     sm: "max-w-md",
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
-    full: "max-w-[95vw] max-h-[95vh]",
+    full: "max-w-[95vw] max-h-[95dvh]",
 };
 
 export function Modal({
@@ -50,21 +48,12 @@ export function Modal({
     className,
     contentClassName,
 }: ModalProps) {
-    const modalRef = useRef<HTMLDivElement>(null);
+    // Escape (top layer only), counted scroll lock, focus trap and restore.
+    const modalRef = useOverlay<HTMLDivElement>({ open: isOpen, onClose, closeOnEscape });
     const overlayPointerDownRef = useRef(false);
     const uid = useId();
     const titleId = `${uid}-title`;
     const descId = `${uid}-desc`;
-
-    // Handle ESC key
-    const handleKeyDown = useCallback(
-        (e: KeyboardEvent) => {
-            if (e.key === "Escape" && closeOnEscape) {
-                onClose();
-            }
-        },
-        [closeOnEscape, onClose]
-    );
 
     // Track whether interaction started on overlay
     const handleOverlayPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -94,50 +83,6 @@ export function Modal({
         overlayPointerDownRef.current = false;
     };
 
-    // Lock body scroll when modal is open
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-            document.addEventListener("keydown", handleKeyDown);
-        } else {
-            document.body.style.overflow = "";
-        }
-
-        return () => {
-            document.body.style.overflow = "";
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isOpen, handleKeyDown]);
-
-    // Focus: move into the dialog on open, restore to the trigger on close
-    useEffect(() => {
-        if (!isOpen) return;
-        const previouslyFocused = document.activeElement as HTMLElement | null;
-        const node = modalRef.current;
-        // Prefer the first meaningful control, fall back to the dialog itself
-        const first = node?.querySelector<HTMLElement>(FOCUSABLE);
-        (first ?? node)?.focus();
-        return () => previouslyFocused?.focus?.();
-    }, [isOpen]);
-
-    // Keep Tab cycling inside the dialog
-    const handleTabKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (e.key !== "Tab" || !modalRef.current) return;
-        const items = Array.from(
-            modalRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)
-        ).filter((el) => el.offsetParent !== null || el === document.activeElement);
-        if (items.length === 0) return;
-        const first = items[0];
-        const last = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-        }
-    };
-
     if (!isOpen) return null;
 
     return (
@@ -157,11 +102,10 @@ export function Modal({
                 aria-modal="true"
                 aria-labelledby={title ? titleId : undefined}
                 aria-describedby={description ? descId : undefined}
-                onKeyDown={handleTabKey}
                 onPointerDown={handleModalPointerDown}
                 className={cn(
                     "relative w-full bg-surface border border-line shadow-overlay rounded-card overflow-hidden flex flex-col text-ink",
-                    "animate-ds-pop max-h-[85vh] focus:outline-none",
+                    "animate-ds-pop max-h-[85dvh] focus:outline-none",
                     SIZES[size],
                     className
                 )}
@@ -184,11 +128,12 @@ export function Modal({
                         </div>
                         {showCloseButton && (
                             <button
+                                type="button"
                                 onClick={onClose}
                                 aria-label="Fermer"
                                 className={cn("absolute right-3.5 top-3.5 z-10 inline-flex size-9 items-center justify-center rounded-control text-ink-3 transition-colors hover:bg-surface-3 hover:text-ink", FOCUS_RING)}
                             >
-                                <X className="size-[18px]" />
+                                <X className="size-[18px]" aria-hidden />
                             </button>
                         )}
                     </div>
@@ -197,7 +142,7 @@ export function Modal({
                 {/* Content - explicit bg and text so content is never white-on-white */}
                 <div
                     className={cn(
-                        "p-6 overflow-y-auto custom-scrollbar flex-1 bg-surface text-ink",
+                        "p-6 overflow-y-auto overscroll-contain custom-scrollbar flex-1 bg-surface text-ink",
                         contentClassName
                     )}
                 >

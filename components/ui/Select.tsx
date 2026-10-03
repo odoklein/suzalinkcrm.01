@@ -110,6 +110,8 @@ export function Select({
                     setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : 0));
                     break;
                 case "Escape":
+                    // Claim the key while open, so a modal around the select stays open.
+                    if (isOpen) e.preventDefault();
                     setIsOpen(false);
                     setSearchQuery("");
                     break;

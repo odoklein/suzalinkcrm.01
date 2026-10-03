@@ -95,6 +95,15 @@
     --ds-info-line: #bfdbfe;
     --ds-info-ink: #1d4ed8;
 
+    /* ── Legacy grey 400 ─────────────────────────────────────
+       Older screens use text-slate-400 / text-gray-400 for real content
+       (timestamps, meta, labels). The raw ramp step is 2.6:1 on white, below
+       even the 3:1 floor for icons and large text. The Tailwind grey aliases
+       below read this nudged step instead: 3.7:1 on white, still a visible
+       step lighter than -500 (4.8:1). ink-4 keeps the raw step for
+       placeholders and disabled states. */
+    --ds-legacy-grey-400: color-mix(in oklab, var(--brand-neutral-400) 40%, var(--brand-neutral-500));
+
     /* ── Elevation: shadows tinted with the brand ink, never pure black ── */
     --ds-shadow-color: var(--brand-neutral-950);
 
@@ -246,7 +255,7 @@
     --color-slate-100: var(--brand-neutral-100);
     --color-slate-200: var(--brand-neutral-200);
     --color-slate-300: var(--brand-neutral-300);
-    --color-slate-400: var(--brand-neutral-400);
+    --color-slate-400: var(--ds-legacy-grey-400);
     --color-slate-500: var(--brand-neutral-500);
     --color-slate-600: var(--brand-neutral-600);
     --color-slate-700: var(--brand-neutral-700);
@@ -257,7 +266,7 @@
     --color-gray-100: var(--brand-neutral-100);
     --color-gray-200: var(--brand-neutral-200);
     --color-gray-300: var(--brand-neutral-300);
-    --color-gray-400: var(--brand-neutral-400);
+    --color-gray-400: var(--ds-legacy-grey-400);
     --color-gray-500: var(--brand-neutral-500);
     --color-gray-600: var(--brand-neutral-600);
     --color-gray-700: var(--brand-neutral-700);
@@ -268,7 +277,7 @@
     --color-zinc-100: var(--brand-neutral-100);
     --color-zinc-200: var(--brand-neutral-200);
     --color-zinc-300: var(--brand-neutral-300);
-    --color-zinc-400: var(--brand-neutral-400);
+    --color-zinc-400: var(--ds-legacy-grey-400);
     --color-zinc-500: var(--brand-neutral-500);
     --color-zinc-600: var(--brand-neutral-600);
     --color-zinc-700: var(--brand-neutral-700);
@@ -279,7 +288,7 @@
     --color-neutral-100: var(--brand-neutral-100);
     --color-neutral-200: var(--brand-neutral-200);
     --color-neutral-300: var(--brand-neutral-300);
-    --color-neutral-400: var(--brand-neutral-400);
+    --color-neutral-400: var(--ds-legacy-grey-400);
     --color-neutral-500: var(--brand-neutral-500);
     --color-neutral-600: var(--brand-neutral-600);
     --color-neutral-700: var(--brand-neutral-700);
@@ -366,6 +375,40 @@
     to { background-position: -200% 0; }
 }
 
+/* Entrance utilities in the tailwindcss-animate vocabulary, which menus,
+   popovers and panels across the app already use:
+     animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200
+   The plugin was never installed, so these classes did nothing. animate-in
+   runs one keyframe; the modifiers set where it starts from; duration-*
+   (Tailwind sets --tw-duration) sets how long it takes. */
+@keyframes ds-animate-in {
+    from {
+        opacity: var(--tw-enter-opacity, 1);
+        transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale(var(--tw-enter-scale, 1));
+    }
+}
+@utility animate-in {
+    animation: ds-animate-in var(--tw-duration, 150ms) var(--ease-snappy) both;
+}
+@utility fade-in {
+    --tw-enter-opacity: 0;
+}
+@utility zoom-in-* {
+    --tw-enter-scale: calc(--value(integer) * 1%);
+}
+@utility slide-in-from-top-* {
+    --tw-enter-translate-y: calc(var(--spacing) * --value(integer) * -1);
+}
+@utility slide-in-from-bottom-* {
+    --tw-enter-translate-y: calc(var(--spacing) * --value(integer));
+}
+@utility slide-in-from-left-* {
+    --tw-enter-translate-x: calc(var(--spacing) * --value(integer) * -1);
+}
+@utility slide-in-from-right-* {
+    --tw-enter-translate-x: calc(var(--spacing) * --value(integer));
+}
+
 @layer base {
     html {
         scrollbar-color: var(--brand-neutral-300) transparent;
@@ -381,6 +424,46 @@
         outline: 2px solid var(--ds-focus);
         outline-offset: 2px;
     }
+}
+
+/* Reduced motion, app-wide: entrances, hovers and smooth scrolling stop.
+   Spinners keep turning (they carry meaning, not decoration) but slower. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .animate-spin,
+    .cp-spinner {
+        animation-duration: 1.6s !important;
+        animation-iteration-count: infinite !important;
+    }
+}
+
+/* "Aller au contenu": first tab stop of the app shell, visible only on focus. */
+.skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 200;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius-control);
+    background: var(--ds-primary);
+    color: var(--ds-primary-fg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-overlay);
+    transform: translateY(calc(-100% - 1rem));
+    transition: transform 0.15s var(--ease-snappy);
+}
+.skip-link:focus-visible {
+    transform: none;
+    outline: 2px solid var(--ds-focus);
+    outline-offset: 2px;
 }
 
 /* ============================================
@@ -407,59 +490,8 @@ body {
    COMPONENT STYLES
    ============================================ */
 
-/* Cards with glassmorphism */
-.card {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    transition: all 0.2s ease;
-}
-
-.card:hover {
-    border-color: var(--brand-primary);
-    box-shadow: 0 1px 3px color-mix(in oklab, var(--brand-neutral-900) 6%, transparent);
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    border-radius: 0.75rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-    font-size: 0.9375rem;
-}
-
-/* Inputs */
-.input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: var(--neutral-900);
-    border: 1px solid var(--neutral-700);
-    border-radius: 0.75rem;
-    color: var(--foreground);
-    font-size: 0.9375rem;
-    transition: all 0.2s ease;
-}
-
-.input:focus {
-    outline: none;
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-primary-500) 20%, transparent);
-}
-
-.input::placeholder {
-    color: var(--muted);
-}
-
-/* Ensure form inputs and email content have readable dark text on light backgrounds.
-   Body uses --foreground (light) which would make text invisible on white inputs. */
+/* Form controls read in ink even inside a container that sets a light text colour.
+   The :not(.input) only keeps the specificity (0,1,1) these rules have always had. */
 input:not(.input),
 textarea:not(.input):not(.code),
 select:not(.input) {
@@ -665,17 +697,6 @@ textarea::placeholder {
     animation: skeletonShimmer 1.5s ease-in-out infinite;
 }
 
-/* Badges */
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 9999px;
-}
-
 /* Animations */
 @keyframes fadeIn {
     from {
@@ -713,14 +734,6 @@ textarea::placeholder {
 
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out;
-}
-
-.animate-pulse {
-    animation: pulse 2s ease-in-out infinite;
-}
-
-.animate-spin {
-    animation: spin 1s linear infinite;
 }
 
 /* New animations for modals and toasts */

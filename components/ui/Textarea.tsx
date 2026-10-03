@@ -18,6 +18,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         const autoId = useId();
         const id = idProp ?? autoId;
         const length = typeof value === "string" ? value.length : undefined;
+        const messageId = error || hint ? `${id}-msg` : undefined;
         return (
             <Field
                 label={label}
@@ -25,6 +26,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 hint={hint}
                 error={error}
                 required={required}
+                messageId={messageId}
                 aside={showCount && maxLength && length !== undefined ? `${length} / ${maxLength}` : undefined}
             >
                 <textarea
@@ -35,6 +37,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                     maxLength={maxLength}
                     value={value}
                     aria-invalid={Boolean(error) || undefined}
+                    aria-describedby={messageId}
                     className={cn(FIELD_BASE, "min-h-20 resize-y px-3.5 py-2.5 text-sm leading-relaxed", error && FIELD_ERROR, className)}
                     {...props}
                 />

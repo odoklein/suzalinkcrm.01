@@ -11,6 +11,8 @@ interface FieldProps {
     required?: boolean;
     /** Right side of the label row (character count, "Optionnel", a link). */
     aside?: ReactNode;
+    /** id for the hint/error line; point the control's aria-describedby at it. */
+    messageId?: string;
     className?: string;
     children: ReactNode;
 }
@@ -20,7 +22,7 @@ interface FieldProps {
  * Input, Textarea and Select already render their own label; wrap anything
  * else (date pickers, chip groups, custom selects) in Field.
  */
-export function Field({ label, htmlFor, hint, error, required, aside, className, children }: FieldProps) {
+export function Field({ label, htmlFor, hint, error, required, aside, messageId, className, children }: FieldProps) {
     return (
         <div className={cn("w-full", className)}>
             {(label || aside) && (
@@ -39,7 +41,7 @@ export function Field({ label, htmlFor, hint, error, required, aside, className,
                 </div>
             )}
             {children}
-            <FieldMessage hint={hint} error={error} />
+            <FieldMessage id={messageId} hint={hint} error={error} />
         </div>
     );
 }

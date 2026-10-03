@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useId } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EYEBROW, FOCUS_RING } from "./recipes";
+import { useOverlay } from "./useOverlay";
 
 // ============================================
 // DRAWER COMPONENT
@@ -54,39 +56,19 @@ export function Drawer({
     headerCentered = false,
     modal = true,
 }: DrawerProps) {
-    const drawerRef = useRef<HTMLDivElement>(null);
+    // Modal drawers join the overlay stack: Escape closes the top layer only,
+    // scroll lock is counted, focus is trapped and handed back on close.
+    const drawerRef = useOverlay<HTMLDivElement>({
+        open: isOpen && modal,
+        onClose,
+        closeOnEscape,
+    });
+    const titleId = useId();
 
-    // Handle ESC key
-    const handleKeyDown = useCallback(
-        (e: KeyboardEvent) => {
-            if (e.key === "Escape" && closeOnEscape) {
-                onClose();
-            }
-        },
-        [closeOnEscape, onClose]
-    );
-
-    // Lock body scroll when drawer is open
+    // A non-modal side panel only takes focus when it opens.
     useEffect(() => {
-        if (isOpen && modal) {
-            document.body.style.overflow = "hidden";
-            document.addEventListener("keydown", handleKeyDown);
-        } else {
-            document.body.style.overflow = "";
-        }
-
-        return () => {
-            document.body.style.overflow = "";
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isOpen, handleKeyDown]);
-
-    // Focus trap
-    useEffect(() => {
-        if (isOpen && drawerRef.current) {
-            drawerRef.current.focus();
-        }
-    }, [isOpen]);
+        if (isOpen && !modal) drawerRef.current?.focus({ preventScroll: true });
+    }, [isOpen, modal, drawerRef]);
 
     if (!isOpen) return null;
 
@@ -99,7 +81,7 @@ export function Drawer({
             {/* Overlay */}
             {modal && (
                 <div
-                    className="absolute inset-0 bg-black/30 backdrop-blur-[2px] animate-fade-in cursor-pointer transition-opacity duration-300"
+                    className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fade-in cursor-pointer transition-opacity duration-300"
                     onClick={handleOverlayClickClose}
                     aria-hidden="true"
                 />
@@ -111,9 +93,10 @@ export function Drawer({
                 tabIndex={-1}
                 role="dialog"
                 aria-modal={modal ? "true" : undefined}
-                aria-label={title || "Panneau latéral"}
+                aria-labelledby={title ? titleId : undefined}
+                aria-label={title ? undefined : "Panneau latéral"}
                 className={cn(
-                    "fixed top-0 bottom-0 w-full flex flex-col bg-surface shadow-2xl shadow-black/10 z-[81] outline-none",
+                    "fixed top-0 bottom-0 w-full flex flex-col bg-surface shadow-overlay z-[81] outline-none",
                     side === "right"
                         ? "right-0 animate-slide-in-right"
                         : "left-0 animate-slide-in-left",
@@ -128,16 +111,14 @@ export function Drawer({
                         "flex items-center px-6 py-4 border-b border-line-subtle bg-surface sticky top-0 z-10",
                         headerCentered ? "justify-center" : "justify-between"
                     )}>
-                        {showCloseButton && !headerCentered && (
-                            <div className="flex-1 min-w-0 pr-4" />
-                        )}
                         {showCloseButton && headerCentered && (
                             <button
+                                type="button"
                                 onClick={onClose}
                                 aria-label="Fermer le panneau"
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 -m-1 text-ink-4 hover:text-ink hover:bg-surface-3 rounded-lg transition-all duration-150 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                                className={cn("absolute right-4 top-1/2 -translate-y-1/2 p-2 -m-1 text-ink-3 hover:text-ink hover:bg-surface-3 rounded-lg transition-colors duration-150 flex-shrink-0", FOCUS_RING)}
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" aria-hidden />
                             </button>
                         )}
                         <div className={cn(
@@ -145,7 +126,7 @@ export function Drawer({
                             headerCentered ? "text-center pr-10" : "pr-4"
                         )}>
                             {title && (
-                                <h2 className="text-lg font-semibold text-ink truncate leading-tight">
+                                <h2 id={titleId} className="text-lg font-semibold text-ink truncate leading-tight">
                                     {title}
                                 </h2>
                             )}
@@ -157,18 +138,19 @@ export function Drawer({
                         </div>
                         {showCloseButton && !headerCentered && (
                             <button
+                                type="button"
                                 onClick={onClose}
                                 aria-label="Fermer le panneau"
-                                className="p-2 -m-1 text-ink-4 hover:text-ink hover:bg-surface-3 rounded-lg transition-all duration-150 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                                className={cn("p-2 -m-1 text-ink-3 hover:text-ink hover:bg-surface-3 rounded-lg transition-colors duration-150 flex-shrink-0", FOCUS_RING)}
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" aria-hidden />
                             </button>
                         )}
                     </div>
                 )}
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 drawer-scrollbar">
+                <div className="flex-1 overflow-y-auto overscroll-contain p-6 drawer-scrollbar">
                     {children}
                 </div>
 
@@ -211,7 +193,7 @@ export function DrawerSection({ title, children, className }: DrawerSectionProps
     return (
         <div className={cn("space-y-3", className)}>
             {title && (
-                <h3 className="text-sm font-bold text-ink uppercase tracking-wide">
+                <h3 className={EYEBROW}>
                     {title}
                 </h3>
             )}
