@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Next.js Dev (Webpack)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5000
+    },
+    {
+      "name": "Next.js Dev (Turbopack)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:turbo"],
+      "port": 5000
+    },
+    {
+      "name": "Enrichment Worker",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "worker:enrichment"],
+      "port": 0
+    }
+  ]
+}

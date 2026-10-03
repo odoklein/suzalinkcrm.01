@@ -1,0 +1,60 @@
+"use client";
+
+import { Suspense } from "react";
+import { BellRing, Key, Link2, Mail, ShieldCheck, Target, User } from "lucide-react";
+import { SettingsShell, useSettingsSection, type SettingsSectionDef } from "@/components/settings/SettingsUI";
+import {
+    AccountHeaderPills, DesktopNotificationsCard, PersonalInfoCard, ProfileHero, SecuritySection,
+} from "@/components/settings/AccountPanels";
+import { EmailsPanel, IntegrationsPanel, MasterPasswordPanel, TeamGoalsPanel } from "./PlatformPanels";
+
+// ============================================
+// /manager/settings — the manager's own account (profile, alerts, security) and
+// the platform configuration (team objective, transactional emails, Leexi,
+// master password). Sub-pages (statuts, emails de sécurité) stay where they were.
+// ============================================
+
+const SECTIONS: SettingsSectionDef[] = [
+    { id: "profil", label: "Profil", hint: "Photo et coordonnées", icon: User, tone: "indigo", group: "Mon compte" },
+    { id: "alertes", label: "Alertes", hint: "Notifications du bureau", icon: BellRing, tone: "amber", group: "Mon compte" },
+    { id: "securite", label: "Sécurité", hint: "Mot de passe et appareils", icon: ShieldCheck, tone: "violet", group: "Mon compte" },
+    { id: "equipe", label: "Équipe & objectifs", hint: "Quota d'appels, statuts", icon: Target, tone: "emerald", group: "Plateforme" },
+    { id: "emails", label: "Emails & modèles", hint: "Expéditeur, email de RDV", icon: Mail, tone: "indigo", group: "Plateforme" },
+    { id: "integrations", label: "Intégrations", hint: "Leexi", icon: Link2, tone: "teal", group: "Plateforme" },
+    { id: "acces", label: "Accès maître", hint: "Mot de passe maître", icon: Key, tone: "amber", group: "Plateforme" },
+];
+
+function ManagerSettings() {
+    const [active, select] = useSettingsSection(SECTIONS);
+    return (
+        <SettingsShell
+            title="Paramètres"
+            subtitle="Votre compte, et la configuration de la plateforme pour toute l'équipe."
+            pills={<AccountHeaderPills />}
+            sections={SECTIONS}
+            active={active}
+            onSelect={select}
+        >
+            {active === "profil" && (
+                <>
+                    <ProfileHero />
+                    <PersonalInfoCard />
+                </>
+            )}
+            {active === "alertes" && <DesktopNotificationsCard />}
+            {active === "securite" && <SecuritySection />}
+            {active === "equipe" && <TeamGoalsPanel />}
+            {active === "emails" && <EmailsPanel />}
+            {active === "integrations" && <IntegrationsPanel />}
+            {active === "acces" && <MasterPasswordPanel />}
+        </SettingsShell>
+    );
+}
+
+export default function ManagerSettingsPage() {
+    return (
+        <Suspense fallback={null}>
+            <ManagerSettings />
+        </Suspense>
+    );
+}

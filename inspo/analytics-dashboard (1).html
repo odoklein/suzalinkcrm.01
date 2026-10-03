@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaptainProspect — Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f6f8; --white: #ffffff;
+  --border: #e8eaef; --border2: #d4d7e0;
+  --text: #111827; --text2: #4b5563; --text3: #9ca3af; --text4: #d1d5db;
+  --blue: #2563eb; --blue-l: #eff4ff; --blue-m: #dbeafe;
+  --green: #059669; --green-l: #ecfdf5;
+  --red: #dc2626; --red-l: #fef2f2;
+  --orange: #d97706; --orange-l: #fffbeb;
+  --purple: #7c3aed; --purple-l: #f5f3ff;
+  --r: 12px; --rs: 8px; --rx: 6px;
+  --sh: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md: 0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --sw: 232px; --font: 'Plus Jakarta Sans', sans-serif;
+}
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* SIDEBAR */
+.sb { width: var(--sw); background: var(--white); border-right: 1px solid var(--border); position: fixed; top:0;left:0;bottom:0; display:flex; flex-direction:column; z-index:200; }
+.sb-logo { padding:18px 16px 14px; display:flex; align-items:center; gap:9px; border-bottom:1px solid var(--border); }
+.sb-mark { width:30px;height:30px; background:var(--blue); border-radius:8px; display:flex;align-items:center;justify-content:center; }
+.sb-mark svg { width:16px;height:16px; fill:white; }
+.sb-word { font-weight:800; font-size:14.5px; letter-spacing:-.02em; }
+.sb-inner { flex:1; overflow-y:auto; padding:10px 8px; }
+.nv-sec { font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); padding:10px 8px 5px; }
+.nv { display:flex;align-items:center;gap:8px; padding:8px 10px; border-radius:var(--rs); cursor:pointer; color:var(--text2); font-size:13.5px; font-weight:500; transition:all .15s; user-select:none; position:relative; }
+.nv:hover { background:var(--bg); color:var(--text); }
+.nv.on { background:var(--blue-l); color:var(--blue); font-weight:600; }
+.nv svg { width:16px;height:16px; flex-shrink:0; }
+.nv-badge { margin-left:auto; font-size:11px; font-weight:700; background:var(--blue); color:white; padding:1px 6px; border-radius:20px; }
+.nv-badge.or { background:var(--orange); }
+.sb-foot { padding:10px 8px 14px; border-top:1px solid var(--border); }
+.u-row { display:flex;align-items:center;gap:9px; padding:9px 10px; border-radius:var(--rs); cursor:pointer; transition:background .15s; }
+.u-row:hover { background:var(--bg); }
+.u-av { width:30px;height:30px;border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex;align-items:center;justify-content:center; font-size:11.5px;font-weight:700;color:white;flex-shrink:0; }
+.u-name { font-size:13px;font-weight:600;line-height:1.3; }
+.u-role { font-size:11.5px;color:var(--text3); }
+
+/* MAIN */
+.mn { margin-left:var(--sw); flex:1; display:flex; flex-direction:column; min-height:100vh; }
+.tb { background:var(--white); border-bottom:1px solid var(--border); height:54px; display:flex;align-items:center; padding:0 28px; gap:10px; position:sticky;top:0;z-index:100; }
+.bc { display:flex;align-items:center;gap:5px; font-size:13px; color:var(--text3); }
+.bc b { color:var(--text);font-weight:600; }
+.tb-r { margin-left:auto; display:flex;align-items:center;gap:8px; }
+.ib { width:34px;height:34px; border:1px solid var(--border); border-radius:var(--rs); background:white; display:flex;align-items:center;justify-content:center; cursor:pointer; transition:all .15s; color:var(--text2); }
+.ib:hover { background:var(--bg); border-color:var(--border2); }
+.ib svg { width:16px;height:16px; }
+.nd { position:relative; }
+.nd::after { content:''; position:absolute;top:6px;right:6px; width:7px;height:7px; background:var(--red); border-radius:50%; border:1.5px solid white; }
+
+/* CONTENT */
+.ct { padding:26px 28px 48px; flex:1; }
+.ph { display:flex;align-items:flex-start;justify-content:space-between; margin-bottom:22px; gap:16px; flex-wrap:wrap; }
+.pt { font-family:'Instrument Serif',serif; font-style:italic; font-size:24px; letter-spacing:-.02em; }
+.ps { font-size:13px; color:var(--text3); margin-top:2px; font-family:var(--font); font-style:normal; }
+.ha { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.dr { display:flex;align-items:center;gap:7px; background:white; border:1px solid var(--border); padding:7px 12px; border-radius:var(--rs); font-size:13px;font-weight:500; cursor:pointer; transition:border-color .15s; }
+.dr:hover { border-color:var(--border2); }
+.dr svg { width:14px;height:14px; color:var(--text3); }
+.btn { display:flex;align-items:center;gap:6px; padding:8px 14px; border-radius:var(--rs); font-size:13px;font-weight:600; cursor:pointer; border:none; font-family:var(--font); transition:all .15s; line-height:1; }
+.btn-p { background:var(--blue); color:white; }
+.btn-p:hover { background:#1d4ed8; box-shadow:0 4px 14px rgba(37,99,235,.3); }
+.btn-o { background:white; border:1px solid var(--border); color:var(--text2); }
+.btn-o:hover { border-color:var(--border2); color:var(--text); }
+.btn svg { width:14px;height:14px; }
+
+/* FILTERS */
+.fr { display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap; }
+.fp { display:flex;align-items:center;gap:7px; background:white; border:1px solid var(--border); border-radius:var(--rs); padding:7px 12px; font-size:13px; cursor:pointer; transition:all .15s; min-width:160px; }
+.fp:hover { border-color:var(--border2); }
+.fp-l { font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;display:block; }
+.fp-v { font-weight:600;font-size:13px; }
+.fp svg { width:13px;height:13px;color:var(--text3);margin-left:auto;flex-shrink:0; }
+
+/* AI BANNER */
+.ai-b { background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 55%,#7c3aed 100%); border-radius:var(--r); padding:20px 24px; margin-bottom:24px; color:white; position:relative; overflow:hidden; box-shadow:var(--sh-md); }
+.ai-b::before { content:''; position:absolute;inset:0; background:radial-gradient(ellipse at 80% 20%, rgba(255,255,255,.06) 0%, transparent 60%); pointer-events:none; }
+.ai-bh { display:flex;align-items:center;gap:10px;margin-bottom:12px; }
+.ai-chip { display:flex;align-items:center;gap:5px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2); border-radius:20px; padding:3px 10px; font-size:11.5px;font-weight:700;letter-spacing:.03em; }
+.ai-dot { width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.2)} }
+.ai-bh-t { font-size:13px;font-weight:700;opacity:.9; }
+.ai-txt { font-size:13.5px;line-height:1.75;opacity:.92;max-width:820px; transition:opacity .4s; }
+.ai-txt strong { font-weight:700; }
+.ai-hl { display:flex;gap:10px;margin-top:16px;flex-wrap:wrap; }
+.ai-hl-item { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:var(--rs); padding:8px 14px; font-size:12px; display:flex;align-items:center;gap:7px; }
+.ai-hl-val { font-weight:800;font-size:17px; }
+.ai-hl-label { font-size:10.5px;opacity:.75; }
+.ai-regen { position:absolute;top:20px;right:20px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:var(--rs); padding:6px 12px; color:white; font-size:12px;font-weight:600; cursor:pointer; display:flex;align-items:center;gap:5px; transition:background .15s; font-family:var(--font); }
+.ai-regen:hover { background:rgba(255,255,255,.22); }
+.ai-regen svg { width:12px;height:12px; }
+
+/* STAT CARDS */
+.sg { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.sc { background:white; border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; box-shadow:var(--sh); transition:all .18s; position:relative; overflow:hidden; }
+.sc:hover { box-shadow:var(--sh-md); border-color:var(--border2); transform:translateY(-1px); }
+.sc-top { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px; }
+.sc-ico { width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center; }
+.sc-ico svg { width:17px;height:17px; }
+.sc-badge { font-size:11.5px;font-weight:700;padding:3px 7px;border-radius:6px;display:flex;align-items:center;gap:2px; }
+.b-up { background:var(--green-l);color:var(--green); }
+.b-dn { background:var(--red-l);color:var(--red); }
+.b-fl { background:var(--bg);color:var(--text3); }
+.sc-val { font-size:30px;font-weight:800;letter-spacing:-.04em;line-height:1;margin-bottom:3px; }
+.sc-val sup { font-size:14px;font-weight:600;vertical-align:super;color:var(--text2);letter-spacing:0; }
+.sc-lbl { font-size:12.5px;color:var(--text3);font-weight:500; }
+.sc-prog { margin-top:12px; }
+.sc-prog-bar { height:4px;background:#f0f2f5;border-radius:2px;overflow:hidden;margin-top:5px; }
+.sc-prog-fill { height:100%;border-radius:2px; }
+.sc-prog-lbl { font-size:11px;color:var(--text3);display:flex;justify-content:space-between; }
+.spark { margin-top:10px;height:34px; }
+.spark svg { width:100%;height:100%; }
+
+/* MISSIONS */
+.ms { margin-bottom:20px; }
+.sec-hd { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+.sec-t { font-size:15px;font-weight:700; }
+.sec-s { font-size:12.5px;color:var(--text3);margin-top:1px; }
+.see-all { font-size:13px;font-weight:600;color:var(--blue);cursor:pointer; }
+.see-all:hover { opacity:.8; }
+.mg { display:grid;grid-template-columns:repeat(3,1fr);gap:14px; }
+.mc { background:white;border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--sh);transition:all .18s; }
+.mc:hover { box-shadow:var(--sh-md);border-color:var(--border2);transform:translateY(-1px); }
+.mc-top { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px; }
+.mc-name { font-size:14px;font-weight:700; }
+.mc-client { font-size:12px;color:var(--text3);margin-top:1px; }
+.mc-status { font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0; }
+.st-on { background:var(--green-l);color:var(--green); }
+.st-pause { background:var(--orange-l);color:var(--orange); }
+.mc-stats { display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px; }
+.mc-stat { text-align:center;padding:8px 4px;background:var(--bg);border-radius:var(--rs); }
+.mc-sv { font-size:17px;font-weight:800;letter-spacing:-.03em; }
+.mc-sl { font-size:10.5px;color:var(--text3);margin-top:1px; }
+.mc-prog-lbl { display:flex;justify-content:space-between;font-size:11.5px;color:var(--text3);margin-bottom:5px; }
+.pbar { height:6px;background:#f0f2f5;border-radius:3px;overflow:hidden; }
+.pfill { height:100%;border-radius:3px; }
+.mc-sdrs { display:flex;align-items:center;gap:5px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border); }
+.mc-sdrs-l { font-size:11.5px;color:var(--text3); }
+.av-stack { display:flex;margin-left:6px; }
+.av-sm { width:22px;height:22px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;margin-left:-6px; }
+.av-sm:first-child { margin-left:0; }
+
+/* CARD */
+.card { background:white;border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;box-shadow:var(--sh); }
+.ch { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px; }
+.ct2 { font-size:14.5px;font-weight:700; }
+.cs { font-size:12px;color:var(--text3);margin-top:2px; }
+.ca { display:flex;gap:6px; }
+.tabs { display:flex;background:var(--bg);border-radius:var(--rs);padding:3px;gap:2px; }
+.tab { padding:5px 11px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);transition:all .15s; }
+.tab.on { background:white;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.leg { display:flex;gap:14px;margin-bottom:12px; }
+.leg-i { display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);font-weight:500; }
+.leg-d { width:8px;height:8px;border-radius:50%; }
+.leg-ln { width:14px;height:2px;border-radius:1px; }
+
+/* RESULT BARS */
+.rb-wrap { display:flex;flex-direction:column;gap:11px; }
+.rb-lbl { display:flex;justify-content:space-between;margin-bottom:5px; }
+.rb-name { font-size:13px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:6px; }
+.rb-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.rb-cnt { font-size:13px;font-weight:700; }
+.rb-pct { font-size:11.5px;color:var(--text3);margin-left:4px; }
+.rbar-bg { height:5px;background:#f0f2f5;border-radius:3px;overflow:hidden; }
+.rbar-f { height:100%;border-radius:3px; }
+.kpis { display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border); }
+.kpi { flex:1;background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center; }
+.kpi-v { font-size:17px;font-weight:800;letter-spacing:-.03em; }
+.kpi-l { font-size:10.5px;color:var(--text3);margin-top:1px; }
+
+/* CHARTS ROW */
+.cr { display:grid;grid-template-columns:1.65fr 1fr;gap:16px;margin-bottom:20px; }
+.cr2 { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px; }
+
+/* SDR TABLE */
+.sdr-t { width:100%;border-collapse:collapse; }
+.sdr-t thead th { padding:9px 14px;text-align:left;font-size:11.5px;font-weight:700;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none; }
+.sdr-t thead th:hover { color:var(--text2); }
+.sdr-t tbody td { padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--border); }
+.sdr-t tbody tr:last-child td { border-bottom:none; }
+.sdr-t tbody tr:hover { background:var(--bg); }
+.sdr-nc { display:flex;align-items:center;gap:9px; }
+.sdr-av { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0; }
+.sdr-fn { font-weight:600; }
+.sdr-rl { font-size:11.5px;color:var(--text3); }
+.mb-w { display:flex;align-items:center;gap:7px; }
+.mb { flex:1;height:5px;background:#f0f2f5;border-radius:3px;overflow:hidden;max-width:80px; }
+.mb-f { height:100%;border-radius:3px;background:var(--blue); }
+.trend { font-size:12px;font-weight:700;display:flex;align-items:center;gap:2px; }
+.t-up { color:var(--green); }
+.t-dn { color:var(--red); }
+
+/* HEATMAP */
+.hm-row { display:flex;align-items:center;gap:8px;margin-bottom:4px; }
+.hm-day { width:64px;font-size:12px;color:var(--text3);font-weight:500;flex-shrink:0;text-align:right; }
+.hm-cells { display:flex;gap:4px;flex:1; }
+.hm-cell { flex:1;height:26px;border-radius:4px;cursor:pointer;transition:transform .15s;position:relative; }
+.hm-cell:hover { transform:scaleY(1.2);z-index:1; }
+.hm-cell:hover::after { content:attr(data-tip); position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%); background:var(--text);color:white;font-family:var(--font); padding:4px 8px;border-radius:5px;font-size:11px;white-space:nowrap;z-index:10; box-shadow:var(--sh); }
+.hm-hrs { display:flex;gap:4px;margin-left:72px;margin-bottom:6px; }
+.hm-hr { flex:1;text-align:center;font-size:10px;color:var(--text4); }
+.hm-leg { display:flex;align-items:center;gap:8px;margin-top:12px; }
+.hm-leg-bar { flex:1;height:5px;background:linear-gradient(90deg,#dbeafe,#2563eb);border-radius:3px; }
+.hm-leg-l { font-size:11px;color:var(--text3); }
+
+/* FUNNEL */
+.fn-wrap { display:flex;flex-direction:column;gap:6px;margin-top:6px; }
+.fn-step { border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;transition:opacity .15s; }
+.fn-step:hover { opacity:.85; }
+.fn-name { font-size:13px;font-weight:600; }
+.fn-sub { font-size:11.5px;opacity:.7;margin-top:1px; }
+.fn-r { text-align:right; }
+.fn-v { font-size:20px;font-weight:800;letter-spacing:-.03em; }
+.fn-pct { font-size:11.5px;opacity:.7; }
+.fn-arr { display:flex;justify-content:center;color:var(--text4);font-size:13px;line-height:1; }
+
+/* JOURNAL TABLE */
+.tt { display:flex;align-items:center;gap:9px;margin-bottom:16px;flex-wrap:wrap; }
+.sw { position:relative;flex:1;min-width:200px; }
+.si { position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text3);pointer-events:none; }
+.sin { width:100%;padding:8px 12px 8px 34px; background:var(--bg);border:1px solid var(--border); border-radius:var(--rs);font-size:13px;color:var(--text); outline:none;font-family:var(--font);transition:all .15s; }
+.sin:focus { background:white;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+.fc { display:flex;align-items:center;gap:5px; padding:6px 11px;border-radius:20px; background:var(--bg);border:1px solid var(--border); font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text2); transition:all .15s;white-space:nowrap; }
+.fc:hover { border-color:var(--border2);color:var(--text); }
+.fc.on { background:var(--blue-l);border-color:#bfdbfe;color:var(--blue); }
+.fc-dot { width:6px;height:6px;border-radius:50%; }
+.mla { margin-left:auto; }
+.ri { font-size:12.5px;color:var(--text3); }
+.tw { overflow-x:auto; }
+table.jt { width:100%;border-collapse:collapse; }
+table.jt thead th { padding:9px 14px;text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none; }
+table.jt thead th:hover { color:var(--text2); }
+table.jt thead th.as { color:var(--blue); }
+table.jt tbody td { padding:11px 14px;font-size:13.5px;border-bottom:1px solid var(--border);vertical-align:middle; }
+table.jt tbody tr:last-child td { border-bottom:none; }
+table.jt tbody tr:hover { background:#fafbfc; }
+.cn .n { font-weight:600; }
+.cn .co { font-size:12px;color:var(--text3); }
+.rp { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap; }
+.rp-pas { background:var(--bg);color:var(--text3); }
+.rp-disq { background:var(--red-l);color:var(--red); }
+.rp-rpp { background:var(--orange-l);color:var(--orange); }
+.rp-std { background:var(--purple-l);color:var(--purple); }
+.rp-ok { background:var(--green-l);color:var(--green); }
+.rp-mtg { background:var(--blue-l);color:var(--blue); }
+.sb2 { display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500; }
+.sb2-dot { width:7px;height:7px;border-radius:50%; }
+.ac-c { display:flex;gap:4px; }
+.ab { width:26px;height:26px;border-radius:5px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--text3); }
+.ab:hover { background:white;border-color:var(--border2);color:var(--text2); }
+.ab svg { width:13px;height:13px; }
+.dt { color:var(--text3);font-size:12.5px;font-variant-numeric:tabular-nums; }
+
+/* PAGINATION */
+.pg { display:flex;align-items:center;justify-content:space-between;margin-top:16px; }
+.pg-info { font-size:12.5px;color:var(--text3); }
+.pg-btns { display:flex;gap:4px; }
+.pb { width:30px;height:30px;border-radius:var(--rx);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;background:white;border:1px solid var(--border);color:var(--text2);transition:all .15s; }
+.pb:hover:not(.pba) { border-color:var(--border2);color:var(--text); }
+.pba { background:var(--blue);border-color:var(--blue);color:white; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes fillW { from{width:0!important} }
+.sc,.mc { animation:fadeUp .4s ease both; }
+.sc:nth-child(1){animation-delay:.04s} .sc:nth-child(2){animation-delay:.08s} .sc:nth-child(3){animation-delay:.12s} .sc:nth-child(4){animation-delay:.16s}
+.mc:nth-child(1){animation-delay:.08s} .mc:nth-child(2){animation-delay:.12s} .mc:nth-child(3){animation-delay:.16s}
+.rbar-f,.pfill,.sc-prog-fill,.mb-f { animation:fillW 1.2s cubic-bezier(.4,0,.2,1) both; }
+::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@media(max-width:1200px){.sg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:repeat(2,1fr)}.cr,.cr2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-mark"><svg viewBox="0 0 16 16"><path d="M8 1L2 5v8l6 2 6-2V5L8 1zm0 2.3l3.8 2.5v5.8l-3.8 1.3-3.8-1.3V5.8L8 3.3z"/></svg></div>
+    <span class="sb-word">CaptainProspect</span>
+  </div>
+  <div class="sb-inner">
+    <div class="nv-sec">Général</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h6v6H1zm0 8h6v6H1zm8-8h6v6H9zm0 8h6v6H9z" opacity=".7"/></svg> Accueil</div>
+    <div class="nv-sec">Prospection</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M7 1a6 6 0 100 12A6 6 0 007 1zm0 2a4 4 0 110 8A4 4 0 017 3zm7.3 9.7l-2.1-2.1a.7.7 0 00-1 1l2.1 2.1a.7.7 0 001-1z"/></svg> Listes &amp; Prospection</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1h10l2 2v12H2V1zm3 5h6v1H5zm0 2h6v1H5zm0 2h4v1H5zM2 3v11h11V4l-1-1H3z"/></svg> Missions <span class="nv-badge">3</span></div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2a1 1 0 00-1 1v10a1 1 0 001 1h2v-1H3V3h10v10h-2v1h2a1 1 0 001-1V3a1 1 0 00-1-1H3zm4 5v5h2V7H7zm-3 3v2h2v-2H4zm6-2v4h2V8h-2z"/></svg> Appels</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.75 10.5h-1.5v-5h1.5v5zm0-6.5h-1.5V3.5h1.5V5z"/></svg> Enrichir téléphones</div>
+    <div class="nv-sec">Suivi</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-4.5 6A4.5 4.5 0 018 9.5a4.5 4.5 0 014.5 4.5h-9z"/></svg> Clients</div>
+    <div class="nv on"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 12h2v2H1zm3-4h2v6H4zm3-3h2v9H7zm3-3h2v12h-2zm3-1h2v13h-2z"/></svg> Statistiques</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h14v1.6L8 9.3 1 2.6V1zm0 3.1L7 9a1 1 0 002 0l6-4.9V14H1V4.1z"/></svg> Emails <span class="nv-badge or">5</span></div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h10v9H2zm9 9v1l2 2v-5H2v2h9z"/></svg> Messages</div>
+  </div>
+  <div class="sb-foot">
+    <div class="u-row">
+      <div class="u-av">JF</div>
+      <div><div class="u-name">Jean-François</div><div class="u-role">Manager</div></div>
+      <svg style="margin-left:auto;width:14px;height:14px;color:var(--text3)" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l5 5-5 5"/></svg>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="mn">
+  <nav class="tb">
+    <div class="bc"><span>Manager</span><span style="color:var(--border2);margin:0 2px">/</span><b>Analytics</b></div>
+    <div class="tb-r">
+      <div class="ib nd" title="Notifications"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a5.5 5.5 0 00-5.5 5.5V9l-1 2h13l-1-2V6.5A5.5 5.5 0 008 1zm-1 13a1 1 0 002 0H7z"/></svg></div>
+      <div class="ib" title="Paramètres"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 5a3 3 0 100 6 3 3 0 000-6zm-1.5 3a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM6.3.8L5.7 3a6 6 0 00-1.4.8L2.1 2.9.1 6.4l1.7 1.3a6 6 0 000 1.6L.1 10.6l2 3.5 2.2-.9c.4.3.9.6 1.4.8l.6 2.2h3l.6-2.2c.5-.2 1-.5 1.4-.8l2.2.9 2-3.5-1.7-1.3a6 6 0 000-1.6l1.7-1.3-2-3.5-2.2.9A6 6 0 009.3 3L8.7.8h-2.4z"/></svg></div>
+    </div>
+  </nav>
+
+  <div class="ct">
+
+    <!-- PAGE HEADER -->
+    <div class="ph">
+      <div>
+        <div class="pt">Performance &amp; Analytics</div>
+        <div class="ps">Suivi des appels, missions et résultats — 28 jan. au 27 fév. 2026</div>
+      </div>
+      <div class="ha">
+        <div class="dr">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="11" rx="1.5"/><path d="M1 5.5h12M4.5 1v2M9.5 1v2"/></svg>
+          28 jan. → 27 fév. 2026
+        </div>
+        <button class="btn btn-o">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v10M2 8l5 5 5-5"/></svg>
+          Exporter
+        </button>
+        <button class="btn btn-p">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1.5 7A5.5 5.5 0 0112.5 7M10 5l2.5 2L15 5"/></svg>
+          Actualiser
+        </button>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="fr">
+      <div class="fp"><div><span class="fp-l">Mission</span><span class="fp-v">UPIKAJOB 1</span></div><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4H2z"/></svg></div>
+      <div class="fp"><div><span class="fp-l">SDR / Équipe</span><span class="fp-v">Toute l'équipe</span></div><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4H2z"/></svg></div>
+      <div class="fp"><div><span class="fp-l">Clients</span><span class="fp-v">Tous les clients</span></div><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4H2z"/></svg></div>
+      <div class="fp" style="min-width:130px"><div><span class="fp-l">Période</span><span class="fp-v">Ce mois</span></div><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4H2z"/></svg></div>
+    </div>
+
+    <!-- AI SUMMARY -->
+    <div class="ai-b">
+      <div class="ai-bh">
+        <div class="ai-chip"><div class="ai-dot"></div>Analyse IA</div>
+        <span class="ai-bh-t">Résumé de la période — 28 jan. au 27 fév. 2026</span>
+      </div>
+      <button class="ai-regen" onclick="regenAI()">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6a4 4 0 014-4 4 4 0 013.5 2M10 6a4 4 0 01-4 4 4 4 0 01-3.5-2M2 2v3h3M10 7v3H7"/></svg>
+        Rafraîchir
+      </button>
+      <div class="ai-txt" id="aiTxt">Sur cette période, l'équipe a réalisé <strong>221 appels</strong> pour la mission <strong>UPIKAJOB 1</strong>, concentrés principalement le <strong>mardi et jeudi entre 10h–12h</strong>. Le taux de non-réponse est <strong>élevé à 81%</strong> — supérieur à la moyenne du secteur. <strong>Mathieu Deville</strong> représente ~65% du volume. Aucun meeting n'a été booké : une <strong>révision du script et des créneaux est recommandée</strong>. Les <strong>12 rappels en attente</strong> sont une opportunité immédiate à saisir cette semaine.</div>
+      <div class="ai-hl">
+        <div class="ai-hl-item">⚠️<div><div class="ai-hl-val">81%</div><div class="ai-hl-label">Pas de réponse</div></div></div>
+        <div class="ai-hl-item">📞<div><div class="ai-hl-val">221</div><div class="ai-hl-label">Appels passés</div></div></div>
+        <div class="ai-hl-item">🔁<div><div class="ai-hl-val">12</div><div class="ai-hl-label">Rappels à traiter</div></div></div>
+        <div class="ai-hl-item">📅<div><div class="ai-hl-val">0</div><div class="ai-hl-label">Meetings bookés</div></div></div>
+        <div class="ai-hl-item">🏆<div><div class="ai-hl-val">Mathieu</div><div class="ai-hl-label">Top SDR</div></div></div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--blue-l)"><svg viewBox="0 0 16 16" fill="none" stroke="#2563eb" stroke-width="1.8"><path d="M3 2a1 1 0 00-1 1v2a9 9 0 009 9h2a1 1 0 001-1v-2l-3-1-1.5 1.5A7 7 0 015.5 7L7 5.5 6 2H3z"/></svg></div>
+          <span class="sc-badge b-up">↑ +12%</span>
+        </div>
+        <div class="sc-val">221</div>
+        <div class="sc-lbl">Total Appels</div>
+        <div class="spark"><svg viewBox="0 0 140 34" preserveAspectRatio="none">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".15"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,28 C28,24 56,18 84,14 C112,10 126,16 140,12 L140,34 L0,34Z" fill="url(#g1)"/>
+          <path d="M0,28 C28,24 56,18 84,14 C112,10 126,16 140,12" fill="none" stroke="#2563eb" stroke-width="2"/>
+        </svg></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--green-l)"><svg viewBox="0 0 16 16" fill="none" stroke="#059669" stroke-width="1.8"><rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14M5 1v2M11 1v2"/></svg></div>
+          <span class="sc-badge b-fl">— 0</span>
+        </div>
+        <div class="sc-val">0</div>
+        <div class="sc-lbl">Meetings Bookés</div>
+        <div class="sc-prog">
+          <div class="sc-prog-lbl"><span>Objectif : 5</span><span>0 / 5</span></div>
+          <div class="sc-prog-bar"><div class="sc-prog-fill" style="width:0%;background:var(--green)"></div></div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:#fdf4ff"><svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" stroke-width="1.8"><path d="M2 12L6 8l3 3 5-7"/></svg></div>
+          <span class="sc-badge b-dn">↓ -2%</span>
+        </div>
+        <div class="sc-val">0<sup>%</sup></div>
+        <div class="sc-lbl">Taux de Conversion</div>
+        <div class="sc-prog">
+          <div class="sc-prog-lbl"><span>Cible : 3%</span><span>0 / 221</span></div>
+          <div class="sc-prog-bar"><div class="sc-prog-fill" style="width:0%;background:var(--purple)"></div></div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--orange-l)"><svg viewBox="0 0 16 16" fill="none" stroke="#d97706" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div>
+          <span class="sc-badge b-up">↑ +8%</span>
+        </div>
+        <div class="sc-val">0<sup>min</sup></div>
+        <div class="sc-lbl">Temps de Talk</div>
+        <div class="spark"><svg viewBox="0 0 140 34" preserveAspectRatio="none">
+          <path d="M0,32 L140,32" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="4 3"/>
+        </svg></div>
+      </div>
+    </div>
+
+    <!-- MISSIONS -->
+    <div class="ms">
+      <div class="sec-hd">
+        <div><div class="sec-t">État des Missions</div><div class="sec-s">Performance et avancement par mission</div></div>
+        <span class="see-all">Toutes les missions →</span>
+      </div>
+      <div class="mg">
+        <div class="mc">
+          <div class="mc-top">
+            <div><div class="mc-name">UPIKAJOB 1</div><div class="mc-client">Client : Upikajob</div></div>
+            <span class="mc-status st-on">● Actif</span>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--blue)">221</div><div class="mc-sl">Appels</div></div>
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--orange)">12</div><div class="mc-sl">Rappels</div></div>
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--green)">0</div><div class="mc-sl">Meetings</div></div>
+          </div>
+          <div class="mc-prog-lbl"><span>Objectif meetings</span><span style="font-weight:700;color:var(--text)">0 / 5</span></div>
+          <div class="pbar"><div class="pfill" style="width:0%;background:var(--blue)"></div></div>
+          <div class="mc-sdrs"><span class="mc-sdrs-l">SDRs :</span><div class="av-stack"><div class="av-sm" style="background:#2563eb" title="Mathieu">MD</div><div class="av-sm" style="background:#059669" title="Rayan">R</div><div class="av-sm" style="background:#7c3aed" title="Anaïs">A</div></div></div>
+        </div>
+        <div class="mc">
+          <div class="mc-top">
+            <div><div class="mc-name">TECHSALES Q1</div><div class="mc-client">Client : TechSales Corp</div></div>
+            <span class="mc-status st-on">● Actif</span>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--blue)">148</div><div class="mc-sl">Appels</div></div>
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--orange)">9</div><div class="mc-sl">Rappels</div></div>
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--green)">3</div><div class="mc-sl">Meetings</div></div>
+          </div>
+          <div class="mc-prog-lbl"><span>Objectif meetings</span><span style="font-weight:700;color:var(--text)">3 / 8</span></div>
+          <div class="pbar"><div class="pfill" style="width:37%;background:var(--orange)"></div></div>
+          <div class="mc-sdrs"><span class="mc-sdrs-l">SDRs :</span><div class="av-stack"><div class="av-sm" style="background:#2563eb">MD</div><div class="av-sm" style="background:#d97706">LM</div></div></div>
+        </div>
+        <div class="mc">
+          <div class="mc-top">
+            <div><div class="mc-name">IMMO-PRO 2026</div><div class="mc-client">Client : Immobilière 3P</div></div>
+            <span class="mc-status st-pause">⏸ En pause</span>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--blue)">87</div><div class="mc-sl">Appels</div></div>
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--orange)">5</div><div class="mc-sl">Rappels</div></div>
+            <div class="mc-stat"><div class="mc-sv" style="color:var(--green)">2</div><div class="mc-sl">Meetings</div></div>
+          </div>
+          <div class="mc-prog-lbl"><span>Objectif meetings</span><span style="font-weight:700;color:var(--text)">2 / 4</span></div>
+          <div class="pbar"><div class="pfill" style="width:50%;background:var(--green)"></div></div>
+          <div class="mc-sdrs"><span class="mc-sdrs-l">SDRs :</span><div class="av-stack"><div class="av-sm" style="background:#059669">RY</div><div class="av-sm" style="background:#7c3aed">AN</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="cr">
+      <div class="card">
+        <div class="ch">
+          <div><div class="ct2">Volume d'Activité</div><div class="cs">Évolution des appels, rappels et meetings</div></div>
+          <div class="ca"><div class="tabs"><div class="tab on" onclick="swTab(this)">7j</div><div class="tab" onclick="swTab(this)">30j</div><div class="tab" onclick="swTab(this)">90j</div></div></div>
+        </div>
+        <div class="leg">
+          <div class="leg-i"><div class="leg-ln" style="background:var(--blue)"></div>Appels</div>
+          <div class="leg-i"><div class="leg-ln" style="background:var(--orange);border-style:dashed"></div>Rappels</div>
+          <div class="leg-i"><div class="leg-ln" style="background:var(--green)"></div>Meetings</div>
+        </div>
+        <svg viewBox="0 0 560 160" style="width:100%;height:160px" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".1"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0"/></linearGradient>
+            <linearGradient id="gO" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d97706" stop-opacity=".08"/><stop offset="100%" stop-color="#d97706" stop-opacity="0"/></linearGradient>
+          </defs>
+          <line x1="0" y1="40" x2="560" y2="40" stroke="#f0f2f5" stroke-width="1"/>
+          <line x1="0" y1="80" x2="560" y2="80" stroke="#f0f2f5" stroke-width="1"/>
+          <line x1="0" y1="120" x2="560" y2="120" stroke="#f0f2f5" stroke-width="1"/>
+          <path d="M0,8 C60,12 120,26 180,36 C240,46 300,70 360,96 C420,118 480,138 560,146 L560,152 L0,152Z" fill="url(#gB)"/>
+          <path d="M0,8 C60,12 120,26 180,36 C240,46 300,70 360,96 C420,118 480,138 560,146" fill="none" stroke="#2563eb" stroke-width="2.2"/>
+          <path d="M0,96 C100,92 200,88 280,86 C360,84 460,87 560,90" fill="url(#gO)"/>
+          <path d="M0,96 C100,92 200,88 280,86 C360,84 460,87 560,90" fill="none" stroke="#d97706" stroke-width="1.5" stroke-dasharray="5 3"/>
+          <path d="M0,150 L560,150" fill="none" stroke="#059669" stroke-width="1.5"/>
+          <circle cx="0" cy="8" r="3.5" fill="white" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="112" cy="34" r="3.5" fill="white" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="224" cy="62" r="3.5" fill="white" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="336" cy="94" r="3.5" fill="white" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="448" cy="136" r="3.5" fill="white" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="560" cy="146" r="3.5" fill="white" stroke="#2563eb" stroke-width="2"/>
+          <text x="0" y="166" fill="#d1d5db" font-size="10.5" font-family="Plus Jakarta Sans">19 fév.</text>
+          <text x="105" y="166" fill="#d1d5db" font-size="10.5" font-family="Plus Jakarta Sans">20 fév.</text>
+          <text x="215" y="166" fill="#d1d5db" font-size="10.5" font-family="Plus Jakarta Sans">22 fév.</text>
+          <text x="325" y="166" fill="#d1d5db" font-size="10.5" font-family="Plus Jakarta Sans">23 fév.</text>
+          <text x="435" y="166" fill="#d1d5db" font-size="10.5" font-family="Plus Jakarta Sans">24 fév.</text>
+        </svg>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div><div class="ct2">Répartition des Résultats</div><div class="cs">Par type d'issue</div></div>
+          <svg viewBox="0 0 52 52" style="width:50px;height:50px;flex-shrink:0">
+            <circle cx="26" cy="26" r="20" fill="none" stroke="#f0f2f5" stroke-width="7"/>
+            <circle cx="26" cy="26" r="20" fill="none" stroke="#2563eb" stroke-width="7" stroke-dasharray="91.1 34.5" stroke-dashoffset="31.4" transform="rotate(-90 26 26)"/>
+            <circle cx="26" cy="26" r="20" fill="none" stroke="#dc2626" stroke-width="7" stroke-dasharray="13.9 111.7" stroke-dashoffset="-59.7" transform="rotate(-90 26 26)"/>
+            <circle cx="26" cy="26" r="20" fill="none" stroke="#d97706" stroke-width="7" stroke-dasharray="6.8 118.8" stroke-dashoffset="-73.6" transform="rotate(-90 26 26)"/>
+            <circle cx="26" cy="26" r="20" fill="none" stroke="#7c3aed" stroke-width="7" stroke-dasharray="3.9 121.7" stroke-dashoffset="-80.4" transform="rotate(-90 26 26)"/>
+            <text x="26" y="30" text-anchor="middle" fill="#111827" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans">221</text>
+          </svg>
+        </div>
+        <div class="rb-wrap">
+          <div><div class="rb-lbl"><span class="rb-name"><div class="rb-dot" style="background:#2563eb"></div>Pas de réponse</span><span><span class="rb-cnt">180</span><span class="rb-pct">81%</span></span></div><div class="rbar-bg"><div class="rbar-f" style="width:81%;background:#2563eb"></div></div></div>
+          <div><div class="rb-lbl"><span class="rb-name"><div class="rb-dot" style="background:var(--red)"></div>Disqualifié</span><span><span class="rb-cnt">22</span><span class="rb-pct">10%</span></span></div><div class="rbar-bg"><div class="rbar-f" style="width:10%;background:var(--red)"></div></div></div>
+          <div><div class="rb-lbl"><span class="rb-name"><div class="rb-dot" style="background:var(--orange)"></div>Rappel demandé</span><span><span class="rb-cnt">12</span><span class="rb-pct">5%</span></span></div><div class="rbar-bg"><div class="rbar-f" style="width:5%;background:var(--orange)"></div></div></div>
+          <div><div class="rb-lbl"><span class="rb-name"><div class="rb-dot" style="background:var(--purple)"></div>Standard / Mauvais contact</span><span><span class="rb-cnt">7</span><span class="rb-pct">3%</span></span></div><div class="rbar-bg"><div class="rbar-f" style="width:3%;background:var(--purple)"></div></div></div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="kpi-v" style="color:var(--red)">0%</div><div class="kpi-l">Taux intérêt</div></div>
+          <div class="kpi"><div class="kpi-v" style="color:var(--green)">A+</div><div class="kpi-l">Qualité</div></div>
+          <div class="kpi"><div class="kpi-v" style="color:var(--blue)">5.4%</div><div class="kpi-l">Tx. rappel</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SDR TABLE -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="ch">
+        <div><div class="ct2">Performance par SDR</div><div class="cs">Comparatif individuel sur la période</div></div>
+        <button class="btn btn-o" style="font-size:12.5px">Détails →</button>
+      </div>
+      <div class="tw">
+        <table class="sdr-t">
+          <thead><tr><th>SDR</th><th>Appels ↕</th><th>Rappels ↕</th><th>Meetings ↕</th><th>Disqualifiés ↕</th><th>Taux contact ↕</th><th>Tendance</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="sdr-nc"><div class="sdr-av" style="background:#2563eb">MD</div><div><div class="sdr-fn">Mathieu Deville</div><div class="sdr-rl">SDR Senior</div></div></div></td>
+              <td><div class="mb-w"><strong>143</strong><div class="mb"><div class="mb-f" style="width:100%"></div></div></div></td>
+              <td>9</td><td style="color:var(--green);font-weight:700">0</td><td>12</td>
+              <td><div class="mb-w">19%<div class="mb"><div class="mb-f" style="width:19%;background:var(--green)"></div></div></div></td>
+              <td><span class="trend t-up">↑ +14%</span></td>
+            </tr>
+            <tr>
+              <td><div class="sdr-nc"><div class="sdr-av" style="background:#059669">RY</div><div><div class="sdr-fn">Rayan</div><div class="sdr-rl">SDR</div></div></div></td>
+              <td><div class="mb-w"><strong>54</strong><div class="mb"><div class="mb-f" style="width:38%"></div></div></div></td>
+              <td>3</td><td style="color:var(--green);font-weight:700">0</td><td>7</td>
+              <td><div class="mb-w">17%<div class="mb"><div class="mb-f" style="width:17%;background:var(--green)"></div></div></div></td>
+              <td><span class="trend t-dn">↓ -3%</span></td>
+            </tr>
+            <tr>
+              <td><div class="sdr-nc"><div class="sdr-av" style="background:#7c3aed">AN</div><div><div class="sdr-fn">Anaïs</div><div class="sdr-rl">SDR Junior</div></div></div></td>
+              <td><div class="mb-w"><strong>24</strong><div class="mb"><div class="mb-f" style="width:17%"></div></div></div></td>
+              <td>0</td><td style="color:var(--green);font-weight:700">0</td><td>3</td>
+              <td><div class="mb-w">12%<div class="mb"><div class="mb-f" style="width:12%;background:var(--green)"></div></div></div></td>
+              <td><span class="trend t-up">↑ +2%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="cr2">
+      <!-- HEATMAP -->
+      <div class="card">
+        <div class="ch">
+          <div><div class="ct2">Heatmap d'Activité</div><div class="cs">Heures de pointe par jour</div></div>
+          <div class="tabs"><div class="tab on" onclick="swTab(this)">Appels</div><div class="tab" onclick="swTab(this)">Durée</div></div>
+        </div>
+        <div id="hmEl"></div>
+        <div class="hm-leg"><span class="hm-leg-l">Faible</span><div class="hm-leg-bar"></div><span class="hm-leg-l">Élevé</span></div>
+      </div>
+      <!-- FUNNEL -->
+      <div class="card">
+        <div class="ch"><div><div class="ct2">Funnel de Conversion</div><div class="cs">De l'appel au meeting</div></div></div>
+        <div class="fn-wrap">
+          <div class="fn-step" style="background:var(--blue-l)">
+            <div><div class="fn-name" style="color:var(--blue)">Appels passés</div><div class="fn-sub" style="color:var(--blue)">Total tentatives</div></div>
+            <div class="fn-r"><div class="fn-v" style="color:var(--blue)">221</div><div class="fn-pct" style="color:var(--blue)">100%</div></div>
+          </div>
+          <div class="fn-arr">↓</div>
+          <div class="fn-step" style="background:var(--orange-l)">
+            <div><div class="fn-name" style="color:var(--orange)">Contacts établis</div><div class="fn-sub" style="color:var(--orange)">Pas de réponse exclu</div></div>
+            <div class="fn-r"><div class="fn-v" style="color:var(--orange)">41</div><div class="fn-pct" style="color:var(--orange)">18.6%</div></div>
+          </div>
+          <div class="fn-arr">↓</div>
+          <div class="fn-step" style="background:var(--bg)">
+            <div><div class="fn-name" style="color:var(--text2)">Rappels demandés</div><div class="fn-sub" style="color:var(--text3)">Opportunités tièdes</div></div>
+            <div class="fn-r"><div class="fn-v">12</div><div class="fn-pct" style="color:var(--text3)">5.4%</div></div>
+          </div>
+          <div class="fn-arr">↓</div>
+          <div class="fn-step" style="background:var(--green-l)">
+            <div><div class="fn-name" style="color:var(--green)">Meetings bookés</div><div class="fn-sub" style="color:var(--green)">Objectif final</div></div>
+            <div class="fn-r"><div class="fn-v" style="color:var(--green)">0</div><div class="fn-pct" style="color:var(--green)">0%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div class="card">
+      <div class="ch">
+        <div><div class="ct2">Journal des Appels</div><div class="cs">Historique chronologique</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-o" style="font-size:12.5px">CSV</button>
+          <button class="btn btn-o" style="font-size:12.5px">Excel</button>
+        </div>
+      </div>
+      <div class="tt">
+        <div class="sw">
+          <svg class="si" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          <input class="sin" type="text" placeholder="Rechercher contact, mission, SDR…">
+        </div>
+        <div class="fc on">Tous <span style="background:var(--blue);color:white;padding:1px 5px;border-radius:10px;font-size:10.5px;margin-left:3px">100</span></div>
+        <div class="fc"><span class="fc-dot" style="background:var(--orange)"></span>Rappels</div>
+        <div class="fc"><span class="fc-dot" style="background:var(--red)"></span>Disqualifiés</div>
+        <div class="fc"><span class="fc-dot" style="background:var(--green)"></span>Meetings</div>
+        <div class="fc"><span class="fc-dot" style="background:var(--text3)"></span>Pas de réponse</div>
+        <span class="mla ri">100 résultats</span>
+      </div>
+      <div class="tw">
+        <table class="jt">
+          <thead><tr>
+            <th class="as">Date ↓</th><th>SDR</th><th>Mission</th><th>Contact</th><th>Résultat</th><th>Durée</th><th></th>
+          </tr></thead>
+          <tbody id="jBody"></tbody>
+        </table>
+      </div>
+      <div class="pg">
+        <div class="pg-info">Affichage 1 – 15 sur 100</div>
+        <div class="pg-btns">
+          <div class="pb">‹</div>
+          <div class="pb pba">1</div>
+          <div class="pb">2</div><div class="pb">3</div><div class="pb">4</div><div class="pb">5</div>
+          <div class="pb">›</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// Heatmap
+const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi'],HRS=['8H','9H','10H','11H','12H','13H','14H','15H','16H','17H','18H'];
+const HDATA=[[2,8,15,24,12,3,18,22,10,5,1],[1,6,20,32,14,2,12,18,15,8,2],[3,9,12,18,8,2,14,20,14,7,2],[4,11,18,28,10,4,16,24,12,6,1],[5,13,22,30,16,6,19,14,6,2,0]];
+const MAX=32;
+let h=`<div class="hm-hrs">${HRS.map(x=>`<div class="hm-hr">${x}</div>`).join('')}</div>`;
+HDATA.forEach((row,di)=>{
+  h+=`<div class="hm-row"><div class="hm-day">${DAYS[di]}</div><div class="hm-cells">`;
+  row.forEach((v,hi)=>{const a=0.07+(v/MAX)*0.85;h+=`<div class="hm-cell" style="background:rgba(37,99,235,${a.toFixed(2)})" data-tip="${v} appels à ${8+hi}h"></div>`;});
+  h+=`</div></div>`;
+});
+document.getElementById('hmEl').innerHTML=h;
+
+// Journal
+const SDR_C={'Mathieu Deville':'#2563eb','Rayan':'#059669','Anaïs':'#7c3aed'};
+const ROWS=[
+  {d:'20/02 11:51',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Corinne Chabance',c:'IMMOBILIÈRE 3P',r:'rp-std',l:'Standard'},
+  {d:'20/02 11:22',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Evelyne Prevel',c:'SIERRA AUTOMOTIVE',r:'rp-std',l:'Standard'},
+  {d:'20/02 10:13',s:'Rayan',m:'UPIKAJOB 1',n:'Carole Picard',c:'SIERRA AUTOMOTIVE',r:'rp-std',l:'Standard'},
+  {d:'20/02 14:53',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Sylvie Thaïci-Talpaert',c:'VERSPEIRS',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 12:41',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Sofiane Zobiri',c:'BIOTROPEGAL',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 12:23',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Sylvie Bouchez',c:'SGD PHARMA',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 12:00',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Guillaume Daboville',c:'CZIB',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 11:31',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Daisy Moreau',c:'FILE-R',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 10:56',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Agnès Courchet',c:'FRAKIN FRANCE',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 10:01',s:'Rayan',m:'UPIKAJOB 1',n:'Christophe Cabrero',c:'CIMRAC',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'19/02 15:26',s:'Rayan',m:'UPIKAJOB 1',n:'Jean-François Boulineau',c:'BANNER',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'19/02 15:24',s:'Anaïs',m:'UPIKAJOB 1',n:'Alice Goncalves',c:'GACILHE BEAUTÉ',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'19/02 15:18',s:'Anaïs',m:'UPIKAJOB 1',n:'Berdayes Guillaume',c:'BIXEL',r:'rp-rpp',l:'Rappel Demandé'},
+  {d:'20/02 14:28',s:'Mathieu Deville',m:'UPIKAJOB 1',n:'Reda Jaakou',c:'STRADAL',r:'rp-disq',l:'Disqualifié'},
+  {d:'20/02 10:09',s:'Rayan',m:'UPIKAJOB 1',n:'Nathalie Dupuy',c:'BIXEL',r:'rp-disq',l:'Disqualifié'},
+];
+document.getElementById('jBody').innerHTML=ROWS.map(r=>`
+<tr>
+  <td class="dt">${r.d}</td>
+  <td><div class="sb2"><div class="sb2-dot" style="background:${SDR_C[r.s]||'#9ca3af'}"></div>${r.s}</div></td>
+  <td style="font-size:12.5px;color:var(--blue);font-weight:600">${r.m}</td>
+  <td class="cn"><div class="n">${r.n}</div><div class="co">${r.c}</div></td>
+  <td><span class="rp ${r.r}">${r.l}</span></td>
+  <td class="dt">—</td>
+  <td><div class="ac-c">
+    <div class="ab"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M1 7C2.5 4 4.5 2.5 7 2.5S11.5 4 13 7c-1.5 3-3.5 4.5-6 4.5S2.5 10 1 7z"/></svg></div>
+    <div class="ab"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 2.5l2 2L4 12H2v-2l7.5-7.5z"/></svg></div>
+  </div></td>
+</tr>`).join('');
+
+function swTab(el){el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+document.querySelectorAll('.fc').forEach(c=>{c.addEventListener('click',()=>{c.closest('.tt').querySelectorAll('.fc').forEach(x=>x.classList.remove('on'));c.classList.add('on');});});
+document.querySelectorAll('.pb').forEach(b=>{b.addEventListener('click',function(){if(!isNaN(+this.textContent)){this.closest('.pg-btns').querySelectorAll('.pb').forEach(x=>x.classList.remove('pba'));this.classList.add('pba');}});});
+document.querySelectorAll('.nv').forEach(n=>{n.addEventListener('click',function(){document.querySelectorAll('.nv').forEach(x=>x.classList.remove('on'));this.classList.add('on');});});
+
+const AI_TEXTS=[
+  `Sur cette période, l'équipe a réalisé <strong>221 appels</strong> pour la mission <strong>UPIKAJOB 1</strong>, concentrés principalement le <strong>mardi et jeudi entre 10h–12h</strong>. Le taux de non-réponse est <strong>élevé à 81%</strong> — supérieur à la moyenne du secteur. <strong>Mathieu Deville</strong> représente ~65% du volume. Aucun meeting n'a été booké : une <strong>révision du script et des créneaux est recommandée</strong>. Les <strong>12 rappels en attente</strong> sont une opportunité immédiate à saisir cette semaine.`,
+  `L'analyse révèle un <strong>volume d'appels solide (221)</strong> mais un funnel de conversion bloqué à 0 meeting. Les <strong>12 rappels en attente</strong> sont la priorité immédiate. La heatmap confirme que les <strong>meilleurs créneaux sont 10h–12h mar–jeu</strong>. Rayan affiche une légère baisse (-3%) qui mérite un suivi. Il est conseillé de <strong>réviser le pitch et tester de nouveaux objets d'appel</strong> dès cette semaine.`,
+  `Avec un <strong>taux de contact à 18.6%</strong>, les performances sont dans la norme pour ce secteur. La <strong>qualité des données est excellente (A+)</strong>. Cependant, 22 contacts disqualifiés suggèrent un <strong>ciblage ICP à affiner</strong>. Anaïs (Junior) montre une progression de +2% — un <strong>coaching ciblé</strong> pourrait accélérer ses résultats. Priorité : convertir les rappels en meetings avant fin de semaine.`
+];
+let ai=0;
+function regenAI(){ai=(ai+1)%AI_TEXTS.length;const el=document.getElementById('aiTxt');el.style.opacity='0';setTimeout(()=>{el.innerHTML=AI_TEXTS[ai];el.style.opacity='1';el.style.transition='opacity .4s';},200);}
+</script>
+</body>
+</html>

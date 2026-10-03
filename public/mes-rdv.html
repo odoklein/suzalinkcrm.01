@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaptainProspect — Mes Rendez-vous</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f6f8; --white: #fff;
+  --border: #e8eaef; --border2: #d4d7e0;
+  --text: #111827; --text2: #4b5563; --text3: #9ca3af; --text4: #d1d5db;
+  --blue: #2563eb; --blue-l: #eff4ff; --blue-m: #dbeafe;
+  --green: #059669; --green-l: #ecfdf5; --green-m: #d1fae5;
+  --red: #dc2626; --red-l: #fef2f2; --red-m: #fee2e2;
+  --orange: #d97706; --orange-l: #fffbeb; --orange-m: #fef3c7;
+  --gray-l: #f9fafb; --gray-m: #f3f4f6;
+  --r: 12px; --rs: 8px; --rx: 6px;
+  --sh: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md: 0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --sh-lg: 0 20px 48px rgba(0,0,0,.14),0 8px 20px rgba(0,0,0,.08);
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --sw: 232px;
+}
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── SIDEBAR ── */
+.sb { width: var(--sw); background: var(--white); border-right: 1px solid var(--border); position: fixed; top:0;left:0;bottom:0; display:flex; flex-direction:column; z-index:200; }
+.sb-logo { padding:18px 16px 14px; display:flex; align-items:center; gap:9px; border-bottom:1px solid var(--border); }
+.sb-mark { width:30px;height:30px; background:var(--blue); border-radius:8px; display:flex;align-items:center;justify-content:center; }
+.sb-mark svg { width:16px;height:16px; fill:white; }
+.sb-word { font-weight:800; font-size:14.5px; letter-spacing:-.02em; }
+.sb-inner { flex:1; overflow-y:auto; padding:10px 8px; }
+.nv-sec { font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:10px 8px 5px; }
+.nv { display:flex;align-items:center;gap:8px; padding:8px 10px; border-radius:var(--rs); cursor:pointer; color:var(--text2); font-size:13.5px;font-weight:500; transition:all .15s; user-select:none; }
+.nv:hover { background:var(--bg); color:var(--text); }
+.nv.on { background:var(--blue-l); color:var(--blue); font-weight:600; }
+.nv svg { width:16px;height:16px;flex-shrink:0; }
+.nv-badge { margin-left:auto; font-size:11px;font-weight:700; background:var(--blue); color:white; padding:1px 6px; border-radius:20px; }
+.sb-foot { padding:10px 8px 14px; border-top:1px solid var(--border); }
+.u-row { display:flex;align-items:center;gap:9px; padding:9px 10px; border-radius:var(--rs); cursor:pointer; transition:background .15s; }
+.u-row:hover { background:var(--bg); }
+.u-av { width:30px;height:30px;border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex;align-items:center;justify-content:center; font-size:11.5px;font-weight:700;color:white;flex-shrink:0; }
+.u-name { font-size:13px;font-weight:600;line-height:1.3; }
+.u-role { font-size:11.5px;color:var(--text3); }
+
+/* ── MAIN ── */
+.mn { margin-left: var(--sw); flex:1; display:flex; flex-direction:column; min-height:100vh; }
+.tb { background:var(--white); border-bottom:1px solid var(--border); height:54px; display:flex;align-items:center; padding:0 28px; gap:10px; position:sticky;top:0;z-index:100; }
+.bc { display:flex;align-items:center;gap:5px; font-size:13px;color:var(--text3); }
+.bc b { color:var(--text);font-weight:600; }
+.tb-r { margin-left:auto; display:flex;align-items:center;gap:8px; }
+.ib { width:34px;height:34px; border:1px solid var(--border); border-radius:var(--rs); background:white; display:flex;align-items:center;justify-content:center; cursor:pointer; transition:all .15s;color:var(--text2); }
+.ib:hover { background:var(--bg); border-color:var(--border2); }
+.ib svg { width:16px;height:16px; }
+
+/* ── CONTENT ── */
+.ct { padding:26px 28px 48px; flex:1; }
+.ph { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap; }
+.pt { font-family:'Instrument Serif',serif; font-style:italic; font-size:24px; letter-spacing:-.02em; }
+.ps { font-size:13px;color:var(--text3);margin-top:2px;font-family:var(--font);font-style:normal; }
+.ha { display:flex;align-items:center;gap:8px; }
+.btn { display:flex;align-items:center;gap:6px; padding:8px 14px; border-radius:var(--rs); font-size:13px;font-weight:600; cursor:pointer; border:none; font-family:var(--font); transition:all .15s; line-height:1; }
+.btn-p { background:var(--blue);color:white; }
+.btn-p:hover { background:#1d4ed8; box-shadow:0 4px 14px rgba(37,99,235,.3); }
+.btn-o { background:white;border:1px solid var(--border);color:var(--text2); }
+.btn-o:hover { border-color:var(--border2);color:var(--text); }
+.btn svg { width:14px;height:14px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+
+/* ── SUMMARY STATS ── */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+.stat-mini { background:white; border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; box-shadow:var(--sh); display:flex;align-items:center;gap:12px; transition:all .18s; cursor:default; }
+.stat-mini:hover { box-shadow:var(--sh-md); transform:translateY(-1px); border-color:var(--border2); }
+.stat-mini-ico { width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.stat-mini-ico svg { width:16px;height:16px; }
+.stat-mini-val { font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1; }
+.stat-mini-lbl { font-size:12px;color:var(--text3);margin-top:1px; }
+
+/* ── FILTER TABS ── */
+.filter-tabs { display:flex;gap:4px;margin-bottom:20px;background:white;border:1px solid var(--border);border-radius:var(--r);padding:5px;width:fit-content;box-shadow:var(--sh); }
+.ftab { padding:7px 14px; border-radius:var(--rs); font-size:13px;font-weight:600;cursor:pointer;color:var(--text3);transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap; }
+.ftab:hover { color:var(--text2);background:var(--bg); }
+.ftab.on { background:var(--blue);color:white; box-shadow:0 2px 8px rgba(37,99,235,.25); }
+.ftab-badge { font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:20px;background:rgba(255,255,255,.25); }
+.ftab:not(.on) .ftab-badge { background:var(--border);color:var(--text3); }
+
+/* ── RDV CARD ── */
+.rdv-list { display:flex;flex-direction:column;gap:12px; }
+.rdv-card {
+  background:white; border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--sh);
+  transition:all .18s; overflow:hidden;
+  animation:fadeUp .35s ease both;
+}
+.rdv-card:hover { box-shadow:var(--sh-md); border-color:var(--border2); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+.rdv-card-top {
+  display:flex;align-items:stretch;gap:0;
+  border-bottom:1px solid var(--border);
+}
+.rdv-date-col {
+  padding:16px 18px;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:80px; background:var(--bg);
+  flex-shrink:0;
+}
+.rdv-day { font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1; }
+.rdv-month { font-size:11.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:1px; }
+.rdv-time { font-size:12px;font-weight:600;color:var(--blue);margin-top:5px; }
+
+.rdv-main { flex:1; padding:14px 18px; display:flex;flex-direction:column;gap:10px; }
+.rdv-row1 { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.rdv-status { font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;flex-shrink:0; }
+.s-upcoming { background:var(--green-l);color:var(--green); }
+.s-past { background:var(--gray-m);color:var(--text3); }
+.s-rescheduled { background:var(--orange-l);color:var(--orange); }
+.s-cancelled { background:var(--red-l);color:var(--red); }
+.rdv-mission { font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:2px 8px;border-radius:4px; }
+.rdv-campaign { font-size:12px;font-weight:500;color:var(--text3); }
+
+.rdv-row2 { display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap; }
+.rdv-contact { display:flex;align-items:center;gap:10px; }
+.rdv-av { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0; }
+.rdv-contact-name { font-size:14px;font-weight:700;line-height:1.2; }
+.rdv-contact-title { font-size:12px;color:var(--text3); }
+.rdv-sep { width:1px;background:var(--border);align-self:stretch;flex-shrink:0; }
+.rdv-company { display:flex;flex-direction:column;gap:2px; }
+.rdv-company-name { font-size:13.5px;font-weight:600; }
+.rdv-company-meta { font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px;flex-wrap:wrap; }
+.rdv-company-dot { width:3px;height:3px;border-radius:50%;background:var(--text4);flex-shrink:0; }
+
+.rdv-links { display:flex;gap:6px;margin-top:2px;flex-wrap:wrap; }
+.rdv-link { display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--blue);text-decoration:none;padding:2px 7px;background:var(--blue-l);border-radius:4px;transition:all .12s; }
+.rdv-link:hover { background:var(--blue-m); }
+.rdv-link svg { width:11px;height:11px;flex-shrink:0; }
+
+.rdv-note { font-size:12.5px;color:var(--text2);background:var(--gray-l);border-left:3px solid var(--border2);padding:8px 12px;border-radius:0 var(--rx) var(--rx) 0;line-height:1.6;font-style:italic; }
+.rdv-note-label { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px;font-style:normal; }
+
+.rdv-reschedule-info { display:flex;align-items:center;gap:8px;font-size:12.5px; }
+.rdv-old-date { text-decoration:line-through;color:var(--text3); }
+.rdv-arrow { color:var(--text3); }
+.rdv-new-date { font-weight:600;color:var(--orange); }
+
+.rdv-actions { display:flex;align-items:center;gap:8px;flex-shrink:0;padding:14px 18px;border-left:1px solid var(--border);flex-direction:column;justify-content:center; }
+
+.feedback-badge { display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap; }
+.fb-pos { background:var(--green-l);color:var(--green); }
+.fb-neg { background:var(--red-l);color:var(--red); }
+.fb-neutral { background:var(--gray-m);color:var(--text2); }
+.fb-noshow { background:var(--orange-l);color:var(--orange); }
+.fb-wrong { background:#fdf4ff;color:#7c3aed; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align:center; padding:60px 20px; color:var(--text3); }
+.empty-ico { font-size:40px; margin-bottom:14px; }
+.empty-title { font-size:16px;font-weight:600;color:var(--text2);margin-bottom:6px; }
+.empty-sub { font-size:13.5px;max-width:360px;margin:0 auto; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:20px;
+  animation:fadeIn .2s ease;
+}
+.modal-overlay.hidden { display:none; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.modal {
+  background:white;border-radius:16px;box-shadow:var(--sh-lg);
+  width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;
+  animation:slideUp .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+.modal-head { padding:20px 24px 16px; border-bottom:1px solid var(--border); display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0; }
+.modal-title { font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;letter-spacing:-.02em; }
+.modal-sub { font-size:12.5px;color:var(--text3);margin-top:2px; }
+.modal-close { width:30px;height:30px;border-radius:7px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;margin-left:12px; }
+.modal-close:hover { background:var(--border);border-color:var(--border2); }
+.modal-close svg { width:14px;height:14px; }
+
+.modal-body { flex:1;overflow-y:auto;padding:0; }
+.modal-section { padding:18px 24px; border-bottom:1px solid var(--border); }
+.modal-section:last-child { border-bottom:none; }
+.modal-section-title { font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:12px; }
+
+/* modal status bar */
+.modal-status-bar { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.modal-datetime { display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600; }
+.modal-datetime svg { width:15px;height:15px;color:var(--text3); }
+
+/* 2-col contact/company */
+.modal-2col { display:grid;grid-template-columns:1fr 1fr;gap:20px; }
+@media(max-width:580px){ .modal-2col { grid-template-columns:1fr; } }
+.modal-col-title { font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px; }
+.info-row { display:flex;flex-direction:column;gap:7px; }
+.info-item { display:flex;flex-direction:column;gap:1px; }
+.info-label { font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em; }
+.info-value { font-size:13.5px;font-weight:500;color:var(--text); }
+.info-value a { color:var(--blue);text-decoration:none; }
+.info-value a:hover { text-decoration:underline; }
+.info-empty { color:var(--text4);font-style:italic; }
+.col-divider { border-left:1px solid var(--border);margin:0; }
+
+/* note SDR */
+.sdr-note-box { background:var(--gray-l);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;font-size:13.5px;line-height:1.7;color:var(--text2);font-style:italic; }
+
+/* reschedule box */
+.reschedule-box { background:var(--orange-l);border:1px solid var(--orange-m);border-radius:var(--rs);padding:12px 14px; }
+.reschedule-box-head { font-size:12px;font-weight:700;color:var(--orange);margin-bottom:8px;display:flex;align-items:center;gap:6px; }
+
+/* feedback form */
+.outcome-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px; }
+.outcome-btn {
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:10px 8px; border-radius:var(--rs);
+  border:1.5px solid var(--border);background:white;
+  font-family:var(--font);font-size:12px;font-weight:600;color:var(--text2);
+  cursor:pointer;transition:all .15s;text-align:center;
+}
+.outcome-btn:hover { border-color:var(--border2);background:var(--bg); }
+.outcome-btn.selected { border-color:var(--blue);background:var(--blue-l);color:var(--blue); }
+.outcome-btn.selected .ob-ico { background:var(--blue);color:white; }
+.ob-ico { width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:all .15s; }
+.ob-ico svg { width:14px;height:14px; }
+
+.recontact-row { display:flex;gap:8px;margin-bottom:16px; }
+.rc-btn { flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--border);background:white;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;text-align:center; }
+.rc-btn:hover { border-color:var(--border2); }
+.rc-btn.on { border-color:var(--blue);background:var(--blue-l);color:var(--blue); }
+
+.field-label { font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block; }
+.field-label span { color:var(--red);margin-left:2px; }
+.textarea { width:100%;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-family:var(--font);font-size:13.5px;color:var(--text);outline:none;resize:vertical;min-height:80px;transition:all .15s;background:white; }
+.textarea:focus { border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+.textarea.required-empty { border-color:var(--red);background:var(--red-l); }
+.cancel-reason-wrap { margin-top:14px;animation:fadeUp .2s ease; }
+
+.modal-foot { padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
+.modal-foot-left { font-size:12.5px;color:var(--text3); }
+
+/* toast */
+.toast {
+  position:fixed;bottom:28px;right:28px;
+  background:#111827;color:white;
+  padding:12px 18px;border-radius:10px;
+  font-size:13.5px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.2);
+  z-index:2000;
+  animation:toastIn .3s cubic-bezier(.4,0,.2,1);
+}
+.toast.hidden { display:none; }
+@keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+.toast-ico { width:20px;height:20px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.toast-ico svg { width:11px;height:11px;fill:white; }
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-mark"><svg viewBox="0 0 16 16"><path d="M8 1L2 5v8l6 2 6-2V5L8 1zm0 2.3l3.8 2.5v5.8l-3.8 1.3-3.8-1.3V5.8L8 3.3z"/></svg></div>
+    <span class="sb-word">CaptainProspect</span>
+  </div>
+  <div class="sb-inner">
+    <div class="nv-sec">Portail Client</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h6v6H1zm0 8h6v6H1zm8-8h6v6H9zm0 8h6v6H9z" opacity=".7"/></svg>Tableau de bord</div>
+    <div class="nv on"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14M5 1v2M11 1v2"/></svg>Mes Rendez-vous<span class="nv-badge">4</span></div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h10l2 2v12H2V1zm3 5h6v1H5zm0 2h6v1H5zm0 2h4v1H5z"/></svg>Mes Missions</div>
+    <div class="nv"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h14v1.6L8 9.3 1 2.6V1zm0 3.1L7 9a1 1 0 002 0l6-4.9V14H1z"/></svg>Notifications</div>
+  </div>
+  <div class="sb-foot">
+    <div class="u-row">
+      <div class="u-av">AM</div>
+      <div><div class="u-name">Alice Martin</div><div class="u-role">Client</div></div>
+      <svg style="margin-left:auto;width:14px;height:14px;color:var(--text3)" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l5 5-5 5"/></svg>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="mn">
+  <nav class="tb">
+    <div class="bc"><span>Portail</span><span style="color:var(--border2);margin:0 2px">/</span><b>Mes Rendez-vous</b></div>
+    <div class="tb-r">
+      <div class="ib"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a5.5 5.5 0 00-5.5 5.5V9l-1 2h13l-1-2V6.5A5.5 5.5 0 008 1zm-1 13a1 1 0 002 0H7z"/></svg></div>
+    </div>
+  </nav>
+
+  <div class="ct">
+
+    <!-- PAGE HEADER -->
+    <div class="ph">
+      <div>
+        <div class="pt">Mes Rendez-vous</div>
+        <div class="ps">Consultez, qualifiez et donnez votre avis sur vos rendez-vous</div>
+      </div>
+      <div class="ha">
+        <button class="btn btn-o">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v10M2 8l5 5 5-5"/></svg>
+          Exporter
+        </button>
+      </div>
+    </div>
+
+    <!-- SUMMARY STATS -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-mini-ico" style="background:var(--green-l)"><svg viewBox="0 0 16 16" fill="none" stroke="#059669" stroke-width="1.8"><rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14M5 1v2M11 1v2"/></svg></div>
+        <div><div class="stat-mini-val" style="color:var(--green)">2</div><div class="stat-mini-lbl">À venir</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-ico" style="background:var(--gray-m)"><svg viewBox="0 0 16 16" fill="none" stroke="#6b7280" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div>
+        <div><div class="stat-mini-val" style="color:var(--text2)">5</div><div class="stat-mini-lbl">Passés</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-ico" style="background:var(--orange-l)"><svg viewBox="0 0 16 16" fill="none" stroke="#d97706" stroke-width="1.8"><path d="M8 1v6l3 3M3 5L1 3m2 8L1 13M13 5l2-2m-2 8l2 2"/></svg></div>
+        <div><div class="stat-mini-val" style="color:var(--orange)">1</div><div class="stat-mini-lbl">Reportés</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-ico" style="background:var(--red-l)"><svg viewBox="0 0 16 16" fill="none" stroke="#dc2626" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M5 5l6 6M11 5l-6 6"/></svg></div>
+        <div><div class="stat-mini-val" style="color:var(--red)">1</div><div class="stat-mini-lbl">Annulés</div></div>
+      </div>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs" id="filterTabs">
+      <div class="ftab on" data-filter="all" onclick="filterRdv('all',this)">Tous <span class="ftab-badge">9</span></div>
+      <div class="ftab" data-filter="upcoming" onclick="filterRdv('upcoming',this)">À venir <span class="ftab-badge">2</span></div>
+      <div class="ftab" data-filter="past" onclick="filterRdv('past',this)">Passés <span class="ftab-badge">5</span></div>
+      <div class="ftab" data-filter="rescheduled" onclick="filterRdv('rescheduled',this)">Reportés <span class="ftab-badge">1</span></div>
+      <div class="ftab" data-filter="cancelled" onclick="filterRdv('cancelled',this)">Annulés <span class="ftab-badge">1</span></div>
+    </div>
+
+    <!-- RDV LIST -->
+    <div class="rdv-list" id="rdvList"></div>
+
+  </div>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalEl">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Détail du rendez-vous</div>
+        <div class="modal-sub" id="modalSub">—</div>
+      </div>
+      <div class="modal-close" onclick="closeModalDirect()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l12 12M13 1L1 13"/></svg></div>
+    </div>
+
+    <div class="modal-body" id="modalBody">
+      <!-- Injected dynamically -->
+    </div>
+
+    <div class="modal-foot">
+      <span class="modal-foot-left" id="modalFootLeft"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-o" onclick="closeModalDirect()">Fermer</button>
+        <button class="btn btn-p" id="saveFeedbackBtn" onclick="saveFeedback()" style="display:none">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7l4 4 8-8"/></svg>
+          Enregistrer mon avis
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast">
+  <div class="toast-ico"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+  <span id="toastMsg">Merci pour votre retour.</span>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const RDV_DATA = [
+  {
+    id: 1, status: 'upcoming',
+    day:'12', month:'MAR', year:'2026', time:'10:30',
+    fullDate:'Mercredi 12 mars 2026 à 10h30',
+    mission:'UPIKAJOB 1', campaign:'Campagne DRH Q1',
+    sdrNote:'Contact très intéressé par nos solutions RH. Poser la question de leur budget actuel et du processus de décision. Mentionner le cas client Nexelis.',
+    contact:{ first:'Thomas', last:'Bernard', title:'Directeur des Ressources Humaines', email:'t.bernard@techcorp.fr', phone:'+33 6 12 34 56 78', linkedin:'https://linkedin.com/in/tbernard', custom:'' },
+    company:{ name:'TechCorp SAS', sector:'Technologie', website:'https://techcorp.fr', country:'France', size:'200–500 salariés', custom:'' },
+    avatarBg:'#2563eb',
+    feedback:null,
+    rescheduledFrom:null,
+  },
+  {
+    id: 2, status: 'upcoming',
+    day:'18', month:'MAR', year:'2026', time:'14:00',
+    fullDate:'Mardi 18 mars 2026 à 14h00',
+    mission:'UPIKAJOB 1', campaign:'Campagne DRH Q1',
+    sdrNote:'CEO disponible uniquement le matin habituellement — a exceptionnellement accepté 14h. Être très ponctuel.',
+    contact:{ first:'Isabelle', last:'Dupont', title:'CEO', email:'i.dupont@infopro.com', phone:'+33 7 89 01 23 45', linkedin:'', custom:'' },
+    company:{ name:'InfoPro Solutions', sector:'Conseil & Services', website:'https://infopro.com', country:'France', size:'50–200 salariés', custom:'' },
+    avatarBg:'#7c3aed',
+    feedback:null,
+    rescheduledFrom:null,
+  },
+  {
+    id: 3, status: 'past',
+    day:'03', month:'FÉV', year:'2026', time:'09:00',
+    fullDate:'Mardi 3 février 2026 à 09h00',
+    mission:'UPIKAJOB 1', campaign:'Campagne Industrie',
+    sdrNote:'Appel chaud — le prospect avait demandé lui-même un rappel. Parler de l\'offre premium si l\'intérêt est confirmé.',
+    contact:{ first:'Marc', last:'Leroy', title:'Responsable Formation', email:'m.leroy@automotive.fr', phone:'+33 6 55 44 33 22', linkedin:'https://linkedin.com/in/mleroy', custom:'' },
+    company:{ name:'AutoParts France', sector:'Automobile', website:'https://autoparts.fr', country:'France', size:'500–2000 salariés', custom:'Groupe familial depuis 1987' },
+    avatarBg:'#059669',
+    feedback:{ outcome:'POSITIVE', recontact:'yes', comment:'Très bon échange, Marc est enthousiaste. À relancer dans 2 semaines pour validation budget.', cancelReason:'' },
+    rescheduledFrom:null,
+  },
+  {
+    id: 4, status: 'past',
+    day:'20', month:'JAN', year:'2026', time:'11:00',
+    fullDate:'Mardi 20 janvier 2026 à 11h00',
+    mission:'TECHSALES Q1', campaign:'Campagne PME',
+    sdrNote:'Prospect froid, premier contact. Adapter le discours selon sa réaction initiale.',
+    contact:{ first:'Sophie', last:'Girard', title:'Directrice Commerciale', email:'s.girard@medtech.fr', phone:'+33 6 77 88 99 00', linkedin:'', custom:'' },
+    company:{ name:'MedTech Innovations', sector:'Santé / Médical', website:'https://medtech-innovations.fr', country:'France', size:'20–50 salariés', custom:'' },
+    avatarBg:'#d97706',
+    feedback:{ outcome:'WRONG_TARGET', recontact:'no', comment:'Sophie n\'est pas décideuse pour ce type d\'achat. Recontacter directement le DAF.', cancelReason:'' },
+    rescheduledFrom:null,
+  },
+  {
+    id: 5, status: 'past',
+    day:'15', month:'JAN', year:'2026', time:'16:30',
+    fullDate:'Jeudi 15 janvier 2026 à 16h30',
+    mission:'TECHSALES Q1', campaign:'Campagne PME',
+    sdrNote:'Client déjà au courant de nos offres via un collègue. RDV qualifié.',
+    contact:{ first:'Julien', last:'Moreau', title:'CTO', email:'j.moreau@startuplab.io', phone:'+33 7 11 22 33 44', linkedin:'https://linkedin.com/in/jmoreau', custom:'Twitter: @jmoreau_tech' },
+    company:{ name:'StartupLab', sector:'SaaS / Tech', website:'https://startuplab.io', country:'France', size:'10–20 salariés', custom:'Startup en Série A' },
+    avatarBg:'#0ea5e9',
+    feedback:{ outcome:'NO_SHOW', recontact:'maybe', comment:'Julien n\'a pas répondu au call. Email envoyé.', cancelReason:'' },
+    rescheduledFrom:null,
+  },
+  {
+    id: 6, status: 'past',
+    day:'10', month:'JAN', year:'2026', time:'10:00',
+    fullDate:'Samedi 10 janvier 2026 à 10h00',
+    mission:'IMMO-PRO 2026', campaign:'Campagne Agences',
+    sdrNote:'Besoin exprimé clair sur la gestion des leads entrants. Montrer la démo live si possible.',
+    contact:{ first:'Claire', last:'Fontaine', title:'Gérante', email:'claire@immo-fontaine.fr', phone:'+33 6 44 55 66 77', linkedin:'', custom:'' },
+    company:{ name:'Agence Fontaine Immo', sector:'Immobilier', website:'https://immo-fontaine.fr', country:'France', size:'2–10 salariés', custom:'' },
+    avatarBg:'#ec4899',
+    feedback:null,
+    rescheduledFrom:null,
+  },
+  {
+    id: 7, status: 'past',
+    day:'05', month:'JAN', year:'2026', time:'14:00',
+    fullDate:'Lundi 5 janvier 2026 à 14h00',
+    mission:'IMMO-PRO 2026', campaign:'Campagne Agences',
+    sdrNote:'RDV posé rapidement. Prospect peu qualifié mais intéressé.',
+    contact:{ first:'Paul', last:'Renard', title:'Associé', email:'p.renard@renardconseil.fr', phone:'+33 6 99 88 77 66', linkedin:'', custom:'' },
+    company:{ name:'Renard Conseil', sector:'Conseil RH', website:'', country:'France', size:'2–10 salariés', custom:'' },
+    avatarBg:'#6366f1',
+    feedback:{ outcome:'NEUTRAL', recontact:'maybe', comment:'RDV correct, pas d\'urgence de leur côté.', cancelReason:'' },
+    rescheduledFrom:null,
+  },
+  {
+    id: 8, status: 'rescheduled',
+    day:'28', month:'FÉV', year:'2026', time:'11:00',
+    fullDate:'Vendredi 28 février 2026 à 11h00',
+    mission:'UPIKAJOB 1', campaign:'Campagne DRH Q1',
+    sdrNote:'À l\'origine prévu le 14 fév. — reporté à la demande du client.',
+    contact:{ first:'Nicolas', last:'Petit', title:'DRH', email:'n.petit@group-nexelis.fr', phone:'+33 6 22 33 44 55', linkedin:'https://linkedin.com/in/npetit', custom:'' },
+    company:{ name:'Groupe Nexelis', sector:'Industrie', website:'https://nexelis.fr', country:'France', size:'2000+ salariés', custom:'CAC 40' },
+    avatarBg:'#f59e0b',
+    feedback:null,
+    rescheduledFrom:'Vendredi 14 février 2026 à 11h00',
+    rescheduledComment:'Voyage de dernière minute prévu par le client.',
+  },
+  {
+    id: 9, status: 'cancelled',
+    day:'22', month:'JAN', year:'2026', time:'09:30',
+    fullDate:'Jeudi 22 janvier 2026 à 09h30',
+    mission:'TECHSALES Q1', campaign:'Campagne PME',
+    sdrNote:'RDV posé après démarchage à froid.',
+    contact:{ first:'Laura', last:'Simon', title:'Responsable Achats', email:'l.simon@buytek.fr', phone:'+33 7 66 55 44 33', linkedin:'', custom:'' },
+    company:{ name:'BuyTek Solutions', sector:'Distribution B2B', website:'https://buytek.fr', country:'France', size:'50–200 salariés', custom:'' },
+    avatarBg:'#64748b',
+    feedback:{ outcome:'CANCELLED', recontact:'no', comment:'', cancelReason:'Restructuration interne, projet gelé jusqu\'à fin Q2 2026. À reprendre en juillet.' },
+    rescheduledFrom:null,
+  },
+];
+
+// ── STATE ──────────────────────────────────────────────────────────
+let currentFilter = 'all';
+let activeRdvId = null;
+let formState = { outcome:null, recontact:null, comment:'', cancelReason:'' };
+
+// ── RENDER LOGIC ───────────────────────────────────────────────────
+function statusMeta(s) {
+  return {
+    upcoming:    {label:'À venir',   cls:'s-upcoming',    dot:'🟢'},
+    past:        {label:'Passé',     cls:'s-past',        dot:'⚪'},
+    rescheduled: {label:'Reporté',   cls:'s-rescheduled', dot:'🟡'},
+    cancelled:   {label:'Annulé',    cls:'s-cancelled',   dot:'🔴'},
+  }[s] || {label:s, cls:'s-past', dot:''};
+}
+
+function outcomeMeta(o) {
+  const map = {
+    CONFIRMED:     {label:'Confirmé',          ico:'✓', cls:'fb-pos'},
+    NOT_CONFIRMED: {label:'Non confirmé',       ico:'?', cls:'fb-neutral'},
+    POSITIVE:      {label:'Positif',            ico:'👍', cls:'fb-pos'},
+    NEUTRAL:       {label:'Neutre',             ico:'—', cls:'fb-neutral'},
+    NEGATIVE:      {label:'Négatif',            ico:'👎', cls:'fb-neg'},
+    NO_SHOW:       {label:'Pas eu lieu',        ico:'✗', cls:'fb-noshow'},
+    WRONG_TARGET:  {label:'Pas la bonne cible', ico:'⊗', cls:'fb-wrong'},
+    CANCELLED:     {label:'Annulé',             ico:'✗', cls:'fb-neg'},
+  };
+  return map[o] || null;
+}
+
+function initials(r) {
+  return (r.contact.first[0]||'') + (r.contact.last[0]||'');
+}
+
+function renderCard(r) {
+  const sm = statusMeta(r.status);
+  const canFeedback = (r.status === 'past' || r.status === 'cancelled' || r.status === 'rescheduled');
+  const hasFeedback = r.feedback && r.feedback.outcome;
+  const om = hasFeedback ? outcomeMeta(r.feedback.outcome) : null;
+
+  let extraInfo = '';
+  if (r.status === 'rescheduled' && r.rescheduledFrom) {
+    extraInfo = `<div class="rdv-reschedule-info">
+      <span class="rdv-old-date">${r.rescheduledFrom}</span>
+      <span class="rdv-arrow">→</span>
+      <span class="rdv-new-date">${r.fullDate}</span>
+    </div>`;
+  }
+
+  return `
+<div class="rdv-card" data-id="${r.id}" data-status="${r.status}" style="animation-delay:${RDV_DATA.indexOf(r)*0.04}s">
+  <div class="rdv-card-top">
+    <div class="rdv-date-col">
+      <div class="rdv-day">${r.day}</div>
+      <div class="rdv-month">${r.month}</div>
+      <div class="rdv-time">${r.time}</div>
+    </div>
+    <div class="rdv-main">
+      <div class="rdv-row1">
+        <span class="rdv-status ${sm.cls}"><span>${sm.dot}</span>${sm.label}</span>
+        <span class="rdv-mission">${r.mission}</span>
+        <span class="rdv-campaign">${r.campaign}</span>
+        ${extraInfo}
+      </div>
+      <div class="rdv-row2">
+        <div class="rdv-contact">
+          <div class="rdv-av" style="background:${r.avatarBg}">${initials(r)}</div>
+          <div>
+            <div class="rdv-contact-name">${r.contact.first} ${r.contact.last}</div>
+            <div class="rdv-contact-title">${r.contact.title}</div>
+            <div class="rdv-links">
+              ${r.contact.email ? `<a class="rdv-link" href="mailto:${r.contact.email}"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M1 1h10v1.6L6 7 1 2.6V1zm0 2.2L5.4 7a1 1 0 001.2 0L11 3.2V11H1V3.2z"/></svg>${r.contact.email}</a>` : ''}
+              ${r.contact.phone ? `<a class="rdv-link" href="tel:${r.contact.phone}"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 1a1 1 0 00-1 1v1a8 8 0 008 8h1a1 1 0 001-1V9l-2-1-1 1A6 6 0 014 5l1-1-1-2H2z"/></svg>${r.contact.phone}</a>` : ''}
+              ${r.contact.linkedin ? `<a class="rdv-link" href="${r.contact.linkedin}" target="_blank"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M1 2a1 1 0 102 0 1 1 0 00-2 0zm0 2.5h2V11H1V4.5zm3 0h1.9v.9c.3-.5.9-1 1.9-1C9.6 4.4 10 5.5 10 7V11H8V7.2c0-.8-.3-1.2-.9-1.2s-1.1.4-1.1 1.2V11H4V4.5z"/></svg>LinkedIn</a>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="rdv-sep"></div>
+        <div class="rdv-company">
+          <div class="rdv-company-name">${r.company.name}</div>
+          <div class="rdv-company-meta">
+            <span>${r.company.sector}</span>
+            ${r.company.country ? `<span class="rdv-company-dot"></span><span>${r.company.country}</span>` : ''}
+            ${r.company.size ? `<span class="rdv-company-dot"></span><span>${r.company.size}</span>` : ''}
+            ${r.company.website ? `<span class="rdv-company-dot"></span><a class="rdv-link" style="margin-top:0" href="${r.company.website}" target="_blank"><svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0a6 6 0 100 12A6 6 0 006 0zm0 1.5a4.5 4.5 0 014.2 3H1.8A4.5 4.5 0 016 1.5zm-4.5 4h9A4.5 4.5 0 016 10.5 4.5 4.5 0 011.5 5.5z"/></svg>${r.company.website.replace('https://','')}</a>` : ''}
+          </div>
+        </div>
+      </div>
+      ${r.sdrNote ? `<div class="rdv-note"><div class="rdv-note-label">Briefing SDR</div>"${r.sdrNote}"</div>` : ''}
+    </div>
+    <div class="rdv-actions">
+      ${hasFeedback && om ? `<span class="feedback-badge ${om.cls}">${om.ico} ${om.label}</span>` : ''}
+      <button class="btn btn-o" style="font-size:12.5px;white-space:nowrap" onclick="openModal(${r.id})">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M1 7C2.5 4 4.5 2.5 7 2.5S11.5 4 13 7c-1.5 3-3.5 4.5-6 4.5S2.5 10 1 7z"/></svg>
+        Voir le détail
+      </button>
+      ${canFeedback && !hasFeedback ? `<button class="btn btn-p" style="font-size:12.5px;white-space:nowrap" onclick="openModal(${r.id},true)">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 1v6M4 4l3-3 3 3M1 13h12M3 9h8v4H3z"/></svg>
+        Donner mon avis
+      </button>` : ''}
+      ${hasFeedback ? `<button class="btn btn-o" style="font-size:12.5px;white-space:nowrap" onclick="openModal(${r.id},true)">Modifier l'avis</button>` : ''}
+    </div>
+  </div>
+</div>`;
+}
+
+function renderList() {
+  const container = document.getElementById('rdvList');
+  const filtered = currentFilter === 'all' ? RDV_DATA : RDV_DATA.filter(r => r.status === currentFilter);
+  if (!filtered.length) {
+    const emptyText = {
+      upcoming: 'Aucun rendez-vous à venir. Les prochains RDV planifiés par votre équipe apparaîtront ici.',
+      past: 'Aucun rendez-vous passé. Votre historique apparaîtra ici.',
+      rescheduled: 'Aucun rendez-vous reporté.',
+      cancelled: 'Aucun rendez-vous annulé.',
+      all: 'Aucun rendez-vous enregistré.',
+    };
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-ico">📅</div>
+      <div class="empty-title">Aucun rendez-vous</div>
+      <div class="empty-sub">${emptyText[currentFilter] || emptyText.all}</div>
+    </div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(r => renderCard(r)).join('');
+}
+
+function filterRdv(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderList();
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────
+const OUTCOME_OPTIONS = [
+  { key:'CONFIRMED',     label:'Confirmé',           icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 7l4 4 8-8"/></svg>' },
+  { key:'NOT_CONFIRMED', label:'Non confirmé',        icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M7 4v4M7 10v.5"/></svg>' },
+  { key:'POSITIVE',      label:'Positif',             icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8V5a1 1 0 011-1h1l2-3h.5A.5.5 0 017 1.5v4h3l.5 1L10 8H7v3.5a.5.5 0 01-.5.5H5l-2.5-.5A.5.5 0 012 11V8z"/></svg>' },
+  { key:'NEUTRAL',       label:'Neutre',              icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h8"/></svg>' },
+  { key:'NEGATIVE',      label:'Négatif',             icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6v3a1 1 0 001 1h1l2 3h.5a.5.5 0 00.5-.5V9h3l.5-1-.5-1.5H7V2.5a.5.5 0 00-.5-.5H5l-2.5.5A.5.5 0 002 3v3z"/></svg>' },
+  { key:'NO_SHOW',       label:'Pas eu lieu',         icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><path d="M5 5l4 4M9 5l-4 4"/></svg>' },
+  { key:'WRONG_TARGET',  label:'Pas la bonne cible',  icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><circle cx="7" cy="7" r="2"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2"/></svg>' },
+  { key:'CANCELLED',     label:'Annulé',              icon:'<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><path d="M5 5l4 4M9 5l-4 4"/></svg>' },
+];
+
+function openModal(id, focusFeedback = false) {
+  activeRdvId = id;
+  const r = RDV_DATA.find(x => x.id === id);
+  const sm = statusMeta(r.status);
+  const canFeedback = (r.status === 'past' || r.status === 'cancelled' || r.status === 'rescheduled');
+
+  // Prefill form from existing feedback
+  formState = {
+    outcome: r.feedback?.outcome || null,
+    recontact: r.feedback?.recontact || null,
+    comment: r.feedback?.comment || '',
+    cancelReason: r.feedback?.cancelReason || '',
+  };
+
+  document.getElementById('modalSub').textContent = `${r.fullDate} · ${r.mission}`;
+
+  // Build modal body
+  let body = '';
+
+  // ── Status bar
+  body += `<div class="modal-section">
+    <div class="modal-status-bar">
+      <span class="rdv-status ${sm.cls}">${sm.dot} ${sm.label}</span>
+      <div class="modal-datetime">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="11" rx="1.5"/><path d="M1 5.5h12M4.5 1v2M9.5 1v2"/></svg>
+        ${r.fullDate}
+      </div>
+      <span class="rdv-mission">${r.mission}</span>
+      <span class="rdv-campaign">${r.campaign}</span>
+    </div>
+  </div>`;
+
+  // ── Contact + Company 2-col
+  body += `<div class="modal-section">
+    <div class="modal-2col">
+      <div>
+        <div class="modal-col-title">Contact</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div class="rdv-av" style="background:${r.avatarBg};width:40px;height:40px;font-size:14px">${initials(r)}</div>
+          <div>
+            <div style="font-size:15px;font-weight:700">${r.contact.first} ${r.contact.last}</div>
+            <div style="font-size:12.5px;color:var(--text3)">${r.contact.title}</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item"><span class="info-label">Email</span><span class="info-value">${r.contact.email ? `<a href="mailto:${r.contact.email}">${r.contact.email}</a>` : '<span class="info-empty">Non renseigné</span>'}</span></div>
+          <div class="info-item"><span class="info-label">Téléphone</span><span class="info-value">${r.contact.phone ? `<a href="tel:${r.contact.phone}">${r.contact.phone}</a>` : '<span class="info-empty">Non renseigné</span>'}</span></div>
+          <div class="info-item"><span class="info-label">LinkedIn</span><span class="info-value">${r.contact.linkedin ? `<a href="${r.contact.linkedin}" target="_blank">Voir le profil →</a>` : '<span class="info-empty">Non renseigné</span>'}</span></div>
+          ${r.contact.custom ? `<div class="info-item"><span class="info-label">Infos supplémentaires</span><span class="info-value">${r.contact.custom}</span></div>` : ''}
+        </div>
+      </div>
+      <div style="border-left:1px solid var(--border);padding-left:20px">
+        <div class="modal-col-title">Entreprise</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px">${r.company.name}</div>
+        <div class="info-row">
+          <div class="info-item"><span class="info-label">Secteur</span><span class="info-value">${r.company.sector || '<span class="info-empty">—</span>'}</span></div>
+          <div class="info-item"><span class="info-label">Pays</span><span class="info-value">${r.company.country || '<span class="info-empty">—</span>'}</span></div>
+          <div class="info-item"><span class="info-label">Taille</span><span class="info-value">${r.company.size || '<span class="info-empty">—</span>'}</span></div>
+          <div class="info-item"><span class="info-label">Site web</span><span class="info-value">${r.company.website ? `<a href="${r.company.website}" target="_blank">${r.company.website.replace('https://','')}</a>` : '<span class="info-empty">Non renseigné</span>'}</span></div>
+          ${r.company.custom ? `<div class="info-item"><span class="info-label">Infos supplémentaires</span><span class="info-value">${r.company.custom}</span></div>` : ''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // ── SDR Note
+  if (r.sdrNote) {
+    body += `<div class="modal-section">
+      <div class="modal-section-title">Briefing SDR</div>
+      <div class="sdr-note-box">"${r.sdrNote}"</div>
+    </div>`;
+  }
+
+  // ── Reschedule info
+  if (r.status === 'rescheduled' && r.rescheduledFrom) {
+    body += `<div class="modal-section">
+      <div class="reschedule-box">
+        <div class="reschedule-box-head">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px"><path d="M7 1v6l3 3"/><circle cx="7" cy="7" r="6"/></svg>
+          Rendez-vous reporté
+        </div>
+        <div style="font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="text-decoration:line-through;color:var(--text3)">${r.rescheduledFrom}</span>
+          <span style="color:var(--text3)">→</span>
+          <span style="font-weight:600;color:var(--orange)">${r.fullDate}</span>
+        </div>
+        ${r.rescheduledComment ? `<div style="margin-top:8px;font-size:12.5px;color:var(--text2);font-style:italic">"${r.rescheduledComment}"</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // ── Feedback form (only for past/cancelled/rescheduled)
+  if (canFeedback) {
+    const isCancelled = formState.outcome === 'CANCELLED';
+    body += `<div class="modal-section" id="feedbackSection">
+      <div class="modal-section-title">Comment s'est passé ce rendez-vous ?</div>
+
+      <div class="outcome-grid" id="outcomeGrid">
+        ${OUTCOME_OPTIONS.map(o => `
+          <button class="outcome-btn ${formState.outcome === o.key ? 'selected' : ''}" onclick="selectOutcome('${o.key}')" data-key="${o.key}">
+            <div class="ob-ico">${o.icon}</div>
+            <span>${o.label}</span>
+          </button>`).join('')}
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div class="field-label">Souhaitez-vous que l'équipe recontacte ce prospect ? <span>*</span></div>
+        <div class="recontact-row" id="recontactRow">
+          <button class="rc-btn ${formState.recontact==='yes'?'on':''}" onclick="selectRecontact('yes')">Oui</button>
+          <button class="rc-btn ${formState.recontact==='maybe'?'on':''}" onclick="selectRecontact('maybe')">Peut-être</button>
+          <button class="rc-btn ${formState.recontact==='no'?'on':''}" onclick="selectRecontact('no')">Non</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:0" id="cancelReasonWrap" style="display:${isCancelled?'block':'none'}">
+        ${isCancelled ? renderCancelReason() : ''}
+      </div>
+
+      <div>
+        <label class="field-label" for="commentArea">Votre commentaire <span style="color:var(--text3);font-weight:400">(optionnel)</span></label>
+        <textarea id="commentArea" class="textarea" placeholder="Votre commentaire…" oninput="formState.comment=this.value">${formState.comment}</textarea>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('saveFeedbackBtn').style.display = canFeedback ? '' : 'none';
+  document.getElementById('modalFootLeft').textContent = canFeedback ? 'Les champs marqués * sont obligatoires.' : '';
+  updateSaveBtn();
+
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  if (focusFeedback && canFeedback) {
+    setTimeout(() => {
+      const fs = document.getElementById('feedbackSection');
+      if (fs) fs.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 300);
+  }
+}
+
+function renderCancelReason() {
+  return `<div class="cancel-reason-wrap" id="cancelReasonInner">
+    <label class="field-label" for="cancelReasonArea">Pourquoi ce RDV est-il annulé ? <span>*</span></label>
+    <textarea id="cancelReasonArea" class="textarea ${!formState.cancelReason?'required-empty':''}" placeholder="Raison de l'annulation (obligatoire)…" oninput="formState.cancelReason=this.value;updateSaveBtn();this.classList.toggle('required-empty',!this.value)">${formState.cancelReason}</textarea>
+  </div>`;
+}
+
+function selectOutcome(key) {
+  formState.outcome = key;
+  document.querySelectorAll('.outcome-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.key === key);
+  });
+  // Show/hide cancel reason
+  const wrap = document.getElementById('cancelReasonWrap');
+  if (wrap) {
+    wrap.innerHTML = key === 'CANCELLED' ? renderCancelReason() : '';
+  }
+  updateSaveBtn();
+}
+
+function selectRecontact(val) {
+  formState.recontact = val;
+  document.querySelectorAll('.rc-btn').forEach(b => {
+    b.classList.toggle('on', b.textContent.trim() === ({yes:'Oui',maybe:'Peut-être',no:'Non'}[val]));
+  });
+  updateSaveBtn();
+}
+
+function updateSaveBtn() {
+  const btn = document.getElementById('saveFeedbackBtn');
+  if (!btn) return;
+  const r = RDV_DATA.find(x => x.id === activeRdvId);
+  if (!r) return;
+  const canFeedback = (r.status === 'past' || r.status === 'cancelled' || r.status === 'rescheduled');
+  if (!canFeedback) { btn.disabled = true; return; }
+
+  const needsOutcome = !!formState.outcome;
+  const needsRecontact = !!formState.recontact;
+  const needsCancelReason = formState.outcome !== 'CANCELLED' || !!formState.cancelReason;
+
+  btn.disabled = !(needsOutcome && needsRecontact && needsCancelReason);
+}
+
+function saveFeedback() {
+  const r = RDV_DATA.find(x => x.id === activeRdvId);
+  if (!r) return;
+  r.feedback = {
+    outcome: formState.outcome,
+    recontact: formState.recontact,
+    comment: formState.comment,
+    cancelReason: formState.cancelReason,
+  };
+  closeModalDirect();
+  renderList();
+  showToast('Merci pour votre retour. 🎉');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  activeRdvId = null;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+renderList();
+</script>
+</body>
+</html>

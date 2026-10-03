@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Phone Enricher</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0f0f16;
+    --surface: #0f0f16;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #00ff88;
+    --accent2: #0088ff;
+    --warn: #ffaa00;
+    --error: #ff4455;
+    --text: #e8e8f0;
+    --text-dim: #666680;
+    --text-muted: #333344;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    gap: 24px;
+  }
+  .header-left { flex: 1; }
+  .logo-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    color: #000;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.3);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Config panel */
+  .config-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .config-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .config-item input[type="text"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .config-item input[type="text"]:focus { border-color: var(--accent); }
+  .config-item input[type="text"]::placeholder { color: var(--text-muted); }
+  .toggle {
+    position: relative;
+    width: 36px; height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle input { display: none; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+  .toggle input:checked ~ .toggle-track { background: var(--accent); }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle input:checked ~ .toggle-thumb { left: 19px; }
+  .toggle-thumb { color: #000; }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 60px 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,255,136,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,255,136,0.03);
+  }
+  .upload-zone.drag-over { transform: scale(1.01); }
+  .upload-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    filter: grayscale(0.3);
+  }
+  .upload-title {
+    font-family: var(--mono);
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .upload-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .upload-formats {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .fmt-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .upload-btn {
+    display: inline-block;
+    margin-top: 20px;
+    background: var(--accent);
+    color: #000;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .upload-btn:hover { background: #00dd77; transform: translateY(-1px); }
+  #fileInput { display: none; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-family: var(--mono);
+  }
+  .stat-total .stat-value { color: var(--text); }
+  .stat-processed .stat-value { color: var(--accent2); }
+  .stat-found .stat-value { color: var(--accent); }
+  .stat-notfound .stat-value { color: var(--warn); }
+  .stat-error .stat-value { color: var(--error); }
+
+  /* Progress */
+  .progress-wrap {
+    margin-bottom: 24px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .progress-label { color: var(--text-dim); }
+  .progress-pct { color: var(--accent); font-weight: 600; }
+  .progress-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    position: relative;
+  }
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 40px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; }
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 9px 20px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover:not(:disabled) { background: #00dd77; transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--accent2); color: var(--text); }
+  .btn-danger {
+    background: transparent;
+    color: var(--error);
+    border: 1px solid rgba(255,68,85,0.3);
+  }
+  .btn-danger:hover:not(:disabled) { background: rgba(255,68,85,0.1); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Results table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .table-header-bar {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--surface2);
+  }
+  .table-scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--text-muted);
+    color: var(--text);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Status badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-found { background: rgba(0,255,136,0.1); color: var(--accent); border: 1px solid rgba(0,255,136,0.2); }
+  .status-not_found { background: rgba(255,170,0,0.1); color: var(--warn); border: 1px solid rgba(255,170,0,0.2); }
+  .status-error { background: rgba(255,68,85,0.1); color: var(--error); border: 1px solid rgba(255,68,85,0.2); }
+  .status-pending { background: rgba(0,136,255,0.1); color: var(--accent2); border: 1px solid rgba(0,136,255,0.2); }
+  .status-processing {
+    background: rgba(0,136,255,0.15); color: var(--accent2);
+    border: 1px solid rgba(0,136,255,0.3);
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Confidence bar inline */
+  .conf-wrap { display: flex; align-items: center; gap: 6px; }
+  .conf-bar-bg {
+    width: 48px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .conf-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .conf-high { background: var(--accent); }
+  .conf-med { background: var(--warn); }
+  .conf-low { background: var(--error); }
+
+  /* Expandable log */
+  .log-toggle {
+    cursor: pointer;
+    color: var(--accent2);
+    font-size: 10px;
+    background: none;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    transition: background 0.15s;
+  }
+  .log-toggle:hover { background: rgba(0,136,255,0.1); }
+  .log-row td {
+    background: rgba(0,136,255,0.04);
+    white-space: pre-wrap;
+    color: var(--text-dim);
+    font-size: 11px;
+    max-width: none;
+    padding: 8px 14px 8px 40px;
+    border-bottom: 1px solid var(--text-muted);
+  }
+
+  /* Phone number display */
+  .phone-number {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Log stream */
+  .log-stream {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+    max-height: 180px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .log-entry {
+    padding: 2px 0;
+    display: flex;
+    gap: 10px;
+  }
+  .log-time { color: var(--text-muted); flex-shrink: 0; }
+  .log-msg { color: var(--text-dim); }
+  .log-msg.ok { color: var(--accent); }
+  .log-msg.warn { color: var(--warn); }
+  .log-msg.err { color: var(--error); }
+  .log-msg.info { color: var(--accent2); }
+
+  .section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid rgba(0,136,255,0.3);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* Column mapping panel */
+  .column-map-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .column-map-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .column-map-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+  }
+  .column-map-label .required { color: var(--warn); }
+  .column-map-select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .column-map-select:focus { border-color: var(--accent); }
+  .column-map-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 0 16px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+  }
+  .footer span { color: var(--accent); }
+
+  /* Highlight phone in source */
+  .source-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-line">
+        <div class="logo-icon">☎</div>
+        <h1>Company Phone Enricher <span class="badge">v1.0</span></h1>
+      </div>
+      <div class="subtitle">// Bulk phone number extraction from CSV — AI-powered enrichment pipeline</div>
+    </div>
+  </div>
+
+  <!-- Config Panel -->
+  <div class="config-panel">
+    <div class="config-item">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+      SerpAPI Key:
+      <input type="text" id="serpApiKey" placeholder="sk-... (optional, enables Google fallback)" />
+    </div>
+    <div class="config-item">
+      <label class="toggle" for="deepSearch">
+        <input type="checkbox" id="deepSearch">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      Deep Search Mode (crawl up to 3 pages)
+    </div>
+    <div class="config-item">
+      <label class="toggle" for="respectRobots">
+        <input type="checkbox" id="respectRobots" checked>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      Respect robots.txt
+    </div>
+    <div class="config-item">
+      <label class="toggle" for="useClaude">
+        <input type="checkbox" id="useClaude" checked>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      AI-Assisted Extraction (Claude)
+    </div>
+  </div>
+
+  <!-- Upload Zone -->
+  <div id="uploadSection">
+    <div class="section-title">01 — Upload CSV</div>
+    <div class="upload-zone" id="dropZone">
+      <span class="upload-icon">📊</span>
+      <div class="upload-title">Drop your CSV file here</div>
+      <div class="upload-sub">or click to browse — column mapping auto-detects Company, Website, Address</div>
+      <div class="upload-formats">
+        <span class="fmt-tag">company_name + website</span>
+        <span class="fmt-tag">company_name + address</span>
+        <span class="fmt-tag">website only</span>
+        <span class="fmt-tag">company_name only</span>
+      </div>
+      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📂 Choose File</button>
+      <input type="file" id="fileInput" accept=".csv" />
+    </div>
+  </div>
+
+  <!-- Processing Section (hidden until file loaded) -->
+  <div id="processingSection" class="hidden">
+
+    <!-- Column Mapping -->
+    <div class="section-title">01 — Map Columns</div>
+    <div class="column-map-panel" id="columnMapPanel">
+      <div class="column-map-item">
+        <span class="column-map-label">Company <span class="required">*</span></span>
+        <select class="column-map-select" id="mapCompany">
+          <option value="">— select column —</option>
+        </select>
+        <span class="column-map-hint">company_name, company, nom, firma...</span>
+      </div>
+      <div class="column-map-item">
+        <span class="column-map-label">Website</span>
+        <select class="column-map-select" id="mapWebsite">
+          <option value="">— select column —</option>
+        </select>
+        <span class="column-map-hint">website, url, site, domain, web...</span>
+      </div>
+      <div class="column-map-item">
+        <span class="column-map-label">Address</span>
+        <select class="column-map-select" id="mapAddress">
+          <option value="">— select column —</option>
+        </select>
+        <span class="column-map-hint">address, adresse, addr, location...</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="section-title">02 — Enrichment Status</div>
+    <div class="stats-bar">
+      <div class="stat-card stat-total">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Total Rows</div>
+      </div>
+      <div class="stat-card stat-processed">
+        <div class="stat-value" id="statProcessed">0</div>
+        <div class="stat-label">Processed</div>
+      </div>
+      <div class="stat-card stat-found">
+        <div class="stat-value" id="statFound">0</div>
+        <div class="stat-label">Found</div>
+      </div>
+      <div class="stat-card stat-notfound">
+        <div class="stat-value" id="statNotFound">0</div>
+        <div class="stat-label">Not Found</div>
+      </div>
+      <div class="stat-card stat-error">
+        <div class="stat-value" id="statError">0</div>
+        <div class="stat-label">Errors</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-header">
+        <span class="progress-label" id="progressLabel">Ready to enrich</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-primary" id="btnStart" onclick="startEnrichment()">
+        ▶ Start Enrichment
+      </button>
+      <button class="btn btn-secondary hidden" id="btnPause" onclick="pauseEnrichment()">
+        ⏸ Pause
+      </button>
+      <button class="btn btn-secondary" id="btnExport" onclick="exportCSV()" disabled>
+        ↓ Export CSV
+      </button>
+      <button class="btn btn-danger" id="btnReset" onclick="resetAll()">
+        ✕ Reset
+      </button>
+    </div>
+
+    <!-- Live Log Stream -->
+    <div class="section-title">03 — Enrichment Log</div>
+    <div class="log-stream" id="logStream">
+      <div class="log-entry">
+        <span class="log-time">00:00:00</span>
+        <span class="log-msg info">// Pipeline initialized — awaiting start command</span>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="section-title">04 — Results Preview</div>
+    <div class="table-wrap">
+      <div class="table-header-bar">
+        <span id="tableCount">0 rows</span>
+        <span>Detected format: <span id="detectedFormat" style="color: var(--accent)">—</span></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr id="tableHead"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Company Phone Enricher — <span>AI-Powered</span> // Built with Claude API
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let rows = [];
+let results = [];
+let detectedFormat = '';
+let columnMapping = { company: '', website: '', address: '' };
+let isRunning = false;
+let isPaused = false;
+let shouldStop = false;
+let startTime = null;
+const MAX_CONCURRENCY = 5;
+const MAX_RETRIES = 2;
+
+// Phone validation regexes
+const PHONE_REGEXES = [
+  /(?:(?:\+|00)33[\s.\-]?(?:\(0\)[\s.\-]?)?|0)[1-9](?:[\s.\-]?\d{2}){4}/g, // FR
+  /(?:\+|00)[1-9]\d{6,14}/g, // International E.164
+  /\b(?:\+1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g, // US/CA
+  /\b\d{2,4}[\s.\-]\d{2,4}[\s.\-]\d{2,4}(?:[\s.\-]\d{2,4})?\b/g, // EU flexible
+];
+
+const FAKE_NUMBERS = new Set([
+  '0000000000','1111111111','2222222222','3333333333','4444444444',
+  '5555555555','6666666666','7777777777','8888888888','9999999999',
+  '1234567890','0123456789','0606060606','0123456789'
+]);
+
+// ─────────────────────────────────────────────
+// FILE UPLOAD
+// ─────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.csv')) handleFile(file);
+});
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+});
+
+function handleFile(file) {
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: (parsed) => {
+      rows = parsed.data;
+      detectedFormat = detectFormat(parsed.meta.fields || []);
+      results = rows.map((r, i) => ({
+        index: i,
+        original: r,
+        status: 'pending',
+        phone_number: '',
+        phone_source: '',
+        confidence_score: 0,
+        log: [],
+        expanded: false
+      }));
+
+      document.getElementById('detectedFormat').textContent = detectedFormat;
+      document.getElementById('tableCount').textContent = `${rows.length} rows`;
+      document.getElementById('statTotal').textContent = rows.length;
+
+      buildTableHead(parsed.meta.fields || []);
+      buildColumnMapping(parsed.meta.fields || []);
+      renderTable();
+
+      document.getElementById('uploadSection').classList.add('hidden');
+      document.getElementById('processingSection').classList.remove('hidden');
+      addLog('info', `File loaded: ${file.name} — ${rows.length} rows — Format: ${detectedFormat}`);
+    },
+    error: (err) => alert('CSV parse error: ' + err.message)
+  });
+}
+
+function detectFormat(fields) {
+  const f = fields.map(x => x.toLowerCase().trim());
+  if (f.includes('website') && f.includes('company_name')) return 'Format A (company_name + website)';
+  if (f.includes('address') && f.includes('company_name')) return 'Format B (company_name + address)';
+  if (f.includes('website') && !f.includes('company_name')) return 'Format C (website only)';
+  if (f.includes('company_name') && !f.includes('website') && !f.includes('address')) return 'Format D (company_name only)';
+  // Try to guess
+  if (f.some(x => x.includes('web') || x.includes('url') || x.includes('site'))) return 'Format A/C (website detected)';
+  return 'Unknown (treating as Format D)';
+}
+
+// Fuzzy match score: how well a field name matches target keywords
+function fuzzyScore(fieldName, keywords) {
+  const name = String(fieldName || '').toLowerCase().replace(/[\s\-_]+/g, '');
+  let best = 0;
+  for (const kw of keywords) {
+    const k = kw.toLowerCase().replace(/[\s\-_]+/g, '');
+    if (name === k) return 100; // exact
+    if (name.includes(k) || k.includes(name)) best = Math.max(best, 80);
+    // partial: "company_name" vs "company"
+    const words = name.split(/_|-|\s/);
+    if (words.includes(k) || words.some(w => w.startsWith(k))) best = Math.max(best, 70);
+    if (name.startsWith(k) || k.startsWith(name)) best = Math.max(best, 50);
+  }
+  return best;
+}
+
+function buildColumnMapping(fields) {
+  columnMapping = { company: '', website: '', address: '' };
+  const companyKw = ['company_name', 'company', 'companyname', 'name', 'nom', 'firma', 'entreprise', 'organization'];
+  const websiteKw = ['website', 'url', 'web', 'site', 'domain', 'website_url', 'site_url', 'homepage', 'link'];
+  const addressKw = ['address', 'adresse', 'addr', 'location', 'street', 'adres', 'adr', 'lieu'];
+
+  function populateSelect(selId, keywords) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = '<option value="">— select column —</option>' + 
+      fields.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join('');
+    // Auto-detect best match
+    let bestField = null, bestScore = 0;
+    for (const f of fields) {
+      const score = fuzzyScore(f, keywords);
+      if (score > bestScore) { bestScore = score; bestField = f; }
+    }
+    if (bestField) {
+      sel.value = bestField;
+      const key = selId.replace('map', '').toLowerCase();
+      columnMapping[key] = bestField;
+    }
+    sel.onchange = () => {
+      const key = selId.replace('map', '').toLowerCase();
+      columnMapping[key] = sel.value || '';
+    };
+  }
+
+  populateSelect('mapCompany', companyKw);
+  populateSelect('mapWebsite', websiteKw);
+  populateSelect('mapAddress', addressKw);
+
+  addLog('info', `Column mapping: Company→${columnMapping.company || '—'}, Website→${columnMapping.website || '—'}, Address→${columnMapping.address || '—'}`);
+}
+
+// ─────────────────────────────────────────────
+// TABLE RENDERING
+// ─────────────────────────────────────────────
+function buildTableHead(fields) {
+  const tr = document.getElementById('tableHead');
+  const cols = [...fields, 'phone_number', 'phone_source', 'confidence_score', 'status', 'log'];
+  tr.innerHTML = cols.map(c => `<th>${c}</th>`).join('');
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const origFields = results.length > 0 ? Object.keys(results[0].original) : [];
+  
+  let html = '';
+  results.forEach((r, i) => {
+    const confClass = r.confidence_score >= 70 ? 'conf-high' : r.confidence_score >= 40 ? 'conf-med' : 'conf-low';
+    const statusClass = `status-${r.status.replace(' ', '_')}`;
+    
+    html += `<tr>`;
+    origFields.forEach(f => {
+      html += `<td title="${esc(r.original[f] || '')}">${esc(r.original[f] || '—')}</td>`;
+    });
+    html += `<td class="${r.phone_number ? 'phone-number' : ''}">${esc(r.phone_number || '—')}</td>`;
+    html += `<td>${r.phone_source ? `<span class="source-chip">${esc(r.phone_source)}</span>` : '—'}</td>`;
+    html += `<td>
+      <div class="conf-wrap">
+        <div class="conf-bar-bg"><div class="conf-bar-fill ${confClass}" style="width:${r.confidence_score}%"></div></div>
+        ${r.confidence_score || '—'}
+      </div>
+    </td>`;
+    html += `<td><span class="status-badge ${statusClass}">${r.status}</span></td>`;
+    html += `<td><button class="log-toggle" onclick="toggleLog(${i})">📋 ${r.log.length} steps</button></td>`;
+    html += `</tr>`;
+    
+    if (r.expanded && r.log.length > 0) {
+      html += `<tr class="log-row"><td colspan="999">${r.log.map(l => esc(l)).join('\n')}</td></tr>`;
+    }
+  });
+  
+  tbody.innerHTML = html;
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleLog(i) {
+  results[i].expanded = !results[i].expanded;
+  renderTable();
+}
+
+// ─────────────────────────────────────────────
+// LIVE LOG
+// ─────────────────────────────────────────────
+function addLog(type, msg) {
+  const stream = document.getElementById('logStream');
+  const elapsed = startTime ? ((Date.now() - startTime) / 1000).toFixed(1) : '0.0';
+  const ts = `+${elapsed}s`;
+  stream.innerHTML += `<div class="log-entry"><span class="log-time">${ts}</span><span class="log-msg ${type}">${esc(msg)}</span></div>`;
+  stream.scrollTop = stream.scrollHeight;
+}
+
+// ─────────────────────────────────────────────
+// STATS UPDATE
+// ─────────────────────────────────────────────
+function updateStats() {
+  const processed = results.filter(r => r.status !== 'pending' && r.status !== 'processing').length;
+  const found = results.filter(r => r.status === 'found').length;
+  const notFound = results.filter(r => r.status === 'not_found').length;
+  const errors = results.filter(r => r.status === 'error').length;
+  
+  document.getElementById('statProcessed').textContent = processed;
+  document.getElementById('statFound').textContent = found;
+  document.getElementById('statNotFound').textContent = notFound;
+  document.getElementById('statError').textContent = errors;
+
+  const pct = rows.length ? Math.round((processed / rows.length) * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressLabel').textContent = 
+    isRunning ? `Enriching… (${processed}/${rows.length})` : 
+    processed === rows.length ? 'Complete!' : 'Ready';
+}
+
+// ─────────────────────────────────────────────
+// ENRICHMENT ENGINE
+// ─────────────────────────────────────────────
+async function startEnrichment() {
+  if (isRunning) return;
+  isRunning = true;
+  isPaused = false;
+  shouldStop = false;
+  startTime = Date.now();
+  
+  document.getElementById('btnStart').classList.add('hidden');
+  document.getElementById('btnPause').classList.remove('hidden');
+  document.getElementById('btnExport').disabled = false;
+  
+  addLog('info', `▶ Enrichment started — concurrency: ${MAX_CONCURRENCY} — deep: ${document.getElementById('deepSearch').checked}`);
+
+  const useClaude = document.getElementById('useClaude').checked;
+  const deepSearch = document.getElementById('deepSearch').checked;
+
+  // Process with concurrency control
+  const pending = results.filter(r => r.status === 'pending');
+  let idx = 0;
+
+  async function worker() {
+    while (idx < pending.length && !shouldStop) {
+      if (isPaused) {
+        await sleep(300);
+        continue;
+      }
+      const item = pending[idx++];
+      if (!item || item.status !== 'pending') continue;
+
+      item.status = 'processing';
+      renderTable();
+      updateStats();
+
+      try {
+        await enrichRow(item, useClaude, deepSearch);
+      } catch(e) {
+        item.status = 'error';
+        item.log.push(`[ERROR] ${e.message}`);
+        addLog('err', `Row ${item.index + 1}: Error — ${e.message}`);
+      }
+
+      renderTable();
+      updateStats();
+    }
+  }
+
+  const workers = Array(MAX_CONCURRENCY).fill(0).map(() => worker());
+  await Promise.all(workers);
+
+  isRunning = false;
+  document.getElementById('btnStart').textContent = '✓ Complete';
+  document.getElementById('btnStart').classList.remove('hidden');
+  document.getElementById('btnPause').classList.add('hidden');
+  
+  const found = results.filter(r => r.status === 'found').length;
+  addLog('ok', `✓ Enrichment complete — ${found}/${rows.length} phones found (${Math.round(found/rows.length*100)}% hit rate)`);
+  renderTable();
+  updateStats();
+}
+
+function pauseEnrichment() {
+  if (!isRunning) return;
+  isPaused = !isPaused;
+  document.getElementById('btnPause').textContent = isPaused ? '▶ Resume' : '⏸ Pause';
+  addLog('warn', isPaused ? '⏸ Paused' : '▶ Resumed');
+}
+
+async function enrichRow(item, useClaude, deepSearch) {
+  const row = item.original;
+
+  // Use column mapping: map API expects company, website, address
+  const getMapped = (key) => {
+    const col = columnMapping[key];
+    if (!col || !row.hasOwnProperty(col)) return '';
+    const val = row[col];
+    return (val != null && String(val).trim()) ? String(val).trim() : '';
+  };
+
+  const companyName = getMapped('company');
+  const website = getMapped('website');
+  const address = getMapped('address');
+
+  // Fallback: if no mapping, try common column names (for backward compat)
+  const getField = (names) => {
+    for (const n of names) {
+      const key = Object.keys(row).find(k => k.toLowerCase().trim() === n.toLowerCase());
+      if (key && row[key]) return String(row[key]).trim();
+    }
+    return '';
+  };
+  const companyName2 = companyName || getField(['company_name', 'company', 'name', 'nom']);
+  const website2 = website || getField(['website', 'url', 'site', 'domain', 'web']);
+  const address2 = address || getField(['address', 'adresse', 'addr']);
+
+  item.log.push(`[START] company="${companyName2}" website="${website2}" address="${address2}"`);
+
+  // Build context for Claude (use mapped or fallback values)
+  const context = {
+    company_name: companyName2,
+    website: website2,
+    address: address2,
+    deepSearch: deepSearch,
+    serpApiKey: document.getElementById('serpApiKey').value.trim()
+  };
+
+  let result = null;
+
+  if (useClaude) {
+    result = await enrichWithClaude(context, item);
+  } else {
+    result = await enrichFallback(context, item);
+  }
+
+  if (result && result.phone_number) {
+    item.phone_number = result.phone_number;
+    item.phone_source = result.source;
+    item.confidence_score = result.confidence;
+    item.status = 'found';
+    addLog('ok', `Row ${item.index + 1} [${companyName2 || website2}] → ${result.phone_number} (${result.confidence}%)`);
+  } else {
+    item.status = 'not_found';
+    addLog('warn', `Row ${item.index + 1} [${companyName2 || website2}] → not found`);
+  }
+}
+
+// ─────────────────────────────────────────────
+// CLAUDE API ENRICHMENT
+// ─────────────────────────────────────────────
+async function enrichWithClaude(context, item, retryCount = 0) {
+  const { company_name, website, address, deepSearch, serpApiKey } = context;
+
+  const prompt = buildEnrichmentPrompt(company_name, website, address, deepSearch, serpApiKey);
+  
+  item.log.push(`[CLAUDE] Querying AI enrichment engine (attempt ${retryCount + 1})`);
+  
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [
+          {
+            type: "web_search_20250305",
+            name: "web_search"
+          }
+        ],
+        system: `You are a phone number enrichment agent. Your job is to find the official phone number for a company.
+You have access to web search. Use it to find phone numbers.
+
+ENRICHMENT STRATEGY (in order):
+1. If website exists: search for the company website + "phone" or "contact" or "tel"
+2. If no phone found: search company name + "phone number" + city/address if available
+3. Try searching: site:company.com contact OR phone
+4. Check if there's a "mentions légales" page for French companies
+
+PHONE VALIDATION:
+- Accept international formats: +33, +1, +44, etc.
+- Accept local formats with area codes
+- Reject: 0000000000, 1234567890, 1111111111 (fake numbers)
+- Reject fax numbers (labeled as fax/télécopie)
+- Prefer numbers near words: contact, téléphone, tel, call, standard
+- Normalize to E.164 format when possible
+
+RESPONSE FORMAT (JSON only, no other text):
+{
+  "phone_number": "+33123456789" or null,
+  "source": "website_homepage|contact_page|google_search|json_ld|mentions_legales",
+  "confidence": 0-100,
+  "reasoning": "brief explanation"
+}
+
+If not found: {"phone_number": null, "source": "not_found", "confidence": 0, "reasoning": "why"}`,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.text();
+      throw new Error(`API error ${resp.status}: ${err.substring(0, 100)}`);
+    }
+
+    const data = await resp.json();
+    
+    // Extract text from all content blocks (handle tool use)
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const fullText = textBlocks.map(b => b.text).join('\n');
+    
+    item.log.push(`[CLAUDE] Response received — extracting JSON`);
+
+    // Parse JSON from response
+    let parsed = null;
+    try {
+      // Try to find JSON in response
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      }
+    } catch(e) {
+      item.log.push(`[WARN] Failed to parse JSON response: ${e.message}`);
+    }
+
+    if (parsed && parsed.phone_number && isValidPhone(parsed.phone_number)) {
+      item.log.push(`[SUCCESS] Phone: ${parsed.phone_number} | Source: ${parsed.source} | Confidence: ${parsed.confidence}%`);
+      if (parsed.reasoning) item.log.push(`[REASON] ${parsed.reasoning}`);
+      return {
+        phone_number: normalizePhone(parsed.phone_number),
+        source: parsed.source || 'ai_enrichment',
+        confidence: Math.min(100, Math.max(0, parseInt(parsed.confidence) || 50))
+      };
+    } else if (parsed && parsed.phone_number === null) {
+      item.log.push(`[NOT FOUND] ${parsed.reasoning || 'No phone found'}`);
+      return null;
+    } else {
+      item.log.push(`[WARN] Unexpected response format`);
+      return null;
+    }
+
+  } catch(e) {
+    if (retryCount < MAX_RETRIES) {
+      item.log.push(`[RETRY] Attempt ${retryCount + 1} failed: ${e.message} — retrying...`);
+      await sleep(1000 * (retryCount + 1));
+      return enrichWithClaude(context, item, retryCount + 1);
+    }
+    throw e;
+  }
+}
+
+function buildEnrichmentPrompt(company_name, website, address, deepSearch, serpApiKey) {
+  let prompt = `Find the official phone number for this company:\n\n`;
+  
+  if (company_name) prompt += `Company Name: ${company_name}\n`;
+  if (website) prompt += `Website: ${website}\n`;
+  if (address) prompt += `Address: ${address}\n`;
+  if (deepSearch) prompt += `\nDeep Search Mode: ON — crawl up to 3 internal pages (homepage, /contact, /contact-us, /mentions-legales)\n`;
+  
+  prompt += `\nSearch strategy:`;
+  if (website) {
+    const domain = website.replace(/^https?:\/\//, '').split('/')[0];
+    prompt += `\n1. Search for: site:${domain} contact phone`;
+    prompt += `\n2. Try fetching: ${website.startsWith('http') ? website : 'https://' + website}`;
+    if (deepSearch) {
+      const base = website.startsWith('http') ? website : 'https://' + website;
+      prompt += `\n3. Also check: ${base}/contact and ${base}/contact-us`;
+    }
+  } else if (company_name) {
+    prompt += `\n1. Search for: "${company_name}" official phone number`;
+    if (address) prompt += `\n2. Search for: "${company_name}" "${address}" telephone`;
+    prompt += `\n3. Find their official website first, then look for contact info`;
+  }
+  
+  prompt += `\n\nReturn ONLY a JSON object with the result.`;
+  return prompt;
+}
+
+// ─────────────────────────────────────────────
+// FALLBACK ENRICHMENT (without Claude)
+// ─────────────────────────────────────────────
+async function enrichFallback(context, item) {
+  const { company_name, website } = context;
+  item.log.push(`[FALLBACK] Using pattern-based extraction (Claude disabled)`);
+  
+  // Simulate some basic pattern matching
+  await sleep(500 + Math.random() * 1000);
+  
+  // Without API access, we can only do deterministic things
+  item.log.push(`[FALLBACK] No API access — cannot fetch live data`);
+  return null;
+}
+
+// ─────────────────────────────────────────────
+// PHONE UTILITIES
+// ─────────────────────────────────────────────
+function extractPhones(text) {
+  const found = new Set();
+  for (const regex of PHONE_REGEXES) {
+    const matches = text.match(new RegExp(regex.source, 'g')) || [];
+    matches.forEach(m => {
+      const clean = m.replace(/\s+/g, ' ').trim();
+      if (!isValidPhone(clean)) return;
+      found.add(clean);
+    });
+  }
+  return [...found];
+}
+
+function isValidPhone(phone) {
+  if (!phone) return false;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7 || digits.length > 15) return false;
+  if (FAKE_NUMBERS.has(digits)) return false;
+  if (/^(.)\1{6,}$/.test(digits)) return false; // All same digit
+  if (digits === '1234567890' || digits === '0123456789') return false;
+  return true;
+}
+
+function normalizePhone(phone) {
+  if (!phone) return '';
+  // Already E.164
+  if (/^\+\d{8,15}$/.test(phone.replace(/\s/g, ''))) return phone.replace(/\s/g, '');
+  // French
+  const digits = phone.replace(/\D/g, '');
+  if (digits.startsWith('33') && digits.length === 11) return '+' + digits;
+  if (digits.startsWith('0') && digits.length === 10 && /^0[1-9]/.test(digits)) {
+    return '+33' + digits.substring(1);
+  }
+  return phone;
+}
+
+// ─────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────
+function exportCSV() {
+  const origFields = results.length > 0 ? Object.keys(results[0].original) : [];
+  const allFields = [...origFields, 'phone_number', 'phone_source', 'confidence_score', 'status'];
+  
+  const data = results.map(r => {
+    const row = { ...r.original };
+    row.phone_number = r.phone_number || '';
+    row.phone_source = r.phone_source || '';
+    row.confidence_score = r.confidence_score || 0;
+    row.status = r.status;
+    return row;
+  });
+
+  const csv = Papa.unparse(data, { columns: allFields });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `enriched_phones_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  addLog('ok', `✓ Exported ${results.length} rows to CSV`);
+}
+
+// ─────────────────────────────────────────────
+// RESET
+// ─────────────────────────────────────────────
+function resetAll() {
+  shouldStop = true;
+  isRunning = false;
+  rows = []; results = [];
+  columnMapping = { company: '', website: '', address: '' };
+  
+  document.getElementById('uploadSection').classList.remove('hidden');
+  document.getElementById('processingSection').classList.add('hidden');
+  document.getElementById('btnStart').textContent = '▶ Start Enrichment';
+  document.getElementById('btnStart').classList.remove('hidden');
+  document.getElementById('btnPause').classList.add('hidden');
+  document.getElementById('btnPause').textContent = '⏸ Pause';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('logStream').innerHTML = `
+    <div class="log-entry">
+      <span class="log-time">+0.0s</span>
+      <span class="log-msg info">// Pipeline initialized — awaiting start command</span>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

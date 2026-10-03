@@ -1,0 +1,23 @@
+import { NextRequest } from "next/server";
+import {
+  successResponse,
+  requireRole,
+  requirePermission,
+  withErrorHandler,
+} from "@/lib/api-utils";
+import { hrCalculationService } from "@/lib/hr/hr-calculation-service";
+import { currentParisMonth } from "@/lib/hr/hr-rules";
+
+// ============================================
+// GET /api/hr/months - Get HR table data for a month
+// ============================================
+export const GET = withErrorHandler(async (request: NextRequest) => {
+  await requireRole(["MANAGER"], request);
+  await requirePermission("features.hr_view", request);
+
+  const { searchParams } = new URL(request.url);
+  const month = searchParams.get("month") || currentParisMonth();
+
+  const rows = await hrCalculationService.getMonthOverview(month);
+  return successResponse({ month, rows });
+});

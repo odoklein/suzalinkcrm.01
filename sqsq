@@ -1,0 +1,2018 @@
+import {
+    useState,
+    useEffect,
+    useRef
+}
+
+from "react";
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPTAIN PROSPECT — CLIENTS PAGE
+   Same design system as Lists:
+   Fonts  : Fraunces (display) + DM Sans (UI)
+   Canvas : #FAFAF8 warm off-white
+   Accent : Indigo #4F46E5
+   Cards  : Relationship-first, health-coded, action-oriented
+   ═══════════════════════════════════════════════════════════════ */
+
+const CSS=` @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --canvas: #FAFAF8;
+    --surface: #FFFFFF;
+    --s2: #F4F3F0;
+    --s3: #EEECEA;
+    --ink: #111110;
+    --ink2: #44403C;
+    --ink3: #78716C;
+    --ink4: #A8A29E;
+    --rule: rgba(0, 0, 0, 0.07);
+    --accent: #4F46E5;
+    --a-light: #EEF2FF;
+    --a-text: #4338CA;
+    --green: #16A34A;
+    --g-light: #F0FDF4;
+    --g-text: #15803D;
+    --amber: #D97706;
+    --am-light: #FFFBEB;
+    --am-text: #B45309;
+    --red: #DC2626;
+    --r-light: #FEF2F2;
+    --r-text: #B91C1C;
+    --slate: #64748B;
+    --sl-light: #F8FAFC;
+    --sl-text: #475569;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --fd: 'Fraunces', Georgia, serif;
+    --fu: 'DM Sans', system-ui, sans-serif;
+    --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --sh-md: 0 4px 12px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --sh-lg: 0 12px 32px rgba(0, 0, 0, 0.09), 0 4px 8px rgba(0, 0, 0, 0.04);
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    font-family: var(--fu);
+    background: var(--canvas);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .1);
+    border-radius: 99px;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes stripeIn {
+    from {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shimmer {
+    from {
+        background-position: -200% 0;
+    }
+
+    to {
+        background-position: 200% 0;
+    }
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.sb {
+    width: 232px;
+    min-height: 100vh;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 200;
+}
+
+.sb-logo {
+    padding: 20px 18px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.sb-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4F46E5, #818CF8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.sb-wordmark {
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: -.3px;
+}
+
+.sb-wordmark span {
+    color: #818CF8;
+}
+
+.sb-search {
+    margin: 10px 12px 6px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, .06);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 130ms;
+}
+
+.sb-search:hover {
+    background: rgba(255, 255, 255, .09);
+}
+
+.sb-search-ph {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, .28);
+    flex: 1;
+}
+
+.sb-search-kbd {
+    font-size: 10px;
+    color: rgba(255, 255, 255, .16);
+    background: rgba(255, 255, 255, .07);
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+.sb-sec {
+    padding: 16px 14px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .2);
+}
+
+.ni {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin: 0 6px 1px;
+    cursor: pointer;
+    position: relative;
+    transition: background 120ms;
+}
+
+.ni:hover {
+    background: rgba(255, 255, 255, .05);
+}
+
+.ni.on {
+    background: rgba(79, 70, 229, .18);
+}
+
+.ni.on::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 18px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #818CF8, #4F46E5);
+}
+
+.ni-ico {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: .45;
+    flex-shrink: 0;
+}
+
+.ni.on .ni-ico {
+    opacity: 1;
+}
+
+.ni-lbl {
+    font-size: 13px;
+    color: rgba(255, 255, 255, .48);
+    transition: color 120ms;
+}
+
+.ni:hover .ni-lbl {
+    color: rgba(255, 255, 255, .72);
+}
+
+.ni.on .ni-lbl {
+    color: #fff;
+    font-weight: 500;
+}
+
+.ni-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(79, 70, 229, .28);
+    color: #818CF8;
+    padding: 2px 7px;
+    border-radius: 99px;
+}
+
+.sb-user {
+    margin: auto 12px 16px;
+    padding: 10px;
+    background: rgba(255, 255, 255, .04);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, .06);
+    transition: background 130ms;
+}
+
+.sb-user:hover {
+    background: rgba(255, 255, 255, .07);
+}
+
+.sb-av {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4F46E5, #818CF8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.sb-name {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, .78);
+}
+
+.sb-role {
+    font-size: 11px;
+    color: rgba(255, 255, 255, .28);
+}
+
+/* ── MAIN ────────────────────────────────────────────── */
+.main {
+    margin-left: 232px;
+    min-height: 100vh;
+    padding: 40px;
+    background: var(--canvas);
+}
+
+/* ── PAGE HEADER ─────────────────────────────────────── */
+.ph {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.ph-bc {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink4);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ph-title {
+    font-family: var(--fd);
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -.8px;
+    color: var(--ink);
+    line-height: 1.1;
+}
+
+.ph-title em {
+    font-style: italic;
+    color: var(--accent);
+}
+
+.ph-sub {
+    font-size: 14px;
+    color: var(--ink3);
+    margin-top: 5px;
+    font-weight: 300;
+}
+
+.ph-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--fu);
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 180ms var(--ease);
+    white-space: nowrap;
+    letter-spacing: -.1px;
+}
+
+.btn-dark {
+    background: var(--ink);
+    color: #fff;
+}
+
+.btn-dark:hover {
+    background: #2A2827;
+    transform: translateY(-1px);
+    box-shadow: var(--sh-md);
+}
+
+.btn-ghost {
+    background: var(--surface);
+    color: var(--ink2);
+    border: 1px solid rgba(0, 0, 0, .12);
+}
+
+.btn-ghost:hover {
+    background: var(--s2);
+}
+
+/* ── STAT CARDS ──────────────────────────────────────── */
+.sg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.sc {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 20px 22px;
+    border: 1px solid var(--rule);
+    position: relative;
+    overflow: hidden;
+    transition: all 200ms var(--ease);
+    cursor: default;
+}
+
+.sc:hover {
+    border-color: rgba(0, 0, 0, .12);
+    box-shadow: var(--sh-md);
+    transform: translateY(-2px);
+}
+
+.sc-ey {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink4);
+    margin-bottom: 10px;
+}
+
+.sc-val {
+    font-family: var(--fd);
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -1.5px;
+    color: var(--ink);
+    line-height: 1;
+}
+
+.sc-sub {
+    font-size: 12px;
+    color: var(--ink3);
+    margin-top: 7px;
+}
+
+.sc-deco {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    font-size: 56px;
+    opacity: .04;
+    pointer-events: none;
+}
+
+.sc-icon-wrap {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+/* ── SEARCH + FILTER BAR ─────────────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.search-wrap {
+    flex: 1;
+    max-width: 380px;
+    background: var(--surface);
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 12px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition: border-color 150ms, box-shadow 150ms;
+}
+
+.search-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+}
+
+.search-wrap input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--fu);
+    font-size: 13.5px;
+    color: var(--ink);
+    flex: 1;
+}
+
+.search-wrap input::placeholder {
+    color: var(--ink4);
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, .1);
+    background: var(--surface);
+    font-family: var(--fu);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink2);
+    cursor: pointer;
+    transition: all 140ms;
+}
+
+.filter-btn:hover {
+    background: var(--s2);
+}
+
+.filter-btn.active {
+    background: var(--a-light);
+    border-color: rgba(79, 70, 229, .2);
+    color: var(--a-text);
+}
+
+.filter-count {
+    width: 18px;
+    height: 18px;
+    border-radius: 99px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── SECTION LABEL ───────────────────────────────────── */
+.sec-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink4);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+}
+
+/* ── CLIENT GRID ─────────────────────────────────────── */
+.cg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+/* ── CLIENT CARD ─────────────────────────────────────── */
+.cc {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    transition: all 220ms var(--ease);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.cc:hover {
+    box-shadow: 0 0 0 1px rgba(79, 70, 229, .1), var(--sh-lg);
+    transform: translateY(-3px);
+    border-color: rgba(79, 70, 229, .18);
+}
+
+/* Health stripe — 3px left border coded by status */
+.cc-stripe {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 20px 0 0 20px;
+    transform-origin: top;
+    animation: stripeIn .4s var(--ease) both;
+}
+
+/* Card body */
+.cc-body {
+    padding: 20px 20px 0 22px;
+    flex: 1;
+}
+
+/* Header: avatar + name + status */
+.cc-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.cc-av {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--fd);
+    font-size: 17px;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: -.5px;
+    position: relative;
+}
+
+.cc-av-ring {
+    position: absolute;
+    inset: -2px;
+    border-radius: 13px;
+    border: 1.5px solid transparent;
+    transition: border-color 200ms;
+}
+
+.cc:hover .cc-av-ring {
+    border-color: var(--accent);
+    opacity: .4;
+}
+
+.cc-name-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.cc-name {
+    font-family: var(--fd);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -.3px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.cc-sector {
+    font-size: 12px;
+    color: var(--ink3);
+    font-weight: 400;
+}
+
+.cc-status-wrap {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.cc-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
+/* Urgency badge */
+.cc-urgent {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: var(--r-light);
+    color: var(--r-text);
+    border: 1px solid rgba(220, 38, 38, .15);
+    animation: fadeUp .3s var(--ease);
+    white-space: nowrap;
+}
+
+/* Contact row */
+.cc-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 0;
+    border-top: 1px solid var(--rule);
+    margin-bottom: 0;
+}
+
+.cc-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--ink3);
+    min-width: 0;
+}
+
+.cc-contact-row span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cc-contact-ico {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: .5;
+}
+
+/* Divider */
+.cc-div {
+    height: 1px;
+    background: var(--rule);
+    margin: 0;
+}
+
+/* Metrics trio */
+.cc-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr 1px 1fr;
+    padding: 14px 0;
+}
+
+.met-sep-v {
+    background: var(--rule);
+}
+
+.met {
+    padding: 0 14px;
+}
+
+.met:first-child {
+    padding-left: 0;
+}
+
+.met:last-child {
+    padding-right: 0;
+}
+
+.met-v {
+    font-family: var(--fd);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    color: var(--ink);
+    line-height: 1;
+}
+
+.met-l {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink4);
+    margin-top: 4px;
+}
+
+/* Mission progress */
+.cc-mission {
+    padding: 0 0 14px;
+}
+
+.cc-mission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 7px;
+}
+
+.cc-mission-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cc-mission-name::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: .65;
+}
+
+.cc-mission-quota {
+    font-size: 11.5px;
+    color: var(--ink4);
+}
+
+.prog-track {
+    height: 3px;
+    background: var(--s3);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.prog-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .9s var(--ease);
+}
+
+/* Card footer */
+.cc-foot {
+    padding: 12px 20px 14px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--rule);
+}
+
+/* Next action chip */
+.cc-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 99px;
+    transition: all 150ms;
+    cursor: pointer;
+}
+
+.cc-action:hover {
+    filter: brightness(.95);
+}
+
+/* Agent avatar */
+.agent-av {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    border: 2px solid var(--surface);
+    flex-shrink: 0;
+}
+
+.agent-stack {
+    display: flex;
+    margin-left: -6px;
+}
+
+.agent-stack .agent-av:first-child {
+    margin-left: 0;
+}
+
+.cc-foot-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cc-date {
+    font-size: 11px;
+    color: var(--ink4);
+}
+
+/* ── HOVER REVEAL OVERLAY ────────────────────────────── */
+.cc-hover-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(255, 255, 255, .98) 60%, transparent);
+    padding: 24px 20px 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 200ms var(--ease);
+    pointer-events: none;
+    border-radius: 0 0 20px 20px;
+}
+
+.cc:hover .cc-hover-bar {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.qa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--fu);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 140ms;
+    background: var(--s2);
+    color: var(--ink2);
+}
+
+.qa-btn:hover {
+    background: var(--s3);
+    color: var(--ink);
+}
+
+.qa-btn.primary {
+    background: var(--accent);
+    color: #fff;
+}
+
+.qa-btn.primary:hover {
+    background: #4338CA;
+}
+
+.qa-spacer {
+    flex: 1;
+}
+
+/* ── EMPTY STATE ─────────────────────────────────────── */
+.empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink4);
+}
+
+.empty-ico {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: .4;
+}
+
+.empty-title {
+    font-family: var(--fd);
+    font-size: 18px;
+    color: var(--ink3);
+    margin-bottom: 6px;
+}
+
+.empty-sub {
+    font-size: 13px;
+}
+
+/* ── SPARKLINE ───────────────────────────────────────── */
+.sparkline {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 20px;
+}
+
+.spark-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: .35;
+    transition: opacity 150ms;
+}
+
+.spark-bar.hi {
+    opacity: .85;
+}
+
+.cc:hover .spark-bar {
+    opacity: .25;
+}
+
+.cc:hover .spark-bar.hi {
+    opacity: 1;
+}
+
+`;
+
+/* ─── DATA ─────────────────────────────────────────────────────── */
+const STATUS= {
+    actif: {
+        label: "Actif", bg:"var(--a-light)", color:"var(--a-text)", stripe:"#4F46E5"
+    }
+
+    ,
+    pause: {
+        label: "En pause", bg:"var(--am-light)", color:"var(--am-text)", stripe:"#D97706"
+    }
+
+    ,
+    risque: {
+        label: "À risque", bg:"var(--r-light)", color:"var(--r-text)", stripe:"#DC2626"
+    }
+
+    ,
+    converti: {
+        label: "Converti", bg:"var(--g-light)", color:"var(--g-text)", stripe:"#16A34A"
+    }
+
+    ,
+    nouveau: {
+        label: "Nouveau", bg:"var(--sl-light)", color:"var(--sl-text)", stripe:"#64748B"
+    }
+
+    ,
+}
+
+;
+
+const AVATARS=[ {
+    bg: "#EEF2FF", color:"#4F46E5"
+}
+
+,
+{
+bg: "#F0FDF4", color:"#15803D"
+}
+
+,
+{
+bg: "#FFFBEB", color:"#B45309"
+}
+
+,
+{
+bg: "#FEF2F2", color:"#B91C1C"
+}
+
+,
+{
+bg: "#F5F3FF", color:"#6D28D9"
+}
+
+,
+];
+
+const CLIENTS=[ {
+
+    id:1,
+    name:"MBWay",
+    sector:"Éducation / EdTech",
+    email:"contact@mbway.fr",
+    phone:"+33 1 42 56 78 90",
+    status:"actif",
+    missions:1,
+    users:0,
+    rdv:8,
+    appels:47,
+    conv:17,
+    mission:"Q1 Outreach",
+    quota:47,
+    quotaMax:80,
+    action: {
+        icon: "📞", label:"Rappel prévu", color:"var(--a-light)", textColor:"var(--a-text)"
+    }
+
+    ,
+    agents:[ {
+        init: "JF", bg:"#4F46E5"
+    }
+
+    ],
+    since:"Jan 2026",
+    urgent:false,
+    spark:[4,
+    7,
+    5,
+    9,
+    6,
+    11,
+    8],
+}
+
+,
+{
+
+id:2,
+name:"TestCom",
+sector:"SaaS / Tech",
+email:"odosuzali@gmail.com",
+phone:"+33643638110",
+status:"actif",
+missions:1,
+users:1,
+rdv:12,
+appels:89,
+conv:13,
+mission:"Expansion FR",
+quota:89,
+quotaMax:120,
+action: {
+    icon: "✅", label:"RDV confirmé", color:"var(--g-light)", textColor:"var(--g-text)"
+}
+
+,
+agents:[ {
+    init: "JF", bg:"#4F46E5"
+}
+
+,
+{
+init: "AL", bg:"#16A34A"
+}
+
+],
+since:"Déc 2025",
+urgent:false,
+spark:[3,
+8,
+6,
+12,
+9,
+14,
+11],
+}
+
+,
+{
+
+id:3,
+name:"Tonic Radio",
+sector:"Médias — Radio locale",
+email:"info@tonicradio.fr",
+phone:"+33 4 91 23 45 67",
+status:"pause",
+missions:1,
+users:0,
+rdv:2,
+appels:18,
+conv:11,
+mission:"Partenariats Médias",
+quota:18,
+quotaMax:60,
+action: {
+    icon: "⚠️", label:"Relance requise", color:"var(--am-light)", textColor:"var(--am-text)"
+}
+
+,
+agents:[ {
+    init: "JF", bg:"#4F46E5"
+}
+
+],
+since:"Nov 2025",
+urgent:true,
+urgentLabel:"Rappel en retard",
+spark:[9,
+6,
+4,
+3,
+2,
+2,
+1],
+}
+
+,
+{
+
+id:4,
+name:"UPIKAJOB",
+sector:"Services B2B / RH",
+email:"laurie@upikajob.com",
+phone:"+33 6 60 53 03 65",
+status:"actif",
+missions:1,
+users:2,
+rdv:19,
+appels:134,
+conv:14,
+mission:"Retail Push 2026",
+quota:134,
+quotaMax:150,
+action: {
+    icon: "📧", label:"Email à envoyer", color:"var(--sl-light)", textColor:"var(--sl-text)"
+}
+
+,
+agents:[ {
+    init: "JF", bg:"#4F46E5"
+}
+
+,
+{
+init: "LC", bg:"#D97706"
+}
+
+],
+since:"Oct 2025",
+urgent:false,
+spark:[5,
+8,
+11,
+9,
+14,
+12,
+16],
+}
+
+,
+{
+
+id:5,
+name:"Lumière Conseil",
+sector:"Consulting / Finance",
+email:"contact@lumiere.co",
+phone:"+33 1 55 72 31 00",
+status:"risque",
+missions:2,
+users:1,
+rdv:3,
+appels:24,
+conv:12,
+mission:"Q2 Pipeline",
+quota:24,
+quotaMax:100,
+action: {
+    icon: "🔴", label:"Compte à risque", color:"var(--r-light)", textColor:"var(--r-text)"
+}
+
+,
+agents:[ {
+    init: "JF", bg:"#4F46E5"
+}
+
+],
+since:"Fév 2026",
+urgent:true,
+urgentLabel:"Inactif 14 jours",
+spark:[8,
+5,
+6,
+3,
+2,
+1,
+1],
+}
+
+,
+{
+
+id:6,
+name:"Artisans Pro",
+sector:"Commerce / Artisanat",
+email:"pro@artisanspro.fr",
+phone:"+33 7 82 14 56 23",
+status:"nouveau",
+missions:1,
+users:1,
+rdv:0,
+appels:7,
+conv:0,
+mission:"Onboarding Mai",
+quota:7,
+quotaMax:30,
+action: {
+    icon: "🚀", label:"Démarrage en cours", color:"var(--sl-light)", textColor:"var(--sl-text)"
+}
+
+,
+agents:[ {
+    init: "JF", bg:"#4F46E5"
+}
+
+],
+since:"Fév 2026",
+urgent:false,
+spark:[0,
+1,
+2,
+1,
+3,
+2,
+4],
+}
+
+,
+];
+
+/* ─── SVG ICONS ─────────────────────────────────────────────────── */
+const SearchIco=()=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" > <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /> </svg>);
+const MailIco=()=>(<svg className="cc-contact-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /> <polyline points="22,6 12,13 2,6" /> </svg>);
+const PhoneIco=()=>(<svg className="cc-contact-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" /> </svg>);
+const FilterIco=()=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13" > <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /> </svg>);
+const PlusIco=()=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13" > <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /> </svg>);
+const RefreshIco=()=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" > <polyline points="23 4 23 10 17 10" /> <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" /> </svg>);
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────── */
+const NAV=[ {
+    lbl: "Accueil", sec:"PROSPECTION"
+}
+
+,
+{
+lbl: "Listes & Prospection", sec:"PROSPECTION"
+}
+
+,
+{
+lbl: "Missions", sec:"PROSPECTION", badge:"3"
+}
+
+,
+{
+lbl: "Appels", sec:"PROSPECTION"
+}
+
+,
+{
+lbl: "Clients", sec:"SUIVI", on:true
+}
+
+,
+{
+lbl: "Emails", sec:"SUIVI"
+}
+
+,
+{
+lbl: "Messages", sec:"SUIVI"
+}
+
+,
+{
+lbl: "Performance", sec:"ÉQUIPE"
+}
+
+,
+{
+lbl: "Planning", sec:"ÉQUIPE"
+}
+
+,
+];
+
+const NAV_ICONS= {
+    "Accueil": "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z",
+        "Listes & Prospection":"M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z",
+        "Missions":"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
+        "Appels":"M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z",
+        "Clients":"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 7a4 4 0 100 8 4 4 0 000-8z M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75",
+        "Emails":"M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
+        "Messages":"M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z",
+        "Performance":"M18 20V10 M12 20V4 M6 20v-6",
+        "Planning":"M3 9h18 M8 2v4 M16 2v4 M3 6a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6z",
+}
+
+;
+
+function Sidebar() {
+    return (<aside className="sb" > <div className="sb-logo" > <div className="sb-mark" >⚡</div> <span className="sb-wordmark" >captain<span>prospect</span></span> </div> <div className="sb-search" > <SearchIco/> <span className="sb-search-ph" >Rechercher…</span> <span className="sb-search-kbd" >⌘K</span> </div> {
+            ["PROSPECTION", "SUIVI", "ÉQUIPE"].map(sec=> (<div key= {
+                        sec
+                    }
+
+                    > <div className="sb-sec" > {
+                        sec
+                    }
+
+                    </div> {
+                        NAV.filter(n=> n.sec===sec).map(item=> (<div key= {
+                                    item.lbl
+                                }
+
+                                className= {
+                                    `ni$ {
+                                        item.on?" on":""
+                                    }
+
+                                    `
+                                }
+
+                                > <span className="ni-ico" > <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" > {
+                                    (NAV_ICONS[item.lbl]||"M12 12h.01").split(" M").map((seg, i)=>(<path key= {
+                                                i
+                                            }
+
+                                            d= {
+                                                i===0?seg:"M" +seg
+                                            }
+
+                                            />))
+                                }
+
+                                </svg> </span> <span className="ni-lbl" > {
+                                    item.lbl
+                                }
+
+                                </span> {
+                                    item.badge && <span className="ni-badge" > {
+                                        item.badge
+                                    }
+
+                                    </span>
+                                }
+
+                                </div>))
+                    }
+
+                    </div>))
+        }
+
+        <div className="sb-user" > <div className="sb-av" >JF</div> <div> <div className="sb-name" >Jean-François</div> <div className="sb-role" >Manager</div> </div> </div> </aside>);
+}
+
+/* ─── COUNTER ────────────────────────────────────────────────────── */
+function Counter({
+    to
+
+}) {
+    const [v,
+    setV]=useState(0);
+
+    useEffect(()=> {
+            let raf, start;
+
+            const step=ts=> {
+                if ( !start) start=ts;
+                const p=Math.min((ts - start) / 1200, 1);
+                setV(Math.round((1 - Math.pow(1-p, 4)) * to));
+                if (p < 1) raf=requestAnimationFrame(step);
+            }
+
+            ;
+            raf=requestAnimationFrame(step);
+            return ()=> cancelAnimationFrame(raf);
+        }
+
+        , [to]);
+
+    return <> {
+        v
+    }
+
+    </>;
+}
+
+/* ─── SPARKLINE ──────────────────────────────────────────────────── */
+function Sparkline({
+    data
+
+}) {
+    const max=Math.max(...data, 1);
+
+    return (<div className="sparkline" > {
+            data.map((v, i)=> (<div key= {
+                        i
+                    }
+
+                    className= {
+                        `spark-bar$ {
+                            v===max?" hi":""
+                        }
+
+                        `
+                    }
+
+                    style= {
+                            {
+                            height: `$ {
+                                Math.max(3, (v/max)*20)
+                            }
+
+                            px`
+                        }
+                    }
+
+                    />))
+        }
+
+        </div>);
+}
+
+/* ─── CLIENT CARD ────────────────────────────────────────────────── */
+function ClientCard({
+    client, delay
+
+}) {
+    const st=STATUS[client.status];
+    const avi=client.id % AVATARS.length;
+    const av=AVATARS[avi];
+    const pct=Math.round((client.quota / client.quotaMax) * 100);
+    const pctColor=pct>=80 ? "#16A34A": pct >=50 ? "#D97706": "#DC2626";
+
+    return (<div className="cc"
+
+        style= {
+                {
+                animation:`fadeUp .5s var(--ease) $ {
+                    delay
+                }
+
+                s both`
+            }
+        }
+
+        > {
+            /* Health stripe */
+        }
+
+        <div className="cc-stripe"
+
+        style= {
+                {
+
+                background: st.stripe,
+                animationDelay:`$ {
+                    delay + .15
+                }
+
+                s`,
+            }
+        }
+
+        /> <div className="cc-body" > {
+            /* Header */
+        }
+
+        <div className="cc-head" > <div className="cc-av" style= {
+                {
+                background: av.bg, color: av.color
+            }
+        }
+
+        > {
+            client.name.charAt(0)
+        }
+
+        <div className="cc-av-ring" /> </div> <div className="cc-name-wrap" > <div className="cc-name" > {
+            client.name
+        }
+
+        </div> <div className="cc-sector" > {
+            client.sector
+        }
+
+        </div> </div> <div className="cc-status-wrap" > <span className="cc-status" style= {
+                {
+                background: st.bg, color: st.color
+            }
+        }
+
+        > {
+            st.label
+        }
+
+        </span> {
+            client.urgent && (<span className="cc-urgent" >⚠ {
+                    client.urgentLabel
+                }
+
+                </span>)
+        }
+
+        </div> </div> {
+            /* Contact info — only if available */
+        }
+
+            {
+            (client.email || client.phone) && (<div className="cc-contact" > {
+                    client.email && (<div className="cc-contact-row" > <MailIco/> <span> {
+                            client.email
+                        }
+
+                        </span> </div>)
+                }
+
+                    {
+                    client.phone && (<div className="cc-contact-row" > <PhoneIco/> <span> {
+                            client.phone
+                        }
+
+                        </span> </div>)
+                }
+
+                </div>)
+        }
+
+        </div> <div className="cc-div" /> {
+            /* Metrics */
+        }
+
+        <div className="cc-metrics" style= {
+                {
+                padding:"14px 22px"
+            }
+        }
+
+        > <div className="met" style= {
+                {
+                paddingLeft:0
+            }
+        }
+
+        > <div className="met-v" > {
+            client.rdv
+        }
+
+        </div> <div className="met-l" >RDV décrochés</div> </div> <div className="met-sep-v" /> <div className="met" > <div className="met-v" > {
+            client.appels
+        }
+
+        </div> <div className="met-l" >Appels effectués</div> </div> <div className="met-sep-v" /> <div className="met" style= {
+                {
+                paddingRight:0
+            }
+        }
+
+        > <div className="met-v" > {
+            client.conv
+        }
+
+        %</div> <div className="met-l" >Conversion</div> </div> </div> <div className="cc-div" /> {
+            /* Mission progress */
+        }
+
+        <div className="cc-mission" style= {
+                {
+                padding:"12px 22px 14px"
+            }
+        }
+
+        > <div className="cc-mission-row" > <span className="cc-mission-name" > {
+            client.mission
+        }
+
+        </span> <span className="cc-mission-quota" > <Sparkline data= {
+            client.spark
+        }
+
+        /> </span> </div> <div style= {
+                {
+                display:"flex", justifyContent:"space-between", marginBottom:7, alignItems:"center"
+            }
+        }
+
+        > <span style= {
+                {
+                fontSize:11, color:"var(--ink4)"
+            }
+        }
+
+        >Quota d'appels</span>
+ <span style= {
+                {
+                fontSize:11.5, fontWeight:600, color:pctColor
+            }
+        }
+
+        > {
+            client.quota
+        }
+
+        / {
+            client.quotaMax
+        }
+
+        </span> </div> <div className="prog-track" > <div className="prog-fill" style= {
+                {
+                width:`$ {
+                    pct
+                }
+
+                %`, background:pctColor
+            }
+        }
+
+        /> </div> </div> {
+            /* Footer */
+        }
+
+        <div className="cc-foot" > <span className="cc-action" style= {
+                {
+                background: client.action.color, color: client.action.textColor
+            }
+        }
+
+        > {
+            client.action.icon
+        }
+
+            {
+            client.action.label
+        }
+
+        </span> <div className="cc-foot-right" > <div className="agent-stack" > {
+            client.agents.map((a, i)=> (<div key= {
+                        i
+                    }
+
+                    className="agent-av" style= {
+                            {
+                            background: a.bg, marginLeft: i>0?-6:0
+                        }
+                    }
+
+                    > {
+                        a.init
+                    }
+
+                    </div>))
+        }
+
+        </div> <span className="cc-date" > {
+            client.since
+        }
+
+        </span> </div> </div> {
+            /* Hover quick-actions */
+        }
+
+        <div className="cc-hover-bar" > <button className="qa-btn" >☏ Appeler</button> <button className="qa-btn" >✉ Email</button> <button className="qa-btn" >📋 Notes</button> <div className="qa-spacer" /> <button className="qa-btn primary" >Voir le compte →</button> </div> </div>);
+}
+
+/* ─── CLIENTS PAGE ───────────────────────────────────────────────── */
+export default function ClientsPage() {
+    const [search,
+    setSearch]=useState("");
+    const [statusFilter,
+    setStatusFilter]=useState("tous");
+
+    const filters=["tous",
+    "actif",
+    "pause",
+    "risque",
+    "converti",
+    "nouveau"];
+
+    const filterLabels= {
+        tous: "Tous", actif:"Actifs", pause:"En pause", risque:"À risque", converti:"Convertis", nouveau:"Nouveaux"
+    }
+
+    ;
+
+    const filtered=CLIENTS.filter(c=> {
+            const matchSearch=c.name.toLowerCase().includes(search.toLowerCase()) || c.sector.toLowerCase().includes(search.toLowerCase());
+            const matchStatus=statusFilter==="tous" || c.status===statusFilter;
+            return matchSearch && matchStatus;
+        });
+
+    // Separate urgent cards
+    const urgent=filtered.filter(c=> c.urgent);
+    const normal=filtered.filter(c=> !c.urgent);
+
+    return (<> <style> {
+            CSS
+        }
+
+        </style> <div style= {
+                {
+                display:"flex"
+            }
+        }
+
+        > <Sidebar/> <div className="main" > {
+            /* Page header */
+        }
+
+        <div className="ph" style= {
+                {
+                animation:"fadeUp .45s var(--ease) .05s both"
+            }
+        }
+
+        > <div> <div className="ph-bc" > <span>Manager</span><span style= {
+                {
+                opacity:.4
+            }
+        }
+
+        >›</span><span>Clients</span> </div> <h1 className="ph-title" >Portefeuille <em>Clients</em></h1> <p className="ph-sub" >Gérez vos comptes clients et suivez leurs activités en temps réel</p> </div> <div className="ph-right" > <button className="btn btn-ghost" ><RefreshIco/> Importer un playbook</button> <button className="btn btn-dark" ><PlusIco/> Nouveau client</button> </div> </div> {
+            /* Stat cards */
+        }
+
+        <div className="sg" style= {
+                {
+                animation:"fadeUp .45s var(--ease) .10s both"
+            }
+        }
+
+        > {
+            [ {
+                ey:"CLIENTS TOTAUX", to:CLIENTS.length, sub:"Portefeuille actif", ico:"🏢", iconBg:"var(--a-light)"
+            }
+
+            ,
+            {
+            ey:"MISSIONS ACTIVES", to:CLIENTS.reduce((a, c)=>a+c.missions, 0), sub:"Sur tous les comptes", ico:"🎯", iconBg:"var(--g-light)"
+        }
+
+        ,
+        {
+        ey:"UTILISATEURS LIÉS", to:CLIENTS.reduce((a, c)=>a+c.users, 0), sub:"Agents assignés", ico:"👤", iconBg:"var(--am-light)"
+    }
+
+    ,
+    ].map((s, i)=> (<div key= {
+                i
+            }
+
+            className="sc" style= {
+                    {
+                    animation:`fadeUp .5s var(--ease) $ {
+                        .1+i*.06
+                    }
+
+                    s both`
+                }
+            }
+
+            > <div className="sc-icon-wrap" style= {
+                    {
+                    background: s.iconBg
+                }
+            }
+
+            > {
+                s.ico
+            }
+
+            </div> <div className="sc-ey" > {
+                s.ey
+            }
+
+            </div> <div className="sc-val" ><Counter to= {
+                s.to
+            }
+
+            /></div> <div className="sc-sub" > {
+                s.sub
+            }
+
+            </div> </div>))
+}
+
+</div> {
+    /* Toolbar */
+}
+
+<div className="toolbar" style= {
+        {
+        animation:"fadeUp .45s var(--ease) .2s both"
+    }
+}
+
+> <div className="search-wrap" > <SearchIco/> <input value= {
+    search
+}
+
+onChange= {
+    e=> setSearch(e.target.value)
+}
+
+placeholder="Rechercher par nom, secteur…"
+
+/> </div> {
+    filters.map(f=> (<button key= {
+                f
+            }
+
+            className= {
+                `filter-btn$ {
+                    statusFilter===f?" active":""
+                }
+
+                `
+            }
+
+            onClick= {
+                ()=> setStatusFilter(f)
+            }
+
+            > {
+                statusFilter===f && f !=="tous" && <span className="filter-count" >✓</span>
+            }
+
+                {
+                filterLabels[f]
+            }
+
+            </button>))
+}
+
+</div> {
+    /* Urgent section */
+}
+
+    {
+    urgent.length > 0 && (<div style= {
+                {
+                animation:"fadeUp .45s var(--ease) .25s both"
+            }
+        }
+
+        > <div className="sec-label" > ⚠ Nécessite votre attention — {
+            urgent.length
+        }
+
+        compte {
+            urgent.length>1?"s":""
+        }
+
+        </div> <div className="cg" style= {
+                {
+                marginBottom:28
+            }
+        }
+
+        > {
+            urgent.map((c, i)=> <ClientCard key= {
+                    c.id
+                }
+
+                client= {
+                    c
+                }
+
+                delay= {
+                    .28+i*.06
+                }
+
+                />)
+        }
+
+        </div> </div>)
+}
+
+    {
+    /* Main grid */
+}
+
+    {
+    normal.length > 0 && (<div style= {
+                {
+                animation:"fadeUp .45s var(--ease) .30s both"
+            }
+        }
+
+        > {
+            urgent.length > 0 && (<div className="sec-label" >Tous les comptes — {
+                    normal.length
+                }
+
+                </div>)
+        }
+
+        <div className="cg" > {
+            normal.map((c, i)=> <ClientCard key= {
+                    c.id
+                }
+
+                client= {
+                    c
+                }
+
+                delay= {
+                    .32+i*.05
+                }
+
+                />)
+        }
+
+        </div> </div>)
+}
+
+    {
+    /* Empty state */
+}
+
+    {
+    filtered.length===0 && (<div className="cg" > <div className="empty" > <div className="empty-ico" >🔍</div> <div className="empty-title" >Aucun client trouvé</div> <div className="empty-sub" >Essayez un autre terme de recherche ou filtre</div> </div> </div>)
+}
+
+</div> </div> </>);
+}

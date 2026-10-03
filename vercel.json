@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/billing/cron/month-end",
+      "schedule": "0 2 1 * *"
+    },
+    {
+      "path": "/api/cron/exclusion-sweep",
+      "schedule": "0 4 * * *"
+    }
+  ]
+}

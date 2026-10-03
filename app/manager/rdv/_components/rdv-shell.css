@@ -1,0 +1,476 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Inter:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --bg: var(--brand-neutral-50);
+  --surface: #ffffff;
+  --surface2: var(--brand-neutral-100);
+  --surface3: var(--brand-neutral-200);
+  --border: color-mix(in oklab, var(--brand-neutral-900) 7%, transparent);
+  --border2: color-mix(in oklab, var(--brand-neutral-900) 12%, transparent);
+  --ink: var(--brand-neutral-900);
+  --ink2: var(--brand-neutral-700);
+  --ink3: var(--brand-neutral-500);
+  --ink4: var(--brand-neutral-400);
+  --accent: var(--brand-primary-600);
+  --accentLight: color-mix(in oklab, var(--brand-primary-600) 8%, transparent);
+  --accentHover: var(--brand-primary-700);
+  --green: #059669;
+  --greenLight: rgba(5, 150, 105, 0.09);
+  --emerald: #059669;
+  --emeraldLight: rgba(5, 150, 105, 0.09);
+  --amber: #d97706;
+  --amberLight: rgba(217, 119, 6, 0.1);
+  --red: #e11d48;
+  --redLight: rgba(225, 29, 72, 0.08);
+  --blue: #2563eb;
+  --blueLight: rgba(37, 99, 235, 0.08);
+  --rdv-panel-width: 580px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Base Page Layout ─── */
+.rdv-page {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.rdv-serif {
+  font-family: "DM Sans", "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.rdv-content-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* The table container maintains full width, preventing column squashing */
+.rdv-main-column {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background: var(--surface);
+}
+
+/* ─── Table & Rows ─── */
+.rdv-table-viewport {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+}
+
+.rdv-table-content {
+  min-width: 100%;
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+}
+
+.rdv-row {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 54px;
+  min-height: 54px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.12s ease;
+  gap: 10px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.rdv-row:hover {
+  background: var(--brand-neutral-50) !important;
+}
+
+.rdv-row.selected {
+  background: color-mix(in oklab, var(--brand-primary-600) 4%, transparent) !important;
+  border-left: 3px solid var(--accent);
+}
+
+.rdv-row .rdv-row-actions {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.rdv-row:hover .rdv-row-actions {
+  opacity: 1;
+}
+
+.rdv-list-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 100%;
+  width: max-content;
+  box-sizing: border-box;
+}
+
+/* ─── Checkbox ─── */
+.rdv-checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border2);
+  border-radius: 4px;
+  background: var(--surface);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: all 0.12s;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.rdv-checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.rdv-checkbox:checked::after {
+  content: "✓";
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ─── Scrollbars ─── */
+.rdv-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.rdv-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rdv-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 3px;
+}
+
+.rdv-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* ─── Inputs & Buttons ─── */
+.rdv-input {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--ink);
+  padding: 7px 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.rdv-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accentLight);
+}
+
+.rdv-input::placeholder {
+  color: var(--ink4);
+}
+
+.rdv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.rdv-btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.rdv-btn-primary:hover {
+  background: var(--accentHover);
+}
+
+.rdv-btn-ghost {
+  background: var(--surface);
+  color: var(--ink2);
+  border: 1px solid var(--border2);
+}
+
+.rdv-btn-ghost:hover {
+  background: var(--surface2);
+  color: var(--ink);
+  border-color: var(--ink3);
+}
+
+.rdv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.status-badge::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-badge-pending-pulse::before {
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.18);
+}
+
+/* ─── Compact Intelligence Strip Cards ─── */
+.rdv-metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rdv-metric-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.rdv-metric-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1.5px var(--accentLight);
+}
+
+.rdv-metric-card.pulse-urgent {
+  border-color: rgba(217, 119, 6, 0.45);
+}
+
+/* ─── Drawer (DetailPanel Overlay) ─── */
+.rdv-panel-backdrop {
+  position: fixed;
+  top: 56px;
+  inset: 0;
+  background: color-mix(in oklab, var(--brand-neutral-900) 35%, transparent);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rdv-panel-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rdv-panel {
+  position: fixed;
+  top: 56px;
+  right: 0;
+  bottom: 0;
+  width: min(var(--rdv-panel-width), 94vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border2);
+  z-index: 45;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 40px color-mix(in oklab, var(--brand-neutral-900) 16%, transparent);
+  overflow: hidden;
+}
+
+.rdv-panel.open {
+  transform: translateX(0);
+}
+
+.rdv-panel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.rdv-panel-header {
+  padding: 16px 20px 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.rdv-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  min-height: 0;
+}
+
+/* ─── Drawer Tabs ─── */
+.rdv-tab {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.rdv-tab:hover {
+  color: var(--ink);
+}
+
+.rdv-tab.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+.rdv-tab-badge {
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 1px 6px;
+  background: var(--surface2);
+  color: var(--ink3);
+}
+
+.rdv-tab.active .rdv-tab-badge {
+  background: var(--accentLight);
+  color: var(--accent);
+}
+
+/* ─── Bulk Action Bar ─── */
+.bulk-action-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border2);
+  box-shadow: 0 12px 36px -8px color-mix(in oklab, var(--brand-neutral-900) 20%, transparent);
+  border-radius: 14px;
+  z-index: 35;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .rdv-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+}

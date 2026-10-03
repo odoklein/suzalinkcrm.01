@@ -1,0 +1,712 @@
+"use client";
+
+/**
+ * ============================================================
+ * DASHBOARD PROJET — client/mission staffing overview
+ * ============================================================
+ * One row per live mission: contracted days/week (client-level), who has
+ * historically worked it (real call data), who's actually scheduled on it right
+ * now (real planning data), and a flag when a mission has nobody scheduled.
+ *
+ * Data comes from GET /api/manager/dashboard-projet (lib/staffing/clientStaffing.ts).
+ * "Jours/semaine" is editable inline and persists via PUT /api/clients/[id].
+ */
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import {
+    LayoutDashboard, Users, AlertTriangle, CheckCircle2, Download,
+    Search, Pencil, Check, X as XIcon, Loader2, Phone, Mail, Briefcase,
+    Lightbulb, Clock, UserCog,
+} from "lucide-react";
+import { AiMark } from "@/components/ui/AiMark";
+import { DataTable, StatCard, Badge, Button, Input, Drawer, useToast, EmptyState, type Column } from "@/components/ui";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import { cn, avatarColorForId, initialsFromName } from "@/lib/utils";
+import AssistantProjetPanel from "@/components/assistant-projet/AssistantProjetPanel";
+
+interface Booker {
+    id: string;
+    name: string;
+    actionCount?: number;
+    lastActionAt?: string | null;
+    /** From the static SDRAssignment roster, shown because there's no real
+     *  call/planning data yet — not an actual measurement. */
+    assignedOnly?: boolean;
+}
+
+type CoverageStatus = "COVERED" | "UPCOMING" | "ASSIGNED_NOT_SCHEDULED" | "MISSING";
+
+interface StaffingRow {
+    missionId: string;
+    missionName: string;
+    channel: "CALL" | "EMAIL" | "LINKEDIN";
+    status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
+    clientId: string;
+    clientName: string;
+    clientStatus: string;
+    contractedDaysPerWeek: number | null;
+    suggestedDaysPerWeek: number | null;
+    historicalBookers: Booker[];
+    currentBookers: Booker[];
+    upcomingBookers: Booker[];
+    assignedBookers: Booker[];
+    coverageStatus: CoverageStatus;
+    missingHeadcount: boolean;
+}
+
+interface StaffingOverview {
+    rows: StaffingRow[];
+    kpis: {
+        totalMissions: number;
+        activeMissions: number;
+        missingHeadcount: number;
+        clientsMissingDaysPerWeek: number;
+        avgDaysPerWeek: number | null;
+    };
+}
+
+const CHANNEL_ICON = { CALL: Phone, EMAIL: Mail, LINKEDIN: Briefcase } as const;
+const CHANNEL_LABEL = { CALL: "Appel", EMAIL: "Email", LINKEDIN: "LinkedIn" } as const;
+
+const STATUS_BADGE: Record<StaffingRow["status"], string> = {
+    DRAFT: "bg-slate-100 text-slate-600 border-slate-200",
+    ACTIVE: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    PAUSED: "bg-amber-50 text-amber-700 border-amber-200",
+    COMPLETED: "bg-slate-100 text-slate-500 border-slate-200",
+    ARCHIVED: "bg-slate-100 text-slate-400 border-slate-200",
+};
+const STATUS_LABEL: Record<StaffingRow["status"], string> = {
+    DRAFT: "Brouillon", ACTIVE: "Actif", PAUSED: "En pause", COMPLETED: "Terminé", ARCHIVED: "Archivé",
+};
+
+const COVERAGE_CONFIG: Record<CoverageStatus, { label: string; badge: string; icon: typeof CheckCircle2 }> = {
+    COVERED: { label: "Couvert", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
+    UPCOMING: { label: "À venir", badge: "bg-sky-50 text-sky-700 border-sky-200", icon: Clock },
+    ASSIGNED_NOT_SCHEDULED: { label: "Assigné, non planifié", badge: "bg-amber-50 text-amber-700 border-amber-200", icon: UserCog },
+    MISSING: { label: "Effectif manquant", badge: "bg-rose-50 text-rose-700 border-rose-200", icon: AlertTriangle },
+};
+
+// Default sort order: worst coverage first, so the thing that needs action is
+// what a manager sees without having to reach for a filter. Lower = more urgent.
+const SEVERITY_RANK: Record<CoverageStatus, number> = {
+    MISSING: 0,
+    ASSIGNED_NOT_SCHEDULED: 1,
+    UPCOMING: 2,
+    COVERED: 3,
+};
+
+function daysAgo(iso: string | null | undefined): number | null {
+    if (!iso) return null;
+    const diffMs = Date.now() - new Date(iso).getTime();
+    return Math.max(0, Math.floor(diffMs / 86_400_000));
+}
+
+function mostRecentCallLabel(bookers: Booker[]): string | null {
+    const real = bookers.filter((b) => !b.assignedOnly && b.lastActionAt);
+    if (real.length === 0) return null;
+    const mostRecent = real.reduce((latest, b) =>
+        new Date(b.lastActionAt!).getTime() > new Date(latest.lastActionAt!).getTime() ? b : latest
+    );
+    const d = daysAgo(mostRecent.lastActionAt);
+    if (d == null) return null;
+    if (d === 0) return "dernier appel aujourd'hui";
+    if (d === 1) return "dernier appel hier";
+    return `dernier appel il y a ${d}j`;
+}
+
+function BookerStack({ bookers, emptyLabel }: { bookers: Booker[]; emptyLabel: string }) {
+    if (bookers.length === 0) {
+        return <span className="text-xs text-slate-400 italic">{emptyLabel}</span>;
+    }
+    return (
+        <div
+            className="flex items-center -space-x-1.5"
+            title={bookers.map((b) => b.name + (b.assignedOnly ? " (assigné, aucun appel)" : "")).join(", ")}
+        >
+            {bookers.slice(0, 4).map((b) => (
+                <div
+                    key={b.id}
+                    className={cn(
+                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ring-2 ring-white shrink-0",
+                        // Fallback-only entries (no real activity yet) get a dashed,
+                        // muted treatment so they read as "on paper" not "confirmed"
+                        b.assignedOnly
+                            ? "bg-white text-slate-400 border border-dashed border-slate-300"
+                            : avatarColorForId(b.id)
+                    )}
+                >
+                    {initialsFromName(b.name)}
+                </div>
+            ))}
+            {bookers.length > 4 && (
+                <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 ring-2 ring-white flex items-center justify-center text-[9px] font-bold shrink-0">
+                    +{bookers.length - 4}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Inline "jours/semaine" editor — click to edit, persists via PUT /api/clients/[id].
+ * When the manager never filled this in, offers a one-click "Appliquer" using a
+ * value inferred from the client's actual recent scheduling cadence — no typing
+ * required unless the suggestion is wrong.
+ */
+function DaysPerWeekCell({ row, onSaved }: { row: StaffingRow; onSaved: (clientId: string, value: number | null) => void }) {
+    const [editing, setEditing] = useState(false);
+    const [value, setValue] = useState(row.contractedDaysPerWeek?.toString() ?? "");
+    const [saving, setSaving] = useState(false);
+    const { success, error: showError } = useToast();
+
+    useEffect(() => { setValue(row.contractedDaysPerWeek?.toString() ?? ""); }, [row.contractedDaysPerWeek]);
+
+    const persist = async (parsed: number | null, toastLabel: string) => {
+        if (parsed !== null && (Number.isNaN(parsed) || parsed < 0 || parsed > 7)) {
+            showError("Valeur invalide", "Entrez un nombre de jours entre 0 et 7");
+            return;
+        }
+        setSaving(true);
+        try {
+            const res = await fetch(`/api/clients/${row.clientId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contractedDaysPerWeek: parsed }),
+            });
+            const json = await res.json();
+            if (json.success) {
+                onSaved(row.clientId, parsed);
+                success(toastLabel, `${row.clientName} — ${parsed ?? "non renseigné"} j/semaine`);
+                setEditing(false);
+            } else showError("Erreur", json.error);
+        } catch {
+            showError("Erreur", "Impossible d'enregistrer");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const save = () => {
+        const trimmed = value.trim();
+        const parsed = trimmed === "" ? null : Number(trimmed.replace(",", "."));
+        void persist(parsed, "Enregistré");
+    };
+
+    if (editing) {
+        return (
+            <div className="flex items-center gap-1">
+                <input
+                    autoFocus
+                    type="number"
+                    min={0}
+                    max={7}
+                    step={0.5}
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditing(false); }}
+                    className="w-16 h-8 px-2 text-sm border border-primary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                />
+                <button onClick={save} disabled={saving} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
+                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                </button>
+                <button onClick={() => setEditing(false)} disabled={saving} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                    <XIcon className="w-3.5 h-3.5" />
+                </button>
+            </div>
+        );
+    }
+
+    if (row.contractedDaysPerWeek == null) {
+        return (
+            <div className="flex items-center gap-1.5">
+                <button
+                    onClick={() => setEditing(true)}
+                    className="group/days inline-flex items-center gap-1.5 rounded-lg px-2 py-1 -mx-2 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    title="Modifier le nombre de jours/semaine"
+                >
+                    <Badge className="text-[10px] bg-amber-50 text-amber-700 border-amber-200">À renseigner</Badge>
+                    <Pencil className="w-3 h-3 text-slate-300 group-hover/days:text-primary-500 transition-colors" />
+                </button>
+                {row.suggestedDaysPerWeek != null && (
+                    <button
+                        onClick={() => void persist(row.suggestedDaysPerWeek, "Valeur suggérée appliquée")}
+                        disabled={saving}
+                        title="Inféré à partir du planning réel des 30 derniers jours"
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary-600 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-full px-2 py-0.5 transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    >
+                        {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Lightbulb className="w-3 h-3" />}
+                        {row.suggestedDaysPerWeek} j ?
+                    </button>
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <button
+            onClick={() => setEditing(true)}
+            className="group/days inline-flex items-center gap-1.5 rounded-lg px-2 py-1 -mx-2 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            title="Modifier le nombre de jours/semaine"
+        >
+            <span className="text-sm font-semibold text-slate-900 tabular-nums">{row.contractedDaysPerWeek} j</span>
+            <Pencil className="w-3 h-3 text-slate-300 group-hover/days:text-primary-500 transition-colors" />
+        </button>
+    );
+}
+
+export default function DashboardProjetPage() {
+    const [data, setData] = useState<StaffingOverview | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [exporting, setExporting] = useState(false);
+    const [search, setSearch] = useState("");
+    const [missingOnly, setMissingOnly] = useState(false);
+    const [daysMissingOnly, setDaysMissingOnly] = useState(false);
+    const [statusFilter, setStatusFilter] = useState<"ALL" | StaffingRow["status"]>("ALL");
+    const { error: showError } = useToast();
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(false);
+        try {
+            const res = await fetch("/api/manager/dashboard-projet");
+            const json = await res.json();
+            if (json.success) setData(json.data);
+            else {
+                setError(true);
+                showError("Erreur", json.error || "Impossible de charger les données");
+            }
+        } catch {
+            setError(true);
+            showError("Erreur", "Erreur réseau");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Download the CSV via fetch+blob so a failed/unauthorized export surfaces a
+    // toast instead of dumping a raw JSON error into an orphan browser tab.
+    const handleExport = async () => {
+        setExporting(true);
+        try {
+            const res = await fetch("/api/manager/dashboard-projet/export");
+            if (!res.ok) {
+                const j = await res.json().catch(() => null);
+                throw new Error(j?.error || "Export impossible");
+            }
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `dashboard-projet-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            showError("Export impossible", e instanceof Error ? e.message : "Erreur réseau");
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: fetch once on mount
+    useEffect(() => { void fetchData(); }, []);
+
+    /** The mission the assistant panel is currently opened on, if any. */
+    const [assistantFor, setAssistantFor] = useState<StaffingRow | null>(null);
+
+    const handleDaysSaved = (clientId: string, value: number | null) => {
+        setData((prev) => {
+            if (!prev) return prev;
+            const rows = prev.rows.map((r) => (r.clientId === clientId ? { ...r, contractedDaysPerWeek: value } : r));
+            const clientSeen = new Set<string>();
+            const perClient: (number | null)[] = [];
+            rows.forEach((r) => {
+                if (clientSeen.has(r.clientId)) return;
+                clientSeen.add(r.clientId);
+                perClient.push(r.contractedDaysPerWeek);
+            });
+            const known = perClient.filter((d): d is number => d != null);
+            return {
+                rows,
+                kpis: {
+                    ...prev.kpis,
+                    clientsMissingDaysPerWeek: perClient.filter((d) => d == null).length,
+                    avgDaysPerWeek: known.length ? known.reduce((a, b) => a + b, 0) / known.length : null,
+                },
+            };
+        });
+    };
+
+    const filteredRows = useMemo(() => {
+        if (!data) return [];
+        const q = search.trim().toLowerCase();
+        return data.rows
+            .filter((r) => {
+                if (missingOnly && !r.missingHeadcount) return false;
+                if (daysMissingOnly && r.contractedDaysPerWeek != null) return false;
+                if (statusFilter !== "ALL" && r.status !== statusFilter) return false;
+                if (q && !r.clientName.toLowerCase().includes(q) && !r.missionName.toLowerCase().includes(q)) return false;
+                return true;
+            })
+            // Worst coverage first by default — DataTable keeps this order until the
+            // user clicks a column header to sort by something else.
+            .sort((a, b) => SEVERITY_RANK[a.coverageStatus] - SEVERITY_RANK[b.coverageStatus]);
+    }, [data, search, missingOnly, daysMissingOnly, statusFilter]);
+
+    const columns: Column<StaffingRow>[] = [
+        {
+            key: "clientName",
+            header: "Client / Mission",
+            sortable: true,
+            render: (_v, row) => {
+                const ChannelIcon = CHANNEL_ICON[row.channel];
+                return (
+                    <div className="min-w-0">
+                        <Link href={`/manager/clients/${row.clientId}`} className="text-sm font-semibold text-slate-900 hover:text-primary-600 transition-colors">
+                            {row.clientName}
+                        </Link>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-500">
+                            <span title={CHANNEL_LABEL[row.channel]} className="inline-flex shrink-0">
+                                <ChannelIcon className="w-3 h-3" aria-hidden />
+                            </span>
+                            <Link href={`/manager/clients?client=${row.clientId}&mission=${row.missionId}`} className="hover:text-primary-600 transition-colors truncate">
+                                {row.missionName}
+                            </Link>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            key: "contractedDaysPerWeek",
+            header: "Jours / semaine",
+            sortable: true,
+            render: (_v, row) => <DaysPerWeekCell row={row} onSaved={handleDaysSaved} />,
+        },
+        {
+            key: "historicalBookers",
+            header: "Historique",
+            render: (_v, row) => {
+                const freshness = mostRecentCallLabel(row.historicalBookers);
+                return (
+                    <div className="flex items-center gap-1.5">
+                        <BookerStack bookers={row.historicalBookers} emptyLabel="Aucun appel" />
+                        {freshness && <span className="text-[10px] text-slate-400 whitespace-nowrap">{freshness}</span>}
+                    </div>
+                );
+            },
+        },
+        {
+            key: "currentBookers",
+            header: "Actuel (14 j)",
+            render: (_v, row) => {
+                // Give the fallback tiers real evidence instead of a bare "Personne":
+                // UPCOMING shows who's booked later this month, ASSIGNED_NOT_SCHEDULED
+                // shows the roster that still needs a real calendar slot.
+                if (row.currentBookers.length === 0 && row.coverageStatus === "UPCOMING") {
+                    return (
+                        <div className="flex items-center gap-1.5">
+                            <BookerStack bookers={row.upcomingBookers} emptyLabel="Personne" />
+                            <span className="text-[10px] text-sky-600 font-medium">dans 15-30j</span>
+                        </div>
+                    );
+                }
+                if (row.currentBookers.length === 0 && row.coverageStatus === "ASSIGNED_NOT_SCHEDULED") {
+                    return (
+                        <div className="flex items-center gap-1.5">
+                            <BookerStack
+                                bookers={row.assignedBookers.map((b) => ({ ...b, assignedOnly: true }))}
+                                emptyLabel="Personne"
+                            />
+                            <span className="text-[10px] text-amber-600 font-medium">à planifier</span>
+                        </div>
+                    );
+                }
+                return <BookerStack bookers={row.currentBookers} emptyLabel="Personne" />;
+            },
+        },
+        {
+            key: "status",
+            header: "Statut",
+            sortable: true,
+            render: (_v, row) => {
+                if (row.status !== "ACTIVE") {
+                    return <Badge className={cn("text-[10px]", STATUS_BADGE[row.status])}>{STATUS_LABEL[row.status]}</Badge>;
+                }
+                // Mission still flagged ACTIVE but the client itself is paused/stopped
+                // elsewhere — normal data drift, not a real gap. Don't show an
+                // alarming coverage badge for something nobody needs to act on.
+                if (row.clientStatus !== "ACTIVE") {
+                    return (
+                        <Badge
+                            className="text-[10px] bg-slate-100 text-slate-500 border-slate-200"
+                            title="Le client est en pause/arrêté — la couverture n'est pas évaluée"
+                        >
+                            Client {row.clientStatus === "PAUSED" ? "en pause" : "arrêté"}
+                        </Badge>
+                    );
+                }
+                const { label, badge, icon: Icon } = COVERAGE_CONFIG[row.coverageStatus];
+                return (
+                    <Badge className={cn("text-[10px] gap-1", badge)} title={
+                        row.coverageStatus === "UPCOMING" ? "Personne cette semaine, mais une planification existe plus tard ce mois-ci"
+                        : row.coverageStatus === "ASSIGNED_NOT_SCHEDULED" ? "Un commercial est affecté à la mission mais rien n'est posé au planning"
+                        : undefined
+                    }>
+                        <Icon className="w-3 h-3" /> {label}
+                    </Badge>
+                );
+            },
+        },
+        {
+            key: "assistant",
+            header: "",
+            width: "52px",
+            render: (_value, row) => (
+                <button
+                    type="button"
+                    onClick={() => setAssistantFor(row)}
+                    title={`Ouvrir l'assistant sur ${row.clientName} — ${row.missionName}`}
+                    aria-label="Ouvrir l'assistant sur ce projet"
+                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-pink-50 hover:text-pink-600"
+                >
+                    <AiMark className="w-4 h-4" />
+                </button>
+            ),
+        },
+    ];
+
+    const kpis = data?.kpis;
+
+    return (
+        <div className="p-6 max-w-[1600px] mx-auto space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-primary-600 flex items-center justify-center shrink-0">
+                        <LayoutDashboard className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900">Dashboard Projet</h1>
+                        <p className="text-sm text-slate-500 mt-0.5">Suivi client, jours contractés et affectation des bookers</p>
+                    </div>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={handleExport}
+                    isLoading={exporting}
+                    disabled={exporting || loading || !data?.rows.length}
+                >
+                    <Download className="w-3.5 h-3.5" />
+                    Exporter en CSV
+                </Button>
+            </div>
+
+            {/* KPI row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                    label="Missions actives"
+                    value={loading ? "—" : kpis?.activeMissions ?? 0}
+                    icon={LayoutDashboard}
+                    iconBg="bg-primary-100"
+                    iconColor="text-primary-600"
+                    subtitle={<span className="text-slate-400">{kpis?.totalMissions ?? 0} missions au total</span>}
+                />
+                <StatCard
+                    label="Effectif manquant"
+                    value={loading ? "—" : kpis?.missingHeadcount ?? 0}
+                    icon={AlertTriangle}
+                    iconBg={kpis?.missingHeadcount ? "bg-rose-100" : "bg-slate-100"}
+                    iconColor={kpis?.missingHeadcount ? "text-rose-600" : "text-slate-400"}
+                    subtitle={<span className="text-slate-400">missions actives sans booker planifié — cliquer pour filtrer</span>}
+                    role="button"
+                    aria-pressed={missingOnly}
+                    tabIndex={0}
+                    onClick={() => setMissingOnly((v) => !v)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setMissingOnly((v) => !v); } }}
+                    className={cn(
+                        "cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500",
+                        missingOnly && "ring-2 ring-rose-400 border-rose-300"
+                    )}
+                />
+                <StatCard
+                    label="Jours/semaine à renseigner"
+                    value={loading ? "—" : kpis?.clientsMissingDaysPerWeek ?? 0}
+                    icon={Pencil}
+                    iconBg={kpis?.clientsMissingDaysPerWeek ? "bg-amber-100" : "bg-slate-100"}
+                    iconColor={kpis?.clientsMissingDaysPerWeek ? "text-amber-600" : "text-slate-400"}
+                    subtitle={<span className="text-slate-400">clients sans volume contractuel — cliquer pour filtrer</span>}
+                    role="button"
+                    aria-pressed={daysMissingOnly}
+                    tabIndex={0}
+                    onClick={() => setDaysMissingOnly((v) => !v)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDaysMissingOnly((v) => !v); } }}
+                    className={cn(
+                        "cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500",
+                        daysMissingOnly && "ring-2 ring-amber-400 border-amber-300"
+                    )}
+                />
+                <StatCard
+                    label="Jours/semaine moyens"
+                    value={loading || kpis?.avgDaysPerWeek == null ? "—" : kpis.avgDaysPerWeek.toFixed(1)}
+                    icon={Users}
+                    iconBg="bg-emerald-100"
+                    iconColor="text-emerald-600"
+                    subtitle={<span className="text-slate-400">parmi les clients renseignés</span>}
+                />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+                <div className="relative flex-1 min-w-[220px] max-w-sm">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Input
+                        placeholder="Rechercher un client ou une mission…"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9"
+                    />
+                </div>
+                <button
+                    onClick={() => setMissingOnly((v) => !v)}
+                    className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500",
+                        missingOnly ? "bg-rose-600 text-white border-rose-600" : "bg-white text-slate-600 border-slate-200 hover:border-rose-300 hover:text-rose-600"
+                    )}
+                >
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    Manque uniquement
+                </button>
+                <button
+                    onClick={() => setDaysMissingOnly((v) => !v)}
+                    className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500",
+                        daysMissingOnly ? "bg-amber-600 text-white border-amber-600" : "bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:text-amber-600"
+                    )}
+                >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Jours à renseigner
+                </button>
+                <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+                    {(["ALL", "ACTIVE", "PAUSED", "DRAFT"] as const).map((s) => (
+                        <button
+                            key={s}
+                            onClick={() => setStatusFilter(s)}
+                            className={cn(
+                                "px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
+                                statusFilter === s ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                            )}
+                        >
+                            {s === "ALL" ? "Tous" : STATUS_LABEL[s]}
+                        </button>
+                    ))}
+                </div>
+                {(missingOnly || daysMissingOnly || statusFilter !== "ALL" || search.trim()) && (
+                    <button
+                        onClick={() => {
+                            setMissingOnly(false);
+                            setDaysMissingOnly(false);
+                            setStatusFilter("ALL");
+                            setSearch("");
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                        title="Effacer tous les filtres"
+                    >
+                        <XIcon className="w-3.5 h-3.5" />
+                        Réinitialiser
+                    </button>
+                )}
+            </div>
+
+            {/* Legend — the "Statut" column isn't a flat yes/no, explain the tiers once */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-slate-500 px-1">
+                {(Object.keys(COVERAGE_CONFIG) as CoverageStatus[]).map((k) => {
+                    const { label, badge, icon: Icon } = COVERAGE_CONFIG[k];
+                    return (
+                        <span key={k} className="inline-flex items-center gap-1">
+                            <span className={cn("inline-flex items-center justify-center w-4 h-4 rounded-full border", badge)}>
+                                <Icon className="w-2.5 h-2.5" />
+                            </span>
+                            {label}
+                        </span>
+                    );
+                })}
+                <span className="text-slate-300">·</span>
+                <span className="inline-flex items-center gap-1">
+                    <Lightbulb className="w-3 h-3 text-primary-400" /> jours/semaine suggéré à partir du planning réel
+                </span>
+            </div>
+
+            {/* Table */}
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                {loading ? (
+                    <div className="p-6">
+                        <TableSkeleton rows={6} columns={6} />
+                    </div>
+                ) : error ? (
+                    <EmptyState
+                        variant="inline"
+                        icon={AlertTriangle}
+                        title="Impossible de charger les données"
+                        description="Une erreur est survenue lors du chargement du dashboard."
+                        action={
+                            <Button variant="outline" size="sm" onClick={() => void fetchData()}>
+                                Réessayer
+                            </Button>
+                        }
+                    />
+                ) : (
+                    <DataTable
+                        data={filteredRows}
+                        columns={columns}
+                        keyField="missionId"
+                        pagination
+                        pageSize={15}
+                        getRowClassName={(r) =>
+                            r.status === "ACTIVE" && r.clientStatus === "ACTIVE"
+                                ? r.coverageStatus === "MISSING"
+                                    ? "bg-rose-50/50 [&>td:first-child]:border-l-4 [&>td:first-child]:border-rose-400"
+                                    : r.coverageStatus === "ASSIGNED_NOT_SCHEDULED"
+                                        ? "bg-amber-50/30 [&>td:first-child]:border-l-4 [&>td:first-child]:border-amber-300"
+                                        : ""
+                                : ""
+                        }
+                        emptyMessage={
+                            data?.rows.length
+                                ? "Aucune mission ne correspond aux filtres"
+                                : "Aucune mission active pour le moment"
+                        }
+                    />
+                )}
+            </div>
+
+            {/* The assistant, opened on the project of the row you clicked —
+                bound to that client + mission, with its own conversation. */}
+            <Drawer
+                isOpen={!!assistantFor}
+                onClose={() => setAssistantFor(null)}
+                title="Assistant Projet"
+                description={
+                    assistantFor
+                        ? `${assistantFor.clientName} — ${assistantFor.missionName}`
+                        : undefined
+                }
+                size="lg"
+            >
+                {assistantFor && (
+                    <div className="h-[calc(100vh-190px)]">
+                        <AssistantProjetPanel
+                            key={assistantFor.missionId}
+                            fixedClientId={assistantFor.clientId}
+                            fixedMissionId={assistantFor.missionId}
+                        />
+                    </div>
+                )}
+            </Drawer>
+        </div>
+    );
+}

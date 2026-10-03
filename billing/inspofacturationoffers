@@ -1,0 +1,1111 @@
+import { useState, useMemo, useCallback } from 'react';
+import { LayoutDashboard, Users, Phone, BarChart3, Settings, FileText, CreditCard, ChevronDown, ChevronRight, Plus, Search, MoreHorizontal, Edit2, Archive, Eye, Send, Check, ArrowLeft, X, Tag, CalendarDays, Building2, TrendingUp, Receipt, Clock, AlertTriangle, CheckCircle2, Mail, DollarSign, Filter, Download, Repeat, Trash2, ChevronUp } from 'lucide-react';
+
+const OFFRES = [
+  { id: 1, nom: 'Pack Standard', fixe: 600, rdv: 80, description: 'Prospection téléphonique standard', clients: 8, statut: 'Actif' },
+  { id: 2, nom: 'Pack Premium', fixe: 1200, rdv: 60, description: 'Multi-canal avec suivi dédié', clients: 3, statut: 'Actif' },
+  { id: 3, nom: 'Performance Pure', fixe: 0, rdv: 120, description: 'Facturation uniquement au RDV', clients: 2, statut: 'Actif' },
+  { id: 4, nom: 'Forfait Fixe', fixe: 900, rdv: 0, description: 'Abonnement mensuel sans variable', clients: 1, statut: 'Actif' },
+  { id: 5, nom: 'Pack Découverte', fixe: 300, rdv: 90, description: 'Offre d\'entrée pour nouveaux clients', clients: 0, statut: 'Archivé' },
+];
+
+const ENGAGEMENTS = [
+  { id: 1, client: 'Nextera Solutions', offre: 'Pack Standard', fixe: 600, rdv: 80, fixeOverride: null, rdvOverride: null, duree: 6, debut: '2024-09-01', fin: '2025-02-28', statut: 'Actif', missions: 2, rdvCount: 47 },
+  { id: 2, client: 'DataFlow SAS', offre: 'Pack Premium', fixe: 1200, rdv: 60, fixeOverride: 1100, rdvOverride: null, duree: 6, debut: '2024-10-01', fin: '2025-03-31', statut: 'Actif', missions: 3, rdvCount: 62 },
+  { id: 3, client: 'GreenTech Industries', offre: 'Performance Pure', fixe: 0, rdv: 120, fixeOverride: null, rdvOverride: 100, duree: 3, debut: '2024-11-01', fin: '2025-01-31', statut: 'Expiré', missions: 1, rdvCount: 18 },
+  { id: 4, client: 'Meridian Consulting', offre: 'Pack Standard', fixe: 600, rdv: 80, fixeOverride: 550, rdvOverride: 75, duree: 6, debut: '2025-01-01', fin: '2025-06-30', statut: 'Actif', missions: 2, rdvCount: 12 },
+  { id: 5, client: 'Altitude Marketing', offre: 'Forfait Fixe', fixe: 900, rdv: 0, fixeOverride: null, rdvOverride: null, duree: 3, debut: '2024-12-01', fin: '2025-02-28', statut: 'Actif', missions: 1, rdvCount: 0 },
+];
+
+const FACTURES = [
+  { id: 'FAC-2025-001', client: 'Nextera Solutions', periode: 'Janvier 2025', fixe: 600, nbRdv: 8, prixRdv: 80, variable: 640, total: 1240, statut: 'Payée', auto: true },
+  { id: 'FAC-2025-002', client: 'DataFlow SAS', periode: 'Janvier 2025', fixe: 1100, nbRdv: 11, prixRdv: 60, variable: 660, total: 1760, statut: 'Envoyée', auto: true },
+  { id: 'FAC-2025-003', client: 'GreenTech Industries', periode: 'Janvier 2025', fixe: 0, nbRdv: 6, prixRdv: 100, variable: 600, total: 600, statut: 'Validée', auto: true },
+  { id: 'FAC-2025-004', client: 'Meridian Consulting', periode: 'Janvier 2025', fixe: 550, nbRdv: 5, prixRdv: 75, variable: 375, total: 925, statut: 'Brouillon', auto: true },
+  { id: 'FAC-2025-005', client: 'Altitude Marketing', periode: 'Janvier 2025', fixe: 900, nbRdv: 0, prixRdv: 0, variable: 0, total: 900, statut: 'Payée', auto: true },
+  { id: 'FAC-2025-006', client: 'Nextera Solutions', periode: 'Février 2025', fixe: 600, nbRdv: 10, prixRdv: 80, variable: 800, total: 1400, statut: 'Brouillon', auto: true },
+  { id: 'FAC-2025-007', client: 'DataFlow SAS', periode: 'Février 2025', fixe: 1100, nbRdv: 9, prixRdv: 60, variable: 540, total: 1640, statut: 'Brouillon', auto: false },
+];
+
+const FACTURE_MISSIONS = [
+  { mission: 'Campagne LinkedIn Q1', rdvs: 6, montant: 480 },
+  { mission: 'Cold Calling Tech', rdvs: 4, montant: 320 },
+];
+
+function App() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeSideSection, setActiveSideSection] = useState('reglages');
+  const [activeTab, setActiveTab] = useState('offres');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showOffreModal, setShowOffreModal] = useState(false);
+  const [selectedFacture, setSelectedFacture] = useState(null);
+  const [selectedEngagement, setSelectedEngagement] = useState(null);
+  const [showEngagementModal, setShowEngagementModal] = useState(false);
+  const [factureFilter, setFactureFilter] = useState('Tous');
+  const [showArchived, setShowArchived] = useState(false);
+  const [editingOffreId, setEditingOffreId] = useState(null);
+  const [expandedMissions, setExpandedMissions] = useState(false);
+
+  const handleSearchChange = useCallback((e) => {
+    setSearchQuery(e.target.value);
+  }, []);
+
+  const handleTabChange = useCallback((tab) => {
+    setActiveTab(tab);
+    setSelectedFacture(null);
+    setSelectedEngagement(null);
+    setSearchQuery('');
+  }, []);
+
+  const handleOpenOffreModal = useCallback(() => {
+    setEditingOffreId(null);
+    setShowOffreModal(true);
+  }, []);
+
+  const handleCloseOffreModal = useCallback(() => {
+    setShowOffreModal(false);
+    setEditingOffreId(null);
+  }, []);
+
+  const handleEditOffre = useCallback((id) => {
+    setEditingOffreId(id);
+    setShowOffreModal(true);
+  }, []);
+
+  const handleSelectFacture = useCallback((facture) => {
+    setSelectedFacture(facture);
+  }, []);
+
+  const handleBackToFactures = useCallback(() => {
+    setSelectedFacture(null);
+  }, []);
+
+  const handleSelectEngagement = useCallback((eng) => {
+    setSelectedEngagement(eng);
+  }, []);
+
+  const handleBackToEngagements = useCallback(() => {
+    setSelectedEngagement(null);
+  }, []);
+
+  const handleOpenEngagementModal = useCallback(() => {
+    setShowEngagementModal(true);
+  }, []);
+
+  const handleCloseEngagementModal = useCallback(() => {
+    setShowEngagementModal(false);
+  }, []);
+
+  const handleToggleArchived = useCallback(() => {
+    setShowArchived(prev => !prev);
+  }, []);
+
+  const handleFactureFilterChange = useCallback((f) => {
+    setFactureFilter(f);
+  }, []);
+
+  const handleToggleMissions = useCallback(() => {
+    setExpandedMissions(prev => !prev);
+  }, []);
+
+  const filteredOffres = useMemo(() => {
+    return OFFRES.filter(o => {
+      if (!showArchived && o.statut === 'Archivé') return false;
+      if (searchQuery && !o.nom.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    });
+  }, [showArchived, searchQuery]);
+
+  const filteredFactures = useMemo(() => {
+    return FACTURES.filter(f => {
+      if (factureFilter !== 'Tous' && f.statut !== factureFilter) return false;
+      if (searchQuery && !f.client.toLowerCase().includes(searchQuery.toLowerCase()) && !f.id.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    });
+  }, [factureFilter, searchQuery]);
+
+  const filteredEngagements = useMemo(() => {
+    return ENGAGEMENTS.filter(e => {
+      if (searchQuery && !e.client.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    });
+  }, [searchQuery]);
+
+  const statutBadge = useCallback((statut) => {
+    const styles = {
+      'Actif': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+      'Archivé': 'bg-gray-50 text-gray-500 border border-gray-200',
+      'Expiré': 'bg-amber-50 text-amber-700 border border-amber-200',
+      'Brouillon': 'bg-gray-50 text-gray-600 border border-gray-200',
+      'Validée': 'bg-blue-50 text-blue-700 border border-blue-200',
+      'Envoyée': 'bg-violet-50 text-violet-700 border border-violet-200',
+      'Payée': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+      'Résilié': 'bg-red-50 text-red-700 border border-red-200',
+    };
+    return styles[statut] || 'bg-gray-50 text-gray-600 border border-gray-200';
+  }, []);
+
+  const totalRevenueMois = useMemo(() => {
+    return FACTURES.filter(f => f.periode === 'Janvier 2025').reduce((sum, f) => sum + f.total, 0);
+  }, []);
+
+  const navItems = [
+    { id: 'accueil', label: 'Accueil', icon: LayoutDashboard },
+    { id: 'prospection', label: 'Prospection', icon: Phone },
+    { id: 'suivi', label: 'Suivi', icon: BarChart3 },
+    { id: 'equipe', label: 'Équipe', icon: Users },
+    { id: 'reglages', label: 'Réglages', icon: Settings },
+  ];
+
+  const billingTabs = [
+    { id: 'offres', label: 'Offres & Tarifs', icon: Tag },
+    { id: 'engagements', label: 'Engagements', icon: CalendarDays },
+    { id: 'factures', label: 'Factures', icon: Receipt },
+  ];
+
+  const editingOffre = editingOffreId ? OFFRES.find(o => o.id === editingOffreId) : null;
+
+  return (
+    <div className="flex h-screen bg-[#f8f9fb] font-[Inter,system-ui,sans-serif]">
+      {/* Sidebar */}
+      <aside className="w-[240px] bg-[#1a1d2e] flex flex-col shrink-0">
+        <div className="h-[56px] flex items-center px-5 border-b border-white/10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#4f6ef7] flex items-center justify-center">
+              <span className="text-white font-bold text-sm">CP</span>
+            </div>
+            <span className="text-white font-semibold text-[15px] tracking-tight">Suzalink</span>
+          </div>
+        </div>
+
+        <nav className="flex-1 py-3 px-3 space-y-0.5">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.id === activeSideSection;
+            return (
+              <button
+                key={item.id}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13.5px] font-medium transition-colors duration-150 ${isActive ? 'bg-white/12 text-white' : 'text-[#8b8fa3] hover:text-white hover:bg-white/6'}`}
+              >
+                <Icon className="w-[18px] h-[18px]" />
+                <span>{item.label}</span>
+                {item.id === 'reglages' && isActive && (
+                  <ChevronDown className="w-3.5 h-3.5 ml-auto text-[#8b8fa3]" />
+                )}
+              </button>
+            );
+          })}
+          {activeSideSection === 'reglages' && (
+            <div className="pl-9 space-y-0.5 pt-1">
+              <button className="w-full text-left px-3 py-2 rounded-md text-[13px] text-[#8b8fa3] hover:text-white hover:bg-white/6 transition-colors duration-150">
+                Utilisateurs
+              </button>
+              <button className="w-full text-left px-3 py-2 rounded-md text-[13px] text-white bg-white/10 font-medium transition-colors duration-150">
+                Facturation
+              </button>
+              <button className="w-full text-left px-3 py-2 rounded-md text-[13px] text-[#8b8fa3] hover:text-white hover:bg-white/6 transition-colors duration-150">
+                Fichiers
+              </button>
+            </div>
+          )}
+        </nav>
+
+        <div className="p-3 border-t border-white/10">
+          <div className="flex items-center gap-3 px-3 py-2">
+            <div className="w-8 h-8 rounded-full bg-[#4f6ef7] flex items-center justify-center text-white text-xs font-semibold">MR</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-white text-[13px] font-medium truncate">Marc Renault</div>
+              <div className="text-[#8b8fa3] text-[11px]">Manager</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header */}
+        <header className="h-[56px] bg-white border-b border-[#e8eaef] flex items-center justify-between px-6 shrink-0">
+          <div className="flex items-center gap-2">
+            <Settings className="w-4 h-4 text-[#8b8fa3]" />
+            <span className="text-[#8b8fa3] text-[13px]">Réglages</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#c5c8d4]" />
+            <span className="text-[#1a1d2e] text-[13px] font-semibold">Facturation</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#b0b4c5]" />
+              <input
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Rechercher..."
+                className="pl-9 pr-4 py-2 text-[13px] bg-[#f4f5f8] border border-[#e8eaef] rounded-lg w-[240px] outline-none focus:border-[#4f6ef7] focus:bg-white transition-colors duration-150 placeholder-[#b0b4c5]"
+              />
+            </div>
+          </div>
+        </header>
+
+        {/* Billing Tabs */}
+        <div className="bg-white border-b border-[#e8eaef] px-6 shrink-0">
+          <div className="flex gap-1">
+            {billingTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 text-[13.5px] font-medium border-b-2 transition-colors duration-150 ${isActive ? 'border-[#4f6ef7] text-[#4f6ef7]' : 'border-transparent text-[#8b8fa3] hover:text-[#1a1d2e]'}`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* ========== OFFRES & TARIFS ========== */}
+          {activeTab === 'offres' && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h1 className="text-[20px] font-bold text-[#1a1d2e] tracking-tight">Offres & Tarifs</h1>
+                  <p className="text-[13px] text-[#8b8fa3] mt-0.5">Gérez vos modèles de tarification pour les engagements clients</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-[13px] text-[#8b8fa3] cursor-pointer select-none">
+                    <input type="checkbox" checked={showArchived} onChange={handleToggleArchived} className="rounded border-[#d1d5db] text-[#4f6ef7] focus:ring-[#4f6ef7]" />
+                    Afficher archivées
+                  </label>
+                  <button onClick={handleOpenOffreModal} className="flex items-center gap-2 px-4 py-2.5 bg-[#4f6ef7] text-white text-[13px] font-semibold rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150 shadow-sm">
+                    <Plus className="w-4 h-4" />
+                    Nouvelle offre
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats Cards */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Offres actives</span>
+                    <Tag className="w-4 h-4 text-[#4f6ef7]" />
+                  </div>
+                  <div className="mt-2 text-[28px] font-bold text-[#1a1d2e] tracking-tight">{OFFRES.filter(o => o.statut === 'Actif').length}</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Clients engagés</span>
+                    <Building2 className="w-4 h-4 text-[#4f6ef7]" />
+                  </div>
+                  <div className="mt-2 text-[28px] font-bold text-[#1a1d2e] tracking-tight">{OFFRES.reduce((s, o) => s + o.clients, 0)}</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Revenu moy. / client</span>
+                    <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="mt-2 text-[28px] font-bold text-[#1a1d2e] tracking-tight">1 185€</div>
+                </div>
+              </div>
+
+              {/* Offres Table */}
+              <div className="bg-white rounded-xl border border-[#e8eaef] overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[#e8eaef]">
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Offre</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Fixe mensuel</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Prix / RDV</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Clients</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Statut</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOffres.map((offre) => (
+                      <tr key={offre.id} className="border-b border-[#f2f3f7] last:border-0 hover:bg-[#f8f9fb] transition-colors duration-150">
+                        <td className="px-5 py-4">
+                          <div className="text-[14px] font-semibold text-[#1a1d2e]">{offre.nom}</div>
+                          <div className="text-[12px] text-[#8b8fa3] mt-0.5">{offre.description}</div>
+                        </td>
+                        <td className="text-right px-5 py-4">
+                          {offre.fixe > 0 ? (
+                            <span className="text-[14px] font-semibold text-[#1a1d2e]">{offre.fixe}€</span>
+                          ) : (
+                            <span className="text-[13px] text-[#b0b4c5]">—</span>
+                          )}
+                        </td>
+                        <td className="text-right px-5 py-4">
+                          {offre.rdv > 0 ? (
+                            <span className="text-[14px] font-semibold text-[#1a1d2e]">{offre.rdv}€</span>
+                          ) : (
+                            <span className="text-[13px] text-[#b0b4c5]">—</span>
+                          )}
+                        </td>
+                        <td className="text-center px-5 py-4">
+                          <span className="text-[14px] font-medium text-[#1a1d2e]">{offre.clients}</span>
+                        </td>
+                        <td className="text-center px-5 py-4">
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium ${statutBadge(offre.statut)}`}>
+                            {offre.statut}
+                          </span>
+                        </td>
+                        <td className="text-right px-5 py-4">
+                          <div className="flex items-center justify-end gap-1">
+                            <button onClick={() => handleEditOffre(offre.id)} className="p-2 rounded-lg text-[#8b8fa3] hover:text-[#4f6ef7] hover:bg-[#4f6ef7]/8 transition-colors duration-150">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button className="p-2 rounded-lg text-[#8b8fa3] hover:text-amber-600 hover:bg-amber-50 transition-colors duration-150">
+                              <Archive className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ========== ENGAGEMENTS ========== */}
+          {activeTab === 'engagements' && !selectedEngagement && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h1 className="text-[20px] font-bold text-[#1a1d2e] tracking-tight">Engagements Clients</h1>
+                  <p className="text-[13px] text-[#8b8fa3] mt-0.5">Contrats et conditions tarifaires par client</p>
+                </div>
+                <button onClick={handleOpenEngagementModal} className="flex items-center gap-2 px-4 py-2.5 bg-[#4f6ef7] text-white text-[13px] font-semibold rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150 shadow-sm">
+                  <Plus className="w-4 h-4" />
+                  Nouvel engagement
+                </button>
+              </div>
+
+              {/* Engagement Stats */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Actifs</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-[#1a1d2e]">{ENGAGEMENTS.filter(e => e.statut === 'Actif').length}</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Expirés</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-amber-600">{ENGAGEMENTS.filter(e => e.statut === 'Expiré').length}</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">RDVs ce mois</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-[#1a1d2e]">139</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Revenu mensuel</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-emerald-600">{totalRevenueMois.toLocaleString('fr-FR')}€</div>
+                </div>
+              </div>
+
+              {/* Engagements Table */}
+              <div className="bg-white rounded-xl border border-[#e8eaef] overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[#e8eaef]">
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Client</th>
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Offre</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Tarif effectif</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Durée</th>
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Période</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Statut</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredEngagements.map((eng) => {
+                      const effectiveFixe = eng.fixeOverride !== null ? eng.fixeOverride : eng.fixe;
+                      const effectiveRdv = eng.rdvOverride !== null ? eng.rdvOverride : eng.rdv;
+                      const hasOverride = eng.fixeOverride !== null || eng.rdvOverride !== null;
+                      return (
+                        <tr key={eng.id} className="border-b border-[#f2f3f7] last:border-0 hover:bg-[#f8f9fb] transition-colors duration-150 cursor-pointer" onClick={() => handleSelectEngagement(eng)}>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-[#4f6ef7]/10 flex items-center justify-center text-[#4f6ef7] text-[12px] font-bold">
+                                {eng.client.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                              </div>
+                              <div>
+                                <div className="text-[14px] font-semibold text-[#1a1d2e]">{eng.client}</div>
+                                <div className="text-[12px] text-[#8b8fa3]">{eng.missions} mission{eng.missions > 1 ? 's' : ''} · {eng.rdvCount} RDVs</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className="text-[13px] text-[#1a1d2e] font-medium">{eng.offre}</span>
+                            {hasOverride && (
+                              <span className="ml-1.5 text-[11px] text-amber-600 font-medium bg-amber-50 px-1.5 py-0.5 rounded">Personnalisé</span>
+                            )}
+                          </td>
+                          <td className="text-right px-5 py-4">
+                            <div className="text-[13px] font-semibold text-[#1a1d2e]">
+                              {effectiveFixe > 0 && <span>{effectiveFixe}€/mois</span>}
+                              {effectiveFixe > 0 && effectiveRdv > 0 && <span className="text-[#b0b4c5]"> + </span>}
+                              {effectiveRdv > 0 && <span>{effectiveRdv}€/rdv</span>}
+                            </div>
+                          </td>
+                          <td className="text-center px-5 py-4">
+                            <span className="text-[13px] font-medium text-[#1a1d2e]">{eng.duree} mois</span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <div className="text-[13px] text-[#1a1d2e]">{eng.debut}</div>
+                            <div className="text-[11px] text-[#8b8fa3]">→ {eng.fin}</div>
+                          </td>
+                          <td className="text-center px-5 py-4">
+                            <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium ${statutBadge(eng.statut)}`}>
+                              {eng.statut}
+                            </span>
+                          </td>
+                          <td className="text-right px-5 py-4">
+                            <div className="flex items-center justify-end gap-1">
+                              {eng.statut === 'Expiré' && (
+                                <button className="p-2 rounded-lg text-[#4f6ef7] hover:bg-[#4f6ef7]/8 transition-colors duration-150">
+                                  <Repeat className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button className="p-2 rounded-lg text-[#8b8fa3] hover:text-[#4f6ef7] hover:bg-[#4f6ef7]/8 transition-colors duration-150">
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ========== ENGAGEMENT DETAIL ========== */}
+          {activeTab === 'engagements' && selectedEngagement && (
+            <div>
+              <button onClick={handleBackToEngagements} className="flex items-center gap-2 text-[13px] text-[#8b8fa3] hover:text-[#4f6ef7] mb-5 transition-colors duration-150">
+                <ArrowLeft className="w-4 h-4" />
+                Retour aux engagements
+              </button>
+
+              <div className="grid grid-cols-3 gap-6">
+                {/* Left: Engagement Info */}
+                <div className="col-span-2 space-y-5">
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-6">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#4f6ef7]/10 flex items-center justify-center text-[#4f6ef7] text-[16px] font-bold">
+                          {selectedEngagement.client.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                        </div>
+                        <div>
+                          <h2 className="text-[18px] font-bold text-[#1a1d2e]">{selectedEngagement.client}</h2>
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium mt-1 ${statutBadge(selectedEngagement.statut)}`}>
+                            {selectedEngagement.statut}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-medium text-[#1a1d2e] border border-[#e8eaef] rounded-lg hover:bg-[#f4f5f8] transition-colors duration-150">
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Modifier
+                        </button>
+                        {selectedEngagement.statut === 'Actif' && (
+                          <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors duration-150">
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            Résilier
+                          </button>
+                        )}
+                        {selectedEngagement.statut === 'Expiré' && (
+                          <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-medium text-white bg-[#4f6ef7] rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150">
+                            <Repeat className="w-3.5 h-3.5" />
+                            Renouveler
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+                      <div>
+                        <div className="text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider mb-1">Offre de base</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e]">{selectedEngagement.offre}</div>
+                      </div>
+                      <div>
+                        <div className="text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider mb-1">Durée</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e]">{selectedEngagement.duree} mois</div>
+                      </div>
+                      <div>
+                        <div className="text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider mb-1">Date de début</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e]">{selectedEngagement.debut}</div>
+                      </div>
+                      <div>
+                        <div className="text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider mb-1">Date de fin</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e]">{selectedEngagement.fin}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tarification */}
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-6">
+                    <h3 className="text-[15px] font-bold text-[#1a1d2e] mb-4">Tarification effective</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg bg-[#f8f9fb] border border-[#e8eaef]">
+                        <div className="text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider mb-2">Forfait mensuel</div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-[22px] font-bold text-[#1a1d2e]">
+                            {selectedEngagement.fixeOverride !== null ? selectedEngagement.fixeOverride : selectedEngagement.fixe}€
+                          </span>
+                          {selectedEngagement.fixeOverride !== null && (
+                            <span className="text-[13px] text-[#b0b4c5] line-through">{selectedEngagement.fixe}€</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-4 rounded-lg bg-[#f8f9fb] border border-[#e8eaef]">
+                        <div className="text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider mb-2">Prix par RDV</div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-[22px] font-bold text-[#1a1d2e]">
+                            {selectedEngagement.rdvOverride !== null ? selectedEngagement.rdvOverride : selectedEngagement.rdv}€
+                          </span>
+                          {selectedEngagement.rdvOverride !== null && (
+                            <span className="text-[13px] text-[#b0b4c5] line-through">{selectedEngagement.rdv}€</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Summary */}
+                <div className="space-y-5">
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                    <h3 className="text-[13px] font-bold text-[#8b8fa3] uppercase tracking-wider mb-4">Résumé du mois</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[13px] text-[#8b8fa3]">Missions actives</span>
+                        <span className="text-[14px] font-bold text-[#1a1d2e]">{selectedEngagement.missions}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[13px] text-[#8b8fa3]">RDVs ce mois</span>
+                        <span className="text-[14px] font-bold text-[#1a1d2e]">{selectedEngagement.rdvCount}</span>
+                      </div>
+                      <div className="border-t border-[#e8eaef] pt-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[13px] text-[#8b8fa3]">Forfait</span>
+                          <span className="text-[13px] font-medium text-[#1a1d2e]">{selectedEngagement.fixeOverride || selectedEngagement.fixe}€</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[13px] text-[#8b8fa3]">Variable ({selectedEngagement.rdvCount} × {selectedEngagement.rdvOverride || selectedEngagement.rdv}€)</span>
+                          <span className="text-[13px] font-medium text-[#1a1d2e]">{selectedEngagement.rdvCount * (selectedEngagement.rdvOverride || selectedEngagement.rdv)}€</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#e8eaef]">
+                          <span className="text-[14px] font-bold text-[#1a1d2e]">Total estimé</span>
+                          <span className="text-[18px] font-bold text-[#4f6ef7]">
+                            {(selectedEngagement.fixeOverride || selectedEngagement.fixe) + selectedEngagement.rdvCount * (selectedEngagement.rdvOverride || selectedEngagement.rdv)}€
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                    <h3 className="text-[13px] font-bold text-[#8b8fa3] uppercase tracking-wider mb-3">Engagement</h3>
+                    <div className="space-y-3">
+                      <div className="w-full bg-[#f0f1f5] rounded-full h-2">
+                        <div className="bg-[#4f6ef7] h-2 rounded-full" style={{width: '65%'}}></div>
+                      </div>
+                      <div className="flex items-center justify-between text-[12px]">
+                        <span className="text-[#8b8fa3]">4 mois écoulés</span>
+                        <span className="text-[#8b8fa3]">{selectedEngagement.duree} mois total</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========== FACTURES LIST ========== */}
+          {activeTab === 'factures' && !selectedFacture && (
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h1 className="text-[20px] font-bold text-[#1a1d2e] tracking-tight">Factures</h1>
+                  <p className="text-[13px] text-[#8b8fa3] mt-0.5">Suivi et gestion de la facturation client</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#1a1d2e] border border-[#e8eaef] rounded-lg bg-white hover:bg-[#f4f5f8] transition-colors duration-150">
+                    <Download className="w-4 h-4" />
+                    Exporter
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2.5 bg-[#4f6ef7] text-white text-[13px] font-semibold rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150 shadow-sm">
+                    <Plus className="w-4 h-4" />
+                    Générer facture
+                  </button>
+                </div>
+              </div>
+
+              {/* Revenue Stats */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Total janv.</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-[#1a1d2e]">{totalRevenueMois.toLocaleString('fr-FR')}€</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Brouillons</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-gray-600">{FACTURES.filter(f => f.statut === 'Brouillon').length}</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">En attente</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-violet-600">{FACTURES.filter(f => f.statut === 'Envoyée').length}</div>
+                </div>
+                <div className="bg-white rounded-xl border border-[#e8eaef] p-4">
+                  <span className="text-[12px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Payées</span>
+                  <div className="mt-1.5 text-[24px] font-bold text-emerald-600">{FACTURES.filter(f => f.statut === 'Payée').length}</div>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex items-center gap-2 mb-4">
+                {['Tous', 'Brouillon', 'Validée', 'Envoyée', 'Payée'].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => handleFactureFilterChange(f)}
+                    className={`px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-colors duration-150 ${factureFilter === f ? 'bg-[#4f6ef7] text-white' : 'bg-white text-[#8b8fa3] border border-[#e8eaef] hover:text-[#1a1d2e]'}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              {/* Factures Table */}
+              <div className="bg-white rounded-xl border border-[#e8eaef] overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[#e8eaef]">
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">N° Facture</th>
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Client</th>
+                      <th className="text-left px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Période</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Fixe</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">RDVs</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Variable</th>
+                      <th className="text-right px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Total</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Statut</th>
+                      <th className="text-center px-5 py-3.5 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredFactures.map((fac) => (
+                      <tr key={fac.id} onClick={() => handleSelectFacture(fac)} className="border-b border-[#f2f3f7] last:border-0 hover:bg-[#f8f9fb] transition-colors duration-150 cursor-pointer">
+                        <td className="px-5 py-4">
+                          <span className="text-[13px] font-semibold text-[#4f6ef7]">{fac.id}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-[14px] font-medium text-[#1a1d2e]">{fac.client}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-[13px] text-[#1a1d2e]">{fac.periode}</span>
+                        </td>
+                        <td className="text-right px-5 py-4">
+                          <span className="text-[13px] font-medium text-[#1a1d2e]">{fac.fixe > 0 ? `${fac.fixe}€` : '—'}</span>
+                        </td>
+                        <td className="text-center px-5 py-4">
+                          <span className="text-[13px] font-medium text-[#1a1d2e]">{fac.nbRdv}</span>
+                        </td>
+                        <td className="text-right px-5 py-4">
+                          <span className="text-[13px] font-medium text-[#1a1d2e]">{fac.variable > 0 ? `${fac.variable}€` : '—'}</span>
+                        </td>
+                        <td className="text-right px-5 py-4">
+                          <span className="text-[14px] font-bold text-[#1a1d2e]">{fac.total.toLocaleString('fr-FR')}€</span>
+                        </td>
+                        <td className="text-center px-5 py-4">
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium ${statutBadge(fac.statut)}`}>
+                            {fac.statut}
+                          </span>
+                        </td>
+                        <td className="text-center px-5 py-4">
+                          {fac.auto ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-[#8b8fa3]">
+                              <Clock className="w-3 h-3" />
+                              Auto
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-[#4f6ef7]">
+                              <Edit2 className="w-3 h-3" />
+                              Manuel
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ========== FACTURE DETAIL ========== */}
+          {activeTab === 'factures' && selectedFacture && (
+            <div>
+              <button onClick={handleBackToFactures} className="flex items-center gap-2 text-[13px] text-[#8b8fa3] hover:text-[#4f6ef7] mb-5 transition-colors duration-150">
+                <ArrowLeft className="w-4 h-4" />
+                Retour aux factures
+              </button>
+
+              <div className="grid grid-cols-3 gap-6">
+                {/* Left: Invoice Detail */}
+                <div className="col-span-2 space-y-5">
+                  {/* Invoice Header */}
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-6">
+                    <div className="flex items-start justify-between mb-6">
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <h2 className="text-[20px] font-bold text-[#1a1d2e]">{selectedFacture.id}</h2>
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium ${statutBadge(selectedFacture.statut)}`}>
+                            {selectedFacture.statut}
+                          </span>
+                          {selectedFacture.auto && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#f4f5f8] text-[11px] text-[#8b8fa3] font-medium">
+                              <Clock className="w-3 h-3" />
+                              Auto-générée
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[14px] text-[#8b8fa3]">{selectedFacture.client} · {selectedFacture.periode}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {selectedFacture.statut === 'Brouillon' && (
+                          <>
+                            <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-medium text-[#1a1d2e] border border-[#e8eaef] rounded-lg hover:bg-[#f4f5f8] transition-colors duration-150">
+                              <Edit2 className="w-3.5 h-3.5" />
+                              Modifier
+                            </button>
+                            <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-[#4f6ef7] rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Valider
+                            </button>
+                          </>
+                        )}
+                        {selectedFacture.statut === 'Validée' && (
+                          <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-[#4f6ef7] rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150">
+                            <Send className="w-3.5 h-3.5" />
+                            Envoyer
+                          </button>
+                        )}
+                        {selectedFacture.statut === 'Envoyée' && (
+                          <button className="flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors duration-150">
+                            <Check className="w-3.5 h-3.5" />
+                            Marquer payée
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Status Progress */}
+                    <div className="flex items-center gap-1 mb-6">
+                      {['Brouillon', 'Validée', 'Envoyée', 'Payée'].map((step, idx) => {
+                        const statuses = ['Brouillon', 'Validée', 'Envoyée', 'Payée'];
+                        const currentIdx = statuses.indexOf(selectedFacture.statut);
+                        const isComplete = idx <= currentIdx;
+                        const isCurrent = idx === currentIdx;
+                        return (
+                          <div key={step} className="flex items-center flex-1">
+                            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg flex-1 ${isCurrent ? 'bg-[#4f6ef7]/8' : ''}`}>
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${isComplete ? 'bg-[#4f6ef7] text-white' : 'bg-[#e8eaef] text-[#b0b4c5]'}`}>
+                                {isComplete && idx < currentIdx ? <Check className="w-3.5 h-3.5" /> : idx + 1}
+                              </div>
+                              <span className={`text-[12px] font-medium ${isCurrent ? 'text-[#4f6ef7]' : isComplete ? 'text-[#1a1d2e]' : 'text-[#b0b4c5]'}`}>{step}</span>
+                            </div>
+                            {idx < 3 && <div className={`w-6 h-[2px] ${isComplete && idx < currentIdx ? 'bg-[#4f6ef7]' : 'bg-[#e8eaef]'}`} />}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Line Items */}
+                    <h3 className="text-[14px] font-bold text-[#1a1d2e] mb-3">Détail des lignes</h3>
+                    <div className="border border-[#e8eaef] rounded-lg overflow-hidden">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-[#f8f9fb]">
+                            <th className="text-left px-4 py-3 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Description</th>
+                            <th className="text-center px-4 py-3 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Qté</th>
+                            <th className="text-right px-4 py-3 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">PU HT</th>
+                            <th className="text-right px-4 py-3 text-[11.5px] font-semibold text-[#8b8fa3] uppercase tracking-wider">Total HT</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedFacture.fixe > 0 && (
+                            <tr className="border-t border-[#e8eaef]">
+                              <td className="px-4 py-3.5">
+                                <span className="text-[13px] font-medium text-[#1a1d2e]">Forfait mensuel</span>
+                                <span className="text-[12px] text-[#8b8fa3] ml-2">— Abonnement {selectedFacture.periode}</span>
+                              </td>
+                              <td className="text-center px-4 py-3.5 text-[13px] text-[#1a1d2e]">1</td>
+                              <td className="text-right px-4 py-3.5 text-[13px] text-[#1a1d2e]">{selectedFacture.fixe}€</td>
+                              <td className="text-right px-4 py-3.5 text-[13px] font-semibold text-[#1a1d2e]">{selectedFacture.fixe}€</td>
+                            </tr>
+                          )}
+                          {selectedFacture.nbRdv > 0 && (
+                            <tr className="border-t border-[#e8eaef]">
+                              <td className="px-4 py-3.5">
+                                <span className="text-[13px] font-medium text-[#1a1d2e]">Rendez-vous qualifiés</span>
+                                <span className="text-[12px] text-[#8b8fa3] ml-2">— {selectedFacture.periode}</span>
+                              </td>
+                              <td className="text-center px-4 py-3.5 text-[13px] text-[#1a1d2e]">{selectedFacture.nbRdv}</td>
+                              <td className="text-right px-4 py-3.5 text-[13px] text-[#1a1d2e]">{selectedFacture.prixRdv}€</td>
+                              <td className="text-right px-4 py-3.5 text-[13px] font-semibold text-[#1a1d2e]">{selectedFacture.variable}€</td>
+                            </tr>
+                          )}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t-2 border-[#e8eaef] bg-[#f8f9fb]">
+                            <td colSpan={3} className="text-right px-4 py-3.5 text-[14px] font-bold text-[#1a1d2e]">Total HT</td>
+                            <td className="text-right px-4 py-3.5 text-[16px] font-bold text-[#4f6ef7]">{selectedFacture.total.toLocaleString('fr-FR')}€</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    {/* RDV Breakdown per Mission */}
+                    {selectedFacture.nbRdv > 0 && (
+                      <div className="mt-4">
+                        <button onClick={handleToggleMissions} className="flex items-center gap-2 text-[13px] text-[#8b8fa3] hover:text-[#4f6ef7] font-medium transition-colors duration-150">
+                          {expandedMissions ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          Détail par mission ({FACTURE_MISSIONS.length} missions)
+                        </button>
+                        {expandedMissions && (
+                          <div className="mt-3 border border-[#e8eaef] rounded-lg overflow-hidden">
+                            {FACTURE_MISSIONS.map((m, i) => (
+                              <div key={i} className={`flex items-center justify-between px-4 py-3 ${i > 0 ? 'border-t border-[#e8eaef]' : ''}`}>
+                                <div>
+                                  <span className="text-[13px] font-medium text-[#1a1d2e]">{m.mission}</span>
+                                </div>
+                                <div className="flex items-center gap-6">
+                                  <span className="text-[13px] text-[#8b8fa3]">{m.rdvs} RDVs</span>
+                                  <span className="text-[13px] font-semibold text-[#1a1d2e]">{m.montant}€</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: Invoice Meta */}
+                <div className="space-y-5">
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                    <h3 className="text-[13px] font-bold text-[#8b8fa3] uppercase tracking-wider mb-4">Informations</h3>
+                    <div className="space-y-3.5">
+                      <div>
+                        <div className="text-[11.5px] text-[#b0b4c5] uppercase font-semibold tracking-wider">Client</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e] mt-0.5">{selectedFacture.client}</div>
+                      </div>
+                      <div>
+                        <div className="text-[11.5px] text-[#b0b4c5] uppercase font-semibold tracking-wider">Période</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e] mt-0.5">{selectedFacture.periode}</div>
+                      </div>
+                      <div>
+                        <div className="text-[11.5px] text-[#b0b4c5] uppercase font-semibold tracking-wider">Date d'émission</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e] mt-0.5">01/02/2025</div>
+                      </div>
+                      <div>
+                        <div className="text-[11.5px] text-[#b0b4c5] uppercase font-semibold tracking-wider">Échéance</div>
+                        <div className="text-[14px] font-medium text-[#1a1d2e] mt-0.5">01/03/2025</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#4f6ef7]/5 rounded-xl border border-[#4f6ef7]/15 p-5">
+                    <div className="text-[12px] font-semibold text-[#4f6ef7] uppercase tracking-wider mb-1">Montant total</div>
+                    <div className="text-[28px] font-bold text-[#4f6ef7] tracking-tight">{selectedFacture.total.toLocaleString('fr-FR')}€</div>
+                    <div className="text-[12px] text-[#8b8fa3] mt-1">HT · TVA non applicable</div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-[#e8eaef] p-5">
+                    <h3 className="text-[13px] font-bold text-[#8b8fa3] uppercase tracking-wider mb-3">Actions rapides</h3>
+                    <div className="space-y-2">
+                      <button className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium text-[#1a1d2e] rounded-lg border border-[#e8eaef] hover:bg-[#f4f5f8] transition-colors duration-150">
+                        <Download className="w-4 h-4 text-[#8b8fa3]" />
+                        Télécharger PDF
+                      </button>
+                      <button className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium text-[#1a1d2e] rounded-lg border border-[#e8eaef] hover:bg-[#f4f5f8] transition-colors duration-150">
+                        <Mail className="w-4 h-4 text-[#8b8fa3]" />
+                        Envoyer par email
+                      </button>
+                      <button className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-medium text-[#1a1d2e] rounded-lg border border-[#e8eaef] hover:bg-[#f4f5f8] transition-colors duration-150">
+                        <FileText className="w-4 h-4 text-[#8b8fa3]" />
+                        Avoir / Crédit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* ========== OFFRE MODAL ========== */}
+      {showOffreModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-[520px] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#e8eaef]">
+              <h2 className="text-[17px] font-bold text-[#1a1d2e]">{editingOffre ? 'Modifier l\'offre' : 'Nouvelle offre'}</h2>
+              <button onClick={handleCloseOffreModal} className="p-1.5 rounded-lg text-[#8b8fa3] hover:bg-[#f4f5f8] transition-colors duration-150">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-5">
+              <div>
+                <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Nom de l'offre</label>
+                <input
+                  defaultValue={editingOffre ? editingOffre.nom : ''}
+                  placeholder="Ex: Pack Standard"
+                  className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 placeholder-[#b0b4c5]"
+                />
+              </div>
+              <div>
+                <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Description</label>
+                <textarea
+                  defaultValue={editingOffre ? editingOffre.description : ''}
+                  placeholder="Brève description de l'offre"
+                  rows={2}
+                  className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 resize-none placeholder-[#b0b4c5]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Forfait mensuel (€)</label>
+                  <input
+                    type="number"
+                    defaultValue={editingOffre ? editingOffre.fixe : ''}
+                    placeholder="0"
+                    className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 placeholder-[#b0b4c5]"
+                  />
+                  <span className="text-[11px] text-[#8b8fa3] mt-1 block">Laisser 0 si pas de forfait</span>
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Prix par RDV (€)</label>
+                  <input
+                    type="number"
+                    defaultValue={editingOffre ? editingOffre.rdv : ''}
+                    placeholder="0"
+                    className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 placeholder-[#b0b4c5]"
+                  />
+                  <span className="text-[11px] text-[#8b8fa3] mt-1 block">Laisser 0 si pas de variable</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#e8eaef]">
+              <button onClick={handleCloseOffreModal} className="px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] hover:text-[#1a1d2e] transition-colors duration-150">
+                Annuler
+              </button>
+              <button className="px-5 py-2.5 text-[13px] font-semibold text-white bg-[#4f6ef7] rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150 shadow-sm">
+                {editingOffre ? 'Enregistrer' : 'Créer l\'offre'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== ENGAGEMENT MODAL ========== */}
+      {showEngagementModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-[580px] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#e8eaef]">
+              <h2 className="text-[17px] font-bold text-[#1a1d2e]">Nouvel engagement</h2>
+              <button onClick={handleCloseEngagementModal} className="p-1.5 rounded-lg text-[#8b8fa3] hover:bg-[#f4f5f8] transition-colors duration-150">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-5">
+              <div>
+                <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Client</label>
+                <select className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 bg-white text-[#1a1d2e]">
+                  <option value="">Sélectionner un client</option>
+                  <option>Nextera Solutions</option>
+                  <option>DataFlow SAS</option>
+                  <option>GreenTech Industries</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Offre tarifaire</label>
+                <select className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 bg-white text-[#1a1d2e]">
+                  <option value="">Sélectionner une offre</option>
+                  <option>Pack Standard — 600€ + 80€/rdv</option>
+                  <option>Pack Premium — 1 200€ + 60€/rdv</option>
+                  <option>Performance Pure — 120€/rdv</option>
+                  <option>Forfait Fixe — 900€</option>
+                </select>
+              </div>
+              <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Edit2 className="w-4 h-4 text-amber-600" />
+                  <span className="text-[13px] font-semibold text-amber-800">Personnaliser le tarif</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[12px] font-medium text-amber-700 mb-1">Forfait mensuel (€)</label>
+                    <input
+                      type="number"
+                      placeholder="Tarif de base"
+                      className="w-full px-3 py-2 text-[14px] border border-amber-200 rounded-lg bg-white outline-none focus:border-amber-400 transition-colors duration-150 placeholder-[#b0b4c5]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-medium text-amber-700 mb-1">Prix par RDV (€)</label>
+                    <input
+                      type="number"
+                      placeholder="Tarif de base"
+                      className="w-full px-3 py-2 text-[14px] border border-amber-200 rounded-lg bg-white outline-none focus:border-amber-400 transition-colors duration-150 placeholder-[#b0b4c5]"
+                    />
+                  </div>
+                </div>
+                <span className="text-[11px] text-amber-600 mt-2 block">Laissez vide pour utiliser le tarif de base de l'offre</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Durée (mois)</label>
+                  <select className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 bg-white text-[#1a1d2e]">
+                    <option value="3">3 mois</option>
+                    <option value="6">6 mois</option>
+                    <option value="12">12 mois</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Date de début</label>
+                  <input
+                    type="date"
+                    className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 text-[#1a1d2e]"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[13px] font-semibold text-[#1a1d2e] mb-1.5">Pénalité de résiliation</label>
+                <input
+                  type="text"
+                  placeholder="Ex: 2 mois de forfait"
+                  className="w-full px-3.5 py-2.5 text-[14px] border border-[#e8eaef] rounded-lg outline-none focus:border-[#4f6ef7] transition-colors duration-150 placeholder-[#b0b4c5]"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#e8eaef]">
+              <button onClick={handleCloseEngagementModal} className="px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] hover:text-[#1a1d2e] transition-colors duration-150">
+                Annuler
+              </button>
+              <button className="px-5 py-2.5 text-[13px] font-semibold text-white bg-[#4f6ef7] rounded-lg hover:bg-[#3d5ce5] transition-colors duration-150 shadow-sm">
+                Créer l'engagement
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;

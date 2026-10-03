@@ -1,0 +1,12 @@
+.git
+.gitignore
+.next
+node_modules
+npm-debug.log
+.env
+.env.*
+.codex-screenshots
+debug*.log
+uploads
+private
+lead-hub

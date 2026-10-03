@@ -1,0 +1,287 @@
+﻿app/api/client/onboarding-dismissed/route.ts(15,51): error TS2552: Cannot find name 'request'. Did you mean 'Request'?
+app/api/companies/[id]/mission/route.ts(10,65): error TS2552: Cannot find name 'request'. Did you mean '_request'?
+app/api/contacts/[id]/mission/route.ts(10,65): error TS2552: Cannot find name 'request'. Did you mean '_request'?
+app/api/contacts/[id]/route.ts(164,9): error TS2322: Type '{ additionalEmails?: string[] | null | undefined; additionalPhones?: string[] | null | undefined; status: "INCOMPLETE" | "PARTIAL" | "ACTIONABLE"; firstName: string | null; lastName: string | null; email: string | null; phone: string | null; linkedin: string | null; title: string | null; }' is not assignable to type '(Without<ContactUpdateInput, ContactUncheckedUpdateInput> & ContactUncheckedUpdateInput) | (Without<...> & ContactUpdateInput)'.
+  Type '{ additionalEmails?: string[] | null | undefined; additionalPhones?: string[] | null | undefined; status: "INCOMPLETE" | "PARTIAL" | "ACTIONABLE"; firstName: string | null; lastName: string | null; email: string | null; phone: string | null; linkedin: string | null; title: string | null; }' is not assignable to type 'Without<ContactUncheckedUpdateInput, ContactUpdateInput> & ContactUpdateInput'.
+    Type '{ additionalEmails?: string[] | null | undefined; additionalPhones?: string[] | null | undefined; status: "INCOMPLETE" | "PARTIAL" | "ACTIONABLE"; firstName: string | null; lastName: string | null; email: string | null; phone: string | null; linkedin: string | null; title: string | null; }' is not assignable to type 'ContactUpdateInput'.
+      Types of property 'additionalPhones' are incompatible.
+        Type 'string[] | null | undefined' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+          Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+app/api/files/[id]/share/route.ts(26,60): error TS2339: Property 'errors' does not exist on type 'ZodError<{ userIds: string[]; }>'.
+app/api/folders/[id]/share/route.ts(26,60): error TS2339: Property 'errors' does not exist on type 'ZodError<{ userIds: string[]; }>'.
+app/api/manager/prospection/action-queue/route.ts(19,37): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(handler: RouteHandlerWithParams<any>): RouteHandlerWithParams<any>', gave the following error.
+    Argument of type '(request: NextRequest) => Promise<Response>' is not assignable to parameter of type 'RouteHandlerWithParams<any>'.
+      Type 'Promise<Response>' is not assignable to type 'Promise<NextResponse<unknown>>'.
+        Type 'Response' is missing the following properties from type 'NextResponse<unknown>': cookies, [INTERNALS]
+  Overload 2 of 2, '(handler: RouteHandlerWithoutParams): RouteHandlerWithoutParams', gave the following error.
+    Argument of type '(request: NextRequest) => Promise<Response>' is not assignable to parameter of type 'RouteHandlerWithoutParams'.
+      Type 'Promise<Response>' is not assignable to type 'Promise<NextResponse<unknown>>'.
+        Type 'Response' is missing the following properties from type 'NextResponse<unknown>': cookies, [INTERNALS]
+app/api/planning/route.ts(105,36): error TS2345: Argument of type '{ startDate?: Date | undefined; endDate?: Date | undefined; }' is not assignable to parameter of type '{ startDate: Date; }'.
+  Types of property 'startDate' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+app/api/planning/route.ts(106,32): error TS2345: Argument of type '{ startDate?: Date | undefined; endDate?: Date | undefined; }' is not assignable to parameter of type '{ endDate: Date; }'.
+  Types of property 'endDate' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+app/api/planning/weekly/route.ts(67,36): error TS2345: Argument of type '{ startDate?: Date | undefined; endDate?: Date | undefined; }' is not assignable to parameter of type '{ startDate: Date; }'.
+  Types of property 'startDate' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+app/api/planning/weekly/route.ts(68,32): error TS2345: Argument of type '{ startDate?: Date | undefined; endDate?: Date | undefined; }' is not assignable to parameter of type '{ endDate: Date; }'.
+  Types of property 'endDate' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+app/api/playbook/import/route.ts(159,9): error TS2322: Type 'string | number | boolean | InputJsonObject | InputJsonArray | { toJSON(): unknown; } | { sections: ParsedPlaybookScriptSection[]; }' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type '{ sections: ParsedPlaybookScriptSection[]; }' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+    Type '{ sections: ParsedPlaybookScriptSection[]; }' is not assignable to type 'InputJsonObject'.
+      Property 'sections' is incompatible with index signature.
+        Type 'ParsedPlaybookScriptSection[]' is not assignable to type 'InputJsonValue | null | undefined'.
+          Type 'ParsedPlaybookScriptSection[]' is not assignable to type 'InputJsonObject'.
+            Index signature for type 'string' is missing in type 'ParsedPlaybookScriptSection[]'.
+app/api/prospects/intake/route.ts(18,14): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/prospects/intake/route.ts(161,40): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+app/api/prospects/rules/[id]/route.ts(19,16): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/prospects/rules/[id]/route.ts(20,13): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/prospects/rules/[id]/route.ts(89,5): error TS2322: Type '{ updatedById: string; version: { increment: number; }; name?: string | undefined; description?: string | undefined; priority?: number | undefined; condition?: Record<any, unknown> | undefined; action?: Record<...> | undefined; isActive?: boolean | undefined; }' is not assignable to type '(Without<ProspectRuleUpdateInput, ProspectRuleUncheckedUpdateInput> & ProspectRuleUncheckedUpdateInput) | (Without<...> & ProspectRuleUpdateInput)'.
+  Type '{ updatedById: string; version: { increment: number; }; name?: string | undefined; description?: string | undefined; priority?: number | undefined; condition?: Record<any, unknown> | undefined; action?: Record<...> | undefined; isActive?: boolean | undefined; }' is not assignable to type 'Without<ProspectRuleUpdateInput, ProspectRuleUncheckedUpdateInput> & ProspectRuleUncheckedUpdateInput'.
+    Type '{ updatedById: string; version: { increment: number; }; name?: string | undefined; description?: string | undefined; priority?: number | undefined; condition?: Record<any, unknown> | undefined; action?: Record<...> | undefined; isActive?: boolean | undefined; }' is not assignable to type 'ProspectRuleUncheckedUpdateInput'.
+      Types of property 'condition' are incompatible.
+        Type 'Record<any, unknown> | undefined' is not assignable to type 'JsonNull | InputJsonValue | undefined'.
+          Type 'Record<any, unknown>' is not assignable to type 'JsonNull | InputJsonValue | undefined'.
+app/api/prospects/rules/route.ts(22,16): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/prospects/rules/route.ts(23,13): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/prospects/rules/route.ts(91,5): error TS2322: Type '{ createdById: string; name: string; step: "INTAKE" | "NORMALIZE" | "VALIDATE" | "ENRICH" | "DEDUPLICATE" | "SCORE" | "ROUTE" | "ACTIVATE" | "HOLD" | "REJECT"; priority: number; condition: Record<...>; action: Record<...>; description?: string | undefined; clientId?: string | undefined; sourceId?: string | undefined...' is not assignable to type '(Without<ProspectRuleCreateInput, ProspectRuleUncheckedCreateInput> & ProspectRuleUncheckedCreateInput) | (Without<...> & ProspectRuleCreateInput)'.
+  Type '{ createdById: string; name: string; step: "INTAKE" | "NORMALIZE" | "VALIDATE" | "ENRICH" | "DEDUPLICATE" | "SCORE" | "ROUTE" | "ACTIVATE" | "HOLD" | "REJECT"; priority: number; condition: Record<...>; action: Record<...>; description?: string | undefined; clientId?: string | undefined; sourceId?: string | undefined...' is not assignable to type 'Without<ProspectRuleCreateInput, ProspectRuleUncheckedCreateInput> & ProspectRuleUncheckedCreateInput'.
+    Type '{ createdById: string; name: string; step: "INTAKE" | "NORMALIZE" | "VALIDATE" | "ENRICH" | "DEDUPLICATE" | "SCORE" | "ROUTE" | "ACTIVATE" | "HOLD" | "REJECT"; priority: number; condition: Record<...>; action: Record<...>; description?: string | undefined; clientId?: string | undefined; sourceId?: string | undefined...' is not assignable to type 'ProspectRuleUncheckedCreateInput'.
+      Types of property 'condition' are incompatible.
+        Type 'Record<any, unknown>' is not assignable to type 'JsonNull | InputJsonValue'.
+app/api/prospects/sources/[id]/route.ts(21,15): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/prospects/sources/[id]/route.ts(82,5): error TS2322: Type '{ defaultMissionId: string | null | undefined; name?: string | undefined; type?: "WEB_FORM" | "CSV_IMPORT" | "API" | "PARTNER_FEED" | "MANUAL_ENTRY" | undefined; autoActivate?: boolean | undefined; isActive?: boolean | undefined; metadata?: Record<...> | undefined; }' is not assignable to type '(Without<ProspectSourceUpdateInput, ProspectSourceUncheckedUpdateInput> & ProspectSourceUncheckedUpdateInput) | (Without<...> & ProspectSourceUpdateInput)'.
+  Type '{ defaultMissionId: string | null | undefined; name?: string | undefined; type?: "WEB_FORM" | "CSV_IMPORT" | "API" | "PARTNER_FEED" | "MANUAL_ENTRY" | undefined; autoActivate?: boolean | undefined; isActive?: boolean | undefined; metadata?: Record<...> | undefined; }' is not assignable to type 'Without<ProspectSourceUncheckedUpdateInput, ProspectSourceUpdateInput> & ProspectSourceUpdateInput'.
+    Type '{ defaultMissionId: string | null | undefined; name?: string | undefined; type?: "WEB_FORM" | "CSV_IMPORT" | "API" | "PARTNER_FEED" | "MANUAL_ENTRY" | undefined; autoActivate?: boolean | undefined; isActive?: boolean | undefined; metadata?: Record<...> | undefined; }' is not assignable to type 'Without<ProspectSourceUncheckedUpdateInput, ProspectSourceUpdateInput>'.
+      Types of property 'defaultMissionId' are incompatible.
+        Type 'string | null | undefined' is not assignable to type 'undefined'.
+          Type 'null' is not assignable to type 'undefined'.
+app/api/prospects/sources/route.ts(22,15): error TS2554: Expected 2-3 arguments, but got 1.
+app/api/sdr/actions/route.ts(81,13): error TS2322: Type 'Where' is not assignable to type 'ActionWhereInput'.
+  Types of property 'channel' are incompatible.
+    Type 'string | undefined' is not assignable to type 'Channel | EnumChannelFilter<"Action"> | undefined'.
+      Type 'string' is not assignable to type 'Channel | EnumChannelFilter<"Action"> | undefined'.
+app/api/sdr/actions/route.ts(108,35): error TS2551: Property 'contact' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'contactId'?
+app/api/sdr/actions/route.ts(109,25): error TS2551: Property 'contact' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'contactId'?
+app/api/sdr/actions/route.ts(109,63): error TS2551: Property 'contact' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'contactId'?
+app/api/sdr/actions/route.ts(109,108): error TS2551: Property 'contact' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'contactId'?
+app/api/sdr/actions/route.ts(111,35): error TS2551: Property 'contact' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'contactId'?
+app/api/sdr/actions/route.ts(111,63): error TS2551: Property 'company' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'companyId'?
+app/api/sdr/actions/route.ts(113,56): error TS2551: Property 'contact' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'contactId'?
+app/api/sdr/actions/route.ts(122,33): error TS2551: Property 'campaign' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'campaignId'?
+app/api/sdr/actions/route.ts(123,30): error TS2551: Property 'campaign' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'campaignId'?
+app/api/sdr/actions/route.ts(124,32): error TS2551: Property 'campaign' does not exist on type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }'. Did you mean 'campaignId'?
+app/api/sdr/activity/heartbeat/route.ts(87,30): error TS18047: 'updatedActivity' is possibly 'null'.
+app/api/sdr/callbacks/route.ts(94,13): error TS2322: Type '({ sdrId: string; campaign: { missionId: string | { in: string[]; }; }; } | { campaign: { missionId: string | { in: string[]; }; }; })[]' is not assignable to type '({ sdrId: string; campaign: { missionId: string | { in: string[]; }; }; } | { campaign: { missionId: { in: string[]; }; }; })[]'.
+  Type '{ sdrId: string; campaign: { missionId: string | { in: string[]; }; }; } | { campaign: { missionId: string | { in: string[]; }; }; }' is not assignable to type '{ sdrId: string; campaign: { missionId: string | { in: string[]; }; }; } | { campaign: { missionId: { in: string[]; }; }; }'.
+    Type '{ campaign: { missionId: string | { in: string[]; }; }; }' is not assignable to type '{ sdrId: string; campaign: { missionId: string | { in: string[]; }; }; } | { campaign: { missionId: { in: string[]; }; }; }'.
+      Type '{ campaign: { missionId: string | { in: string[]; }; }; }' is not assignable to type '{ campaign: { missionId: { in: string[]; }; }; }'.
+        The types of 'campaign.missionId' are incompatible between these types.
+          Type 'string | { in: string[]; }' is not assignable to type '{ in: string[]; }'.
+            Type 'string' is not assignable to type '{ in: string[]; }'.
+app/api/sdr/email/route.ts(96,85): error TS2339: Property 'errors' does not exist on type 'ZodError<{ provider: "gmail" | "outlook" | "smtp"; smtpHost?: string | undefined; smtpPort?: number | undefined; smtpUser?: string | undefined; smtpPassword?: string | undefined; accessToken?: string | undefined; refreshToken?: string | undefined; expiresAt?: number | undefined; }>'.
+app/api/sdr/email/route.ts(176,17): error TS2322: Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+app/api/sdr/emails/sent/[id]/route.ts(40,25): error TS2353: Object literal may only specify known properties, and 'jobTitle' does not exist in type 'ContactSelect<DefaultArgs>'.
+app/api/sdr/emails/sent/[id]/route.ts(94,25): error TS2353: Object literal may only specify known properties, and 'emailAddress' does not exist in type 'MailboxSelect<DefaultArgs>'.
+app/api/sdr/meetings/route.ts(138,19): error TS18047: 'meeting.contact' is possibly 'null'.
+app/api/sdr/meetings/route.ts(140,27): error TS18047: 'meeting.contact' is possibly 'null'.
+app/api/sdr/meetings/route.ts(141,29): error TS18047: 'meeting.contact' is possibly 'null'.
+app/api/stats/route.ts(143,48): error TS2345: Argument of type '{ by: "sdrId"[]; where: { result: "MEETING_BOOKED"; }; _count: true; orderBy: { _count: { sdrId: "desc"; }; }; take: number; }' is not assignable to parameter of type '{ by: "sdrId"[]; where: { result: "MEETING_BOOKED"; }; _count: true; orderBy: { _count: { sdrId: "desc"; }; }; take: number; } & { orderBy: ActionOrderByWithAggregationInput | ActionOrderByWithAggregationInput[] | undefined; } & { ...; }[]'.
+  Type '{ by: "sdrId"[]; where: { result: "MEETING_BOOKED"; }; _count: true; orderBy: { _count: { sdrId: "desc"; }; }; take: number; }' is missing the following properties from type '{ sdrId: string; _count: number; }[]': length, pop, push, concat, and 35 more.
+app/api/stats/route.ts(163,9): error TS7053: Element implicitly has an 'any' type because expression of type 'ActionResult' can't be used to index type '{ NO_RESPONSE: number; BAD_CONTACT: number; INTERESTED: number; CALLBACK_REQUESTED: number; MEETING_BOOKED: number; DISQUALIFIED: number; }'.
+  Property 'MEETING_CANCELLED' does not exist on type '{ NO_RESPONSE: number; BAD_CONTACT: number; INTERESTED: number; CALLBACK_REQUESTED: number; MEETING_BOOKED: number; DISQUALIFIED: number; }'.
+app/bd/campaigns/page.tsx(78,59): error TS2339: Property 'id' does not exist on type '{ name: string; }'.
+app/bd/clients/[id]/page.tsx(319,29): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+app/bd/dashboard/page.tsx(693,21): error TS2741: Property 'phone' is missing in type 'DrawerCompany' but required in type 'Company'.
+app/bd/projects/page.tsx(82,50): error TS2339: Property 'id' does not exist on type '{ name: string; }'.
+app/manager/billing/page.tsx(362,37): error TS2322: Type '(value: number) => [string, "CA"]' is not assignable to type 'Formatter<number, "CA">'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+app/manager/comms/page.tsx(267,13): error TS18046: 'error' is of type 'unknown'.
+app/manager/comms/page.tsx(300,13): error TS18046: 'error' is of type 'unknown'.
+app/manager/comms/page.tsx(680,13): error TS18046: 'error' is of type 'unknown'.
+app/manager/email/mailboxes/page.tsx(22,10): error TS2614: Module '"@/components/ui/Button"' has no exported member 'Button'. Did you mean to use 'import Button from "@/components/ui/Button"' instead?
+app/manager/missions/[id]/_components/MissionPlanForm.tsx(254,51): error TS18047: 'existingPlan' is possibly 'null'.
+app/manager/missions/[id]/_components/MissionPlanForm.tsx(260,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+app/manager/missions/[id]/page.tsx(1191,37): error TS2322: Type '{ id: string; missionId: string; frequency: number; preferredDays: string[]; timePreference: string; customStartTime: string | null; customEndTime: string | null; startDate: string; endDate: string | null; status: string; assignedSdrs: { ...; }[]; } | null' is not assignable to type 'MissionPlanData | null'.
+  Type '{ id: string; missionId: string; frequency: number; preferredDays: string[]; timePreference: string; customStartTime: string | null; customEndTime: string | null; startDate: string; endDate: string | null; status: string; assignedSdrs: { ...; }[]; }' is not assignable to type 'MissionPlanData'.
+    Types of property 'preferredDays' are incompatible.
+      Type 'string[]' is not assignable to type '("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY")[]'.
+        Type 'string' is not assignable to type '"MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY"'.
+app/manager/missions/new/_components/ScriptBuilder.tsx(211,17): error TS2322: Type 'string' is not assignable to type '"CALL" | "EMAIL" | "LINKEDIN" | undefined'.
+app/manager/prospects/[id]/page.tsx(331,89): error TS2367: This comparison appears to be unintentional because the types '"PENDING" | "APPROVED"' and '"ACTIVATED"' have no overlap.
+app/sdr/action/page.tsx(2686,17): error TS2322: Type 'DrawerCompany | null' is not assignable to type 'Company | null'.
+  Type 'DrawerCompany' is not assignable to type 'Company'.
+    Types of property 'contacts' are incompatible.
+      Type '{ id: string; firstName: string | null; lastName: string | null; email: string | null; phone: string | null; title: string | null; linkedin: string | null; status: string; companyId: string; }[]' is not assignable to type 'Contact[]'.
+        Type '{ id: string; firstName: string | null; lastName: string | null; email: string | null; phone: string | null; title: string | null; linkedin: string | null; status: string; companyId: string; }' is not assignable to type 'Contact'.
+          Types of property 'status' are incompatible.
+            Type 'string' is not assignable to type '"INCOMPLETE" | "PARTIAL" | "ACTIONABLE"'.
+app/sdr/callbacks/page.tsx(936,40): error TS2322: Type '"contact.firstName"' is not assignable to type 'keyof Callback'.
+app/sdr/callbacks/page.tsx(936,61): error TS2322: Type '"contact.lastName"' is not assignable to type 'keyof Callback'.
+app/sdr/callbacks/page.tsx(936,81): error TS2322: Type '"company.name"' is not assignable to type 'keyof Callback'.
+app/sdr/callbacks/page.tsx(936,97): error TS2322: Type '"contact.company.name"' is not assignable to type 'keyof Callback'.
+app/sdr/callbacks/page.tsx(936,121): error TS2322: Type '"contact.phone"' is not assignable to type 'keyof Callback'.
+app/sdr/callbacks/page.tsx(936,138): error TS2322: Type '"company.phone"' is not assignable to type 'keyof Callback'.
+app/sdr/comms/page.tsx(226,13): error TS18046: 'error' is of type 'unknown'.
+app/sdr/comms/page.tsx(259,13): error TS18046: 'error' is of type 'unknown'.
+app/sdr/comms/page.tsx(505,13): error TS18046: 'error' is of type 'unknown'.
+app/sdr/lists/[id]/page.tsx(390,17): error TS2719: Type 'Company | null' is not assignable to type 'Company | null'. Two different types with this name exist, but they are unrelated.
+  Property 'phone' is missing in type 'Company' but required in type 'Company'.
+app/sdr/meetings/page.tsx(802,66): error TS2339: Property 'phone' does not exist on type '{ id: string; firstName: string | null; lastName: string | null; title: string | null; email: string | null; company: { id: string; name: string; list?: { id: string; name: string; } | null | undefined; }; }'.
+app/sdr/meetings/page.tsx(803,85): error TS2339: Property 'phone' does not exist on type '{ id: string; firstName: string | null; lastName: string | null; title: string | null; email: string | null; company: { id: string; name: string; list?: { id: string; name: string; } | null | undefined; }; }'.
+app/sdr/meetings/page.tsx(807,143): error TS2339: Property 'phone' does not exist on type '{ id: string; firstName: string | null; lastName: string | null; title: string | null; email: string | null; company: { id: string; name: string; list?: { id: string; name: string; } | null | undefined; }; }'.
+app/sdr/page.tsx(746,21): error TS2741: Property 'phone' is missing in type 'DrawerCompany' but required in type 'Company'.
+components/billing/ClientSearch.tsx(61,30): error TS2554: Expected 1 arguments, but got 0.
+components/drawers/CompanyDrawer.tsx(816,45): error TS2322: Type 'boolean | ""' is not assignable to type 'boolean | undefined'.
+  Type '""' is not assignable to type 'boolean | undefined'.
+components/drawers/CompanyDrawer.tsx(916,29): error TS2554: Expected 1 arguments, but got 0.
+components/drawers/ContactDrawer.tsx(1019,45): error TS2322: Type 'boolean | ""' is not assignable to type 'boolean | undefined'.
+  Type '""' is not assignable to type 'boolean | undefined'.
+components/projects/ProjectAnalytics.tsx(131,37): error TS2322: Type '(value: number, name: string) => [string, string]' is not assignable to type 'Formatter<number, string>'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+components/projects/ProjectAnalytics.tsx(166,37): error TS2322: Type '(value: number, name: string) => [string, string]' is not assignable to type 'Formatter<number, string>'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+components/projects/ProjectAnalytics.tsx(192,37): error TS2322: Type '(value: number, name: string) => [string, "Termin├⌐es" | "Restantes"]' is not assignable to type 'Formatter<number, string>'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+components/prospects/RuleWizard.tsx(387,70): error TS2345: Argument of type '"field"' is not assignable to parameter of type 'never'.
+components/prospects/RuleWizard.tsx(400,70): error TS2345: Argument of type '"operator"' is not assignable to parameter of type 'never'.
+components/prospects/RuleWizard.tsx(420,65): error TS2345: Argument of type '"value"' is not assignable to parameter of type 'never'.
+components/prospects/RuleWizard.tsx(427,78): error TS2345: Argument of type '"value"' is not assignable to parameter of type 'never'.
+components/prospects/RuleWizard.tsx(466,67): error TS2345: Argument of type '"type"' is not assignable to parameter of type 'never'.
+components/prospects/RuleWizard.tsx(486,75): error TS2345: Argument of type '"value"' is not assignable to parameter of type 'never'.
+components/prospects/RuleWizard.tsx(502,71): error TS2345: Argument of type '"reason"' is not assignable to parameter of type 'never'.
+components/tasks/KanbanBoard.tsx(139,63): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type '{ id: string; position: number; }'.
+components/tasks/TaskDetailDrawer.tsx(12,10): error TS2614: Module '"@/components/ui/Badge"' has no exported member 'Badge'. Did you mean to use 'import Badge from "@/components/ui/Badge"' instead?
+components/ui/HelpPanel.tsx(73,11): error TS2554: Expected 1 arguments, but got 0.
+components/ui/HelpPanel.tsx(86,11): error TS2554: Expected 1 arguments, but got 0.
+components/ui/HelpPanel.tsx(101,24): error TS2554: Expected 1 arguments, but got 0.
+components/ui/HelpPanel.tsx(122,28): error TS2554: Expected 1 arguments, but got 0.
+components/ui/HelpPanel.tsx(205,28): error TS2554: Expected 1 arguments, but got 0.
+components/ui/Tooltip.tsx(33,22): error TS2554: Expected 1 arguments, but got 0.
+components/ui/Tour.tsx(142,21): error TS2590: Expression produces a union type that is too complex to represent.
+lib/billing/engagement-invoice-service.ts(152,13): error TS2322: Type 'MissionRdvBreakdown[] | undefined' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type 'MissionRdvBreakdown[]' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+    Type 'MissionRdvBreakdown[]' is not assignable to type 'InputJsonObject'.
+      Index signature for type 'string' is missing in type 'MissionRdvBreakdown[]'.
+lib/billing/facturx-service.ts(12,11): error TS2430: Interface 'ExtendedCompanyIssuer' incorrectly extends interface '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; logo: string | null; country: string; legalName: string; address: string; city: string; ... 11 more ...; defaultEarlyPaymentDiscount: string | null; }'.
+  Types of property 'legalForm' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+lib/billing/facturx-service.ts(24,11): error TS2430: Interface 'ExtendedInvoice' incorrectly extends interface '{ id: string; createdAt: Date; updatedAt: Date; status: InvoiceStatus; dueDate: Date; createdById: string; sentAt: Date | null; notes: string | null; ... 30 more ...; cancelledAt: Date | null; }'.
+  Types of property 'notes' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+lib/billing/payment-matching-service.ts(115,48): error TS2576: Property 'amountToDecimal' does not exist on type 'QontoService'. Did you mean to access the static member 'QontoService.amountToDecimal' instead?
+lib/billing/payment-matching-service.ts(212,50): error TS2576: Property 'amountToDecimal' does not exist on type 'QontoService'. Did you mean to access the static member 'QontoService.amountToDecimal' instead?
+lib/comms/service.ts(55,11): error TS2322: Type '{ type_missionId?: { type: string; missionId: null; } | undefined; groupId?: string | undefined; campaignId?: string | undefined; clientId?: string | undefined; missionId?: string | undefined; }' is not assignable to type 'CommsChannelWhereUniqueInput'.
+  Type '{ type_missionId?: { type: string; missionId: null; } | undefined; groupId?: string | undefined; campaignId?: string | undefined; clientId?: string | undefined; missionId?: string | undefined; }' is not assignable to type '{ id: string; missionId: string; clientId: string; campaignId: string; groupId: string; } & { id?: string | undefined; missionId?: string | undefined; clientId?: string | undefined; campaignId?: string | undefined; ... 14 more ...; threads?: CommsThreadListRelationFilter | undefined; }'.
+    Property 'id' is missing in type '{ type_missionId?: { type: string; missionId: null; } | undefined; groupId?: string | undefined; campaignId?: string | undefined; clientId?: string | undefined; missionId?: string | undefined; }' but required in type '{ id: string; missionId: string; clientId: string; campaignId: string; groupId: string; }'.
+lib/comms/service.ts(331,36): error TS2352: Conversion of type 'BroadcastAudience | undefined' to type 'InputJsonValue' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'BroadcastAudience' is not comparable to type 'InputJsonValue'.
+    Type 'BroadcastAudience' is not comparable to type 'InputJsonObject'.
+      Index signature for type 'string' is missing in type 'BroadcastAudience'.
+lib/email/index.ts(9,1): error TS2308: Module './providers' has already exported a member named 'SendResult'. Consider explicitly re-exporting to resolve the ambiguity.
+lib/email/providers/gmail.ts(94,13): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(97,13): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(113,13): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(310,13): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(339,13): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(497,25): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(497,31): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/providers/gmail.ts(639,21): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/email/services/audit-service.ts(64,21): error TS2322: Type 'Record<string, unknown>' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'readonly (InputJsonValue | null)[]': length, concat, join, slice, and 26 more.
+lib/email/services/audit-service.ts(266,74): error TS2339: Property 'where' does not exist on type '{ select?: EmailAuditLogSelect<DefaultArgs> | null | undefined; omit?: EmailAuditLogOmit<DefaultArgs> | null | undefined; ... 6 more ...; distinct?: EmailAuditLogScalarFieldEnum | ... 1 more ... | undefined; } | undefined'.
+lib/email/services/linking-service.ts(318,9): error TS2322: Type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; companyId: string; status: CompletenessStatus; title: string | null; ... 6 more ...; unsubscribed: boolean; } | null' is not assignable to type '({ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; companyId: string; status: CompletenessStatus; title: string | null; ... 6 more ...; unsubscribed: boolean; } & { ...; }) | null'.
+  Type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; companyId: string; status: CompletenessStatus; title: string | null; ... 6 more ...; unsubscribed: boolean; }' is not assignable to type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; companyId: string; status: CompletenessStatus; title: string | null; ... 6 more ...; unsubscribed: boolean; } & { ...; }'.
+    Property 'company' is missing in type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; companyId: string; status: CompletenessStatus; title: string | null; ... 6 more ...; unsubscribed: boolean; }' but required in type '{ company: { id: string; name: string; domain: string | null; } | null; }'.
+lib/email/services/linking-service.ts(324,53): error TS2353: Object literal may only specify known properties, and 'domain' does not exist in type 'CompanySelect<DefaultArgs>'.
+lib/email/services/linking-service.ts(355,27): error TS2353: Object literal may only specify known properties, and 'website' does not exist in type 'ClientWhereInput'.
+lib/email/services/linking-service.ts(373,17): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'MissionWhereInput'.
+lib/email/services/linking-service.ts(413,35): error TS2353: Object literal may only specify known properties, and 'domain' does not exist in type 'CompanySelect<DefaultArgs>'.
+lib/email/services/linking-service.ts(422,33): error TS2339: Property 'domain' does not exist on type '{ name: string; id: string; phone: string | null; createdAt: Date; updatedAt: Date; size: string | null; status: CompletenessStatus; industry: string | null; customData: JsonValue; listId: string; country: string | null; website: string | null; }'.
+lib/email/services/linking-service.ts(423,27): error TS2322: Type '{ website: { contains: any; mode: string; }; } | { email: { contains: any; mode: string; }; }' is not assignable to type 'ClientWhereInput'.
+  Object literal may only specify known properties, and 'website' does not exist in type 'ClientWhereInput'.
+lib/email/services/linking-service.ts(423,56): error TS2339: Property 'domain' does not exist on type '{ name: string; id: string; phone: string | null; createdAt: Date; updatedAt: Date; size: string | null; status: CompletenessStatus; industry: string | null; customData: JsonValue; listId: string; country: string | null; website: string | null; }'.
+lib/email/services/linking-service.ts(424,54): error TS2339: Property 'domain' does not exist on type '{ name: string; id: string; phone: string | null; createdAt: Date; updatedAt: Date; size: string | null; status: CompletenessStatus; industry: string | null; customData: JsonValue; listId: string; country: string | null; website: string | null; }'.
+lib/google-drive.ts(60,5): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/google-drive.ts(61,5): error TS2322: Type 'number | null | undefined' is not assignable to type 'number | undefined'.
+  Type 'null' is not assignable to type 'number | undefined'.
+lib/google-drive.ts(63,5): error TS2322: Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+lib/google-drive.ts(117,26): error TS2345: Argument of type '{ access_token: string; refresh_token: string | undefined; expiry_date: number | null | undefined; scope: string | undefined; token_type: string | null | undefined; }' is not assignable to parameter of type '{ access_token: string; refresh_token?: string | undefined; expiry_date?: number | undefined; scope?: string | undefined; token_type?: string | undefined; }'.
+  Types of property 'expiry_date' are incompatible.
+    Type 'number | null | undefined' is not assignable to type 'number | undefined'.
+      Type 'null' is not assignable to type 'number | undefined'.
+lib/listing/apify-service.ts(131,3): error TS2322: Type '{ company: { name: string; domain: string | undefined; industry: string | undefined; country: string | undefined; city: string | undefined; state: string | undefined; phone: string | undefined; address: string | undefined; }; source: "apify-google-maps"; confidence: number; metadata: { ...; }; }[]' is not assignable to type 'ApolloEnrichmentResult[]'.
+  Type '{ company: { name: string; domain: string | undefined; industry: string | undefined; country: string | undefined; city: string | undefined; state: string | undefined; phone: string | undefined; address: string | undefined; }; source: "apify-google-maps"; confidence: number; metadata: { ...; }; }' is not assignable to type 'ApolloEnrichmentResult'.
+    Types of property 'source' are incompatible.
+      Type '"apify-google-maps"' is not assignable to type '"apollo"'.
+lib/playbook/parser.ts(204,5): error TS2322: Type '{ name: string; channel: string; objective: string | null; }[]' is not assignable to type 'ParsedPlaybookMission[]'.
+  Type '{ name: string; channel: string; objective: string | null; }' is not assignable to type 'ParsedPlaybookMission'.
+    Types of property 'channel' are incompatible.
+      Type 'string' is not assignable to type '"CALL" | "EMAIL" | "LINKEDIN"'.
+lib/prospects/help-content.ts(6,10): error TS2614: Module '"@/components/ui/HelpPanel"' has no exported member 'HelpSection'. Did you mean to use 'import HelpSection from "@/components/ui/HelpPanel"' instead?
+lib/prospects/pipeline-service.ts(43,5): error TS2741: Property 'events' is missing in type 'Partial<{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }>' but required in type '{ events: { id: string; createdAt: Date; errorMessage: string | null; sourceId: string; step: $Enums.ProspectPipelineStep; processedBy: string | null; ... 5 more ...; decisionLogId: string | null; }[]; ... 29 more ...; activatedCompanyId: string | null; }'.
+lib/prospects/pipeline-service.ts(82,5): error TS2741: Property 'events' is missing in type 'Partial<{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }>' but required in type '{ events: { id: string; createdAt: Date; errorMessage: string | null; sourceId: string; step: $Enums.ProspectPipelineStep; processedBy: string | null; ... 5 more ...; decisionLogId: string | null; }[]; ... 29 more ...; activatedCompanyId: string | null; }'.
+lib/prospects/pipeline-service.ts(119,22): error TS2551: Property 'assignedMission' does not exist on type '{ events: { id: string; createdAt: Date; errorMessage: string | null; sourceId: string; step: ProspectPipelineStep; processedBy: string | null; rawPayload: JsonValue; ... 4 more ...; decisionLogId: string | null; }[]; ... 29 more ...; activatedCompanyId: string | null; }'. Did you mean 'assignedMissionId'?
+lib/prospects/pipeline-service.ts(144,5): error TS2322: Type '{ events: { id: string; createdAt: Date; errorMessage: string | null; sourceId: string; step: $Enums.ProspectPipelineStep; processedBy: string | null; ... 5 more ...; decisionLogId: string | null; }[]; ... 29 more ...; activatedCompanyId: string | null; }' is not assignable to type '(Without<ProspectProfileUpdateInput, ProspectProfileUncheckedUpdateInput> & ProspectProfileUncheckedUpdateInput) | (Without<...> & ProspectProfileUpdateInput)'.
+  Type '{ events: { id: string; createdAt: Date; errorMessage: string | null; sourceId: string; step: $Enums.ProspectPipelineStep; processedBy: string | null; ... 5 more ...; decisionLogId: string | null; }[]; ... 29 more ...; activatedCompanyId: string | null; }' is not assignable to type 'Without<ProspectProfileUpdateInput, ProspectProfileUncheckedUpdateInput> & ProspectProfileUncheckedUpdateInput'.
+    Type '{ events: { id: string; createdAt: Date; errorMessage: string | null; sourceId: string; step: $Enums.ProspectPipelineStep; processedBy: string | null; ... 5 more ...; decisionLogId: string | null; }[]; ... 29 more ...; activatedCompanyId: string | null; }' is not assignable to type 'ProspectProfileUncheckedUpdateInput'.
+      Types of property 'customFields' are incompatible.
+        Type 'JsonValue' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+          Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+lib/prospects/pipeline-service.ts(145,7): error TS2783: 'currentStep' is specified more than once, so this usage will be overwritten.
+lib/prospects/pipeline-service.ts(248,29): error TS2551: Property 'assignedMission' does not exist on type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }'. Did you mean 'assignedMissionId'?
+lib/prospects/pipeline-service.ts(435,9): error TS2322: Type 'ApolloEnrichmentResult' is not assignable to type 'JsonNull | InputJsonValue'.
+  Type 'ApolloEnrichmentResult' is not assignable to type 'InputJsonObject'.
+    Index signature for type 'string' is missing in type 'ApolloEnrichmentResult'.
+lib/prospects/pipeline-service.ts(503,29): error TS2551: Property 'assignedMission' does not exist on type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }'. Did you mean 'assignedMissionId'?
+lib/prospects/pipeline-service.ts(539,13): error TS2551: Property 'assignedMission' does not exist on type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }'. Did you mean 'assignedMissionId'?
+lib/prospects/queue/index.ts(74,3): error TS2322: Type 'Queue<any, any, string, any, any, string>' is not assignable to type 'Queue<T, any, string, ExtractDataType<T, T>, ExtractResultType<T, any>, ExtractNameType<T, string>>'.
+  The types returned by 'add(...)' are incompatible between these types.
+    Type 'Promise<Job<any, any, string>>' is not assignable to type 'Promise<Job<ExtractDataType<T, T>, ExtractResultType<T, any>, ExtractNameType<T, string>>>'.
+      Type 'Job<any, any, string>' is not assignable to type 'Job<ExtractDataType<T, T>, ExtractResultType<T, any>, ExtractNameType<T, string>>'.
+        Type 'string' is not assignable to type 'ExtractNameType<T, string>'.
+lib/prospects/routing-service.ts(23,7): error TS2353: Object literal may only specify known properties, and 'source' does not exist in type 'ProspectProfileInclude<DefaultArgs>'.
+lib/prospects/routing-service.ts(46,15): error TS2339: Property 'source' does not exist on type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }'.
+lib/prospects/routing-service.ts(47,25): error TS2339: Property 'source' does not exist on type '{ id: string; email: string | null; phone: string | null; createdAt: Date; updatedAt: Date; status: ProspectStatus; title: string | null; firstName: string | null; ... 21 more ...; activatedCompanyId: string | null; }'.
+lib/prospects/routing-service.ts(91,9): error TS2353: Object literal may only specify known properties, and 'where' does not exist in type 'UserDefaultArgs<DefaultArgs>'.
+lib/services/ActionService.ts(55,9): error TS2741: Property 'contact' is missing in type '{ result: ActionResult; id: string; createdAt: Date; contactId: string | null; companyId: string | null; sdrId: string; campaignId: string; channel: Channel; note: string | null; callbackDate: Date | null; duration: number | null; cancellationReason: string | null; }' but required in type 'ActionWithRelations'.
+lib/services/ActionService.ts(111,21): error TS2322: Type 'string' is not assignable to type 'ActionResult'.
+lib/services/ActionService.ts(143,13): error TS2304: Cannot find name 'action'.
+lib/services/ActionService.ts(143,51): error TS2304: Cannot find name 'action'.
+lib/services/ActionService.ts(145,30): error TS2304: Cannot find name 'action'.
+lib/services/ActionService.ts(150,21): error TS2304: Cannot find name 'action'.
+lib/services/ActionService.ts(151,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+lib/services/ActionService.ts(158,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+lib/services/ActionService.ts(167,16): error TS2304: Cannot find name 'action'.

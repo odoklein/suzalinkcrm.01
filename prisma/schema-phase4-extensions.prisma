@@ -1,0 +1,700 @@
+// ============================================
+// PHASE 4 - DATABASE SCHEMA EXTENSIONS
+// Add these models to your existing schema.prisma
+// ============================================
+
+// ============================================
+// FILE MANAGEMENT SYSTEM
+// ============================================
+
+model File {
+  id            String   @id @default(cuid())
+  name          String
+  originalName  String
+  mimeType      String
+  size          Int      // bytes
+  path          String   // S3 path or local path
+  url           String?  // Public URL if shared
+  
+  // Organization
+  folderId      String?
+  folder        Folder?  @relation(fields: [folderId], references: [id])
+  
+  // Associations
+  uploadedById  String
+  uploadedBy    User     @relation("UploadedFiles", fields: [uploadedById], references: [id])
+  
+  missionId     String?
+  mission       Mission? @relation(fields: [missionId], references: [id])
+  
+  clientId      String?
+  client        Client?  @relation(fields: [clientId], references: [id])
+  
+  campaignId    String?
+  campaign      Campaign? @relation(fields: [campaignId], references: [id])
+  
+  // Metadata
+  description   String?
+  tags          String[] // ["contract", "proposal", "script"]
+  
+  // Sharing
+  isPublic      Boolean  @default(false)
+  sharedWith    FileShare[]
+  
+  // Versioning
+  version       Int      @default(1)
+  parentFileId  String?
+  parentFile    File?    @relation("FileVersions", fields: [parentFileId], references: [id])
+  versions      File[]   @relation("FileVersions")
+  
+  // Email attachments
+  emailAttachments EmailAttachment[]
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime? // Soft delete
+  
+  @@index([folderId])
+  @@index([uploadedById])
+  @@index([missionId])
+  @@index([clientId])
+  @@index([campaignId])
+  @@index([deletedAt])
+}
+
+model Folder {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  
+  // Hierarchy
+  parentId      String?
+  parent        Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children      Folder[] @relation("FolderHierarchy")
+  
+  // Contents
+  files         File[]
+  
+  // Associations
+  missionId     String?
+  mission       Mission? @relation(fields: [missionId], references: [id])
+  
+  clientId      String?
+  client        Client?  @relation(fields: [clientId], references: [id])
+  
+  // Permissions
+  isPublic      Boolean  @default(false)
+  sharedWith    FolderShare[]
+  
+  // Metadata
+  color         String?  // For UI
+  icon          String?  // For UI
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([parentId])
+  @@index([missionId])
+  @@index([clientId])
+}
+
+model FileShare {
+  id            String   @id @default(cuid())
+  fileId        String
+  file          File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  
+  userId        String?
+  user          User?    @relation("SharedFiles", fields: [userId], references: [id])
+  
+  email         String?  // For external sharing
+  
+  permission    FilePermission @default(VIEW)
+  expiresAt     DateTime?
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([fileId])
+  @@index([userId])
+}
+
+model FolderShare {
+  id            String   @id @default(cuid())
+  folderId      String
+  folder        Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  
+  userId        String?
+  user          User?    @relation("SharedFolders", fields: [userId], references: [id])
+  
+  permission    FilePermission @default(VIEW)
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([folderId])
+  @@index([userId])
+}
+
+enum FilePermission {
+  VIEW
+  DOWNLOAD
+  EDIT
+  DELETE
+  SHARE
+}
+
+// ============================================
+// EMAIL INTEGRATION SYSTEM
+// ============================================
+
+model EmailAccount {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  displayName     String
+  
+  // Provider
+  provider        EmailProvider // GMAIL, OUTLOOK, SMTP
+  
+  // Credentials (encrypted)
+  accessToken     String?  @db.Text // OAuth token
+  refreshToken    String?  @db.Text // OAuth refresh
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUsername    String?
+  smtpPassword    String?  // Encrypted
+  imapHost        String?
+  imapPort        Int?
+  
+  // Status
+  isActive        Boolean  @default(true)
+  isVerified      Boolean  @default(false)
+  lastSyncAt      DateTime?
+  syncError       String?
+  
+  // Assignments
+  sdrId           String?
+  sdr             User?    @relation("SDREmailAccounts", fields: [sdrId], references: [id])
+  
+  missionId       String?
+  mission         Mission? @relation(fields: [missionId], references: [id])
+  
+  campaignId      String?
+  campaign        Campaign? @relation(fields: [campaignId], references: [id])
+  
+  // Settings
+  signature       String?  @db.Text
+  autoReplyEnabled Boolean @default(false)
+  autoReplyMessage String? @db.Text
+  
+  // Emails
+  sentEmails      Email[]  @relation("SentFrom")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([sdrId])
+  @@index([missionId])
+  @@index([campaignId])
+  @@index([provider])
+}
+
+model Email {
+  id              String   @id @default(cuid())
+  
+  // Email Details
+  messageId       String   @unique // Provider message ID
+  threadId        String?  // For threading
+  subject         String
+  body            String   @db.Text
+  bodyHtml        String?  @db.Text
+  
+  // Sender/Receiver
+  fromEmail       String
+  fromName        String?
+  toEmail         String[]
+  ccEmail         String[]
+  bccEmail        String[]
+  replyTo         String?
+  
+  // Account
+  accountId       String
+  account         EmailAccount @relation("SentFrom", fields: [accountId], references: [id])
+  
+  // Direction
+  direction       EmailDirection // INBOUND, OUTBOUND
+  
+  // Associations
+  contactId       String?
+  contact         Contact? @relation(fields: [contactId], references: [id])
+  
+  campaignId      String?
+  campaign        Campaign? @relation(fields: [campaignId], references: [id])
+  
+  actionId        String?
+  action          Action?  @relation(fields: [actionId], references: [id])
+  
+  // Tracking
+  isRead          Boolean  @default(false)
+  readAt          DateTime?
+  
+  isReplied       Boolean  @default(false)
+  repliedAt       DateTime?
+  
+  // Click tracking
+  linkClicks      Int      @default(0)
+  clickedLinks    String[]
+  
+  // Attachments
+  attachments     EmailAttachment[]
+  
+  // Metadata
+  labels          String[] // ["important", "follow-up"]
+  isStarred       Boolean  @default(false)
+  isArchived      Boolean  @default(false)
+  isBounced       Boolean  @default(false)
+  bounceReason    String?
+  
+  sentAt          DateTime
+  receivedAt      DateTime?
+  createdAt       DateTime @default(now())
+  
+  @@index([accountId])
+  @@index([contactId])
+  @@index([campaignId])
+  @@index([actionId])
+  @@index([threadId])
+  @@index([sentAt])
+  @@index([direction])
+}
+
+model EmailAttachment {
+  id              String   @id @default(cuid())
+  emailId         String
+  email           Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  filename        String
+  mimeType        String
+  size            Int
+  
+  // Storage
+  fileId          String?
+  file            File?    @relation(fields: [fileId], references: [id])
+  
+  url             String?  // External URL
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([emailId])
+  @@index([fileId])
+}
+
+model EmailTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  
+  // Template Content
+  subject         String
+  body            String   @db.Text
+  bodyHtml        String?  @db.Text
+  
+  // Variables
+  variables       Json     // {"firstName": "Contact first name", "company": "Company name"}
+  
+  // Category
+  category        EmailTemplateCategory
+  
+  // Usage
+  campaignId      String?
+  campaign        Campaign? @relation(fields: [campaignId], references: [id])
+  
+  // Stats
+  timesUsed       Int      @default(0)
+  openRate        Float?
+  clickRate       Float?
+  replyRate       Float?
+  
+  createdById     String
+  createdBy       User     @relation("CreatedEmailTemplates", fields: [createdById], references: [id])
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([campaignId])
+  @@index([category])
+  @@index([createdById])
+}
+
+enum EmailProvider {
+  GMAIL
+  OUTLOOK
+  SMTP
+}
+
+enum EmailDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum EmailTemplateCategory {
+  COLD_OUTREACH
+  FOLLOW_UP
+  MEETING_REQUEST
+  THANK_YOU
+  OBJECTION_HANDLING
+  NURTURE
+  CUSTOM
+}
+
+// ============================================
+// ACTIVITY & NOTIFICATIONS
+// ============================================
+
+model ActivityLog {
+  id              String   @id @default(cuid())
+  
+  // Actor
+  userId          String
+  user            User     @relation("UserActivities", fields: [userId], references: [id])
+  
+  // Action
+  action          ActivityAction
+  description     String
+  
+  // Target
+  targetType      String?  // "Mission", "Contact", "File", etc.
+  targetId        String?
+  
+  // Metadata
+  metadata        Json?
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([targetType, targetId])
+}
+
+model Notification {
+  id              String   @id @default(cuid())
+  
+  // Recipient
+  userId          String
+  user            User     @relation("UserNotifications", fields: [userId], references: [id])
+  
+  // Content
+  title           String
+  message         String
+  type            NotificationType
+  
+  // Link
+  linkUrl         String?
+  
+  // Status
+  isRead          Boolean  @default(false)
+  readAt          DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model Announcement {
+  id              String   @id @default(cuid())
+  
+  title           String
+  content         String   @db.Text
+  type            AnnouncementType
+  
+  // Targeting
+  targetRoles     Role[]
+  targetUserIds   String[]
+  
+  // Display
+  isPinned        Boolean  @default(false)
+  expiresAt       DateTime?
+  
+  createdById     String
+  createdBy       User     @relation("CreatedAnnouncements", fields: [createdById], references: [id])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([createdById])
+  @@index([isPinned])
+  @@index([expiresAt])
+}
+
+enum ActivityAction {
+  USER_LOGIN
+  USER_LOGOUT
+  MISSION_CREATED
+  MISSION_UPDATED
+  MISSION_DELETED
+  CAMPAIGN_CREATED
+  ACTION_LOGGED
+  FILE_UPLOADED
+  FILE_DOWNLOADED
+  FILE_DELETED
+  EMAIL_SENT
+  EMAIL_RECEIVED
+  CONTACT_CREATED
+  CONTACT_UPDATED
+  OPPORTUNITY_CREATED
+  OPPORTUNITY_UPDATED
+  SETTING_CHANGED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  TASK
+  MENTION
+}
+
+enum AnnouncementType {
+  INFO
+  UPDATE
+  MAINTENANCE
+  ALERT
+}
+
+// ============================================
+// CUSTOM REPORTS & DASHBOARDS
+// ============================================
+
+model Report {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  
+  // Report Type
+  type            ReportType
+  
+  // Configuration
+  config          Json     // Filters, grouping, etc.
+  
+  // Associations
+  missionId       String?
+  mission         Mission? @relation(fields: [missionId], references: [id])
+  
+  clientId        String?
+  client          Client?  @relation(fields: [clientId], references: [id])
+  
+  // Scheduling
+  schedules       ReportSchedule[]
+  
+  // Access
+  createdById     String
+  createdBy       User     @relation("CreatedReports", fields: [createdById], references: [id])
+  
+  isPublic        Boolean  @default(false)
+  sharedWith      String[] // User IDs
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([createdById])
+  @@index([missionId])
+  @@index([clientId])
+  @@index([type])
+}
+
+model ReportSchedule {
+  id              String   @id @default(cuid())
+  reportId        String
+  report          Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  
+  frequency       ScheduleFrequency
+  dayOfWeek       Int?     // 0-6 for weekly
+  dayOfMonth      Int?     // 1-31 for monthly
+  time            String   // HH:mm
+  
+  recipients      String[] // Email addresses
+  
+  isActive        Boolean  @default(true)
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([reportId])
+  @@index([nextRunAt])
+}
+
+model Dashboard {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  
+  // Layout
+  layout          Json     // Grid layout configuration
+  
+  // Widgets
+  widgets         Widget[]
+  
+  // Access
+  createdById     String
+  createdBy       User     @relation("CreatedDashboards", fields: [createdById], references: [id])
+  
+  isDefault       Boolean  @default(false)
+  isPublic        Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([createdById])
+}
+
+model Widget {
+  id              String   @id @default(cuid())
+  dashboardId     String
+  dashboard       Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  
+  type            WidgetType
+  title           String
+  
+  // Configuration
+  config          Json     // Widget-specific settings
+  
+  // Position
+  position        Json     // {x, y, w, h}
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([dashboardId])
+}
+
+enum ReportType {
+  MISSION_PERFORMANCE
+  SDR_PERFORMANCE
+  CAMPAIGN_PERFORMANCE
+  CLIENT_OVERVIEW
+  REVENUE_FORECAST
+  PIPELINE_HEALTH
+  CUSTOM
+}
+
+enum ScheduleFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum WidgetType {
+  METRIC_CARD
+  LINE_CHART
+  BAR_CHART
+  PIE_CHART
+  TABLE
+  ACTIVITY_FEED
+  LEADERBOARD
+  PROGRESS_BAR
+}
+
+// ============================================
+// SYSTEM SETTINGS
+// ============================================
+
+model SystemSetting {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  value           Json
+  description     String?
+  
+  updatedById     String?
+  updatedBy       User?    @relation("UpdatedSettings", fields: [updatedById], references: [id])
+  
+  updatedAt       DateTime @updatedAt
+  
+  @@index([key])
+}
+
+model IntegrationConfig {
+  id              String   @id @default(cuid())
+  name            String
+  type            IntegrationType
+  
+  // Credentials (encrypted)
+  credentials     Json
+  
+  // Settings
+  settings        Json
+  
+  isActive        Boolean  @default(true)
+  lastSyncAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([type])
+}
+
+enum IntegrationType {
+  CRM
+  CALENDAR
+  SLACK
+  ZAPIER
+  WEBHOOK
+  CUSTOM
+}
+
+// ============================================
+// UPDATE EXISTING MODELS
+// Add these fields to existing models
+// ============================================
+
+// Add to User model:
+// files             File[]   @relation("UploadedFiles")
+// sharedFiles       FileShare[] @relation("SharedFiles")
+// sharedFolders     FolderShare[] @relation("SharedFolders")
+// emailAccounts     EmailAccount[] @relation("SDREmailAccounts")
+// createdTemplates  EmailTemplate[] @relation("CreatedEmailTemplates")
+// activityLogs      ActivityLog[] @relation("UserActivities")
+// notifications     Notification[] @relation("UserNotifications")
+// createdAnnouncements Announcement[] @relation("CreatedAnnouncements")
+// createdReports    Report[] @relation("CreatedReports")
+// createdDashboards Dashboard[] @relation("CreatedDashboards")
+// updatedSettings   SystemSetting[] @relation("UpdatedSettings")
+// timezone          String?
+// language          String?  @default("fr")
+// notificationPrefs Json?
+// lastActiveAt      DateTime?
+
+// Add to Mission model:
+// files             File[]
+// folders           Folder[]
+// emailAccounts     EmailAccount[]
+// reports           Report[]
+// budget            Decimal?
+// targetMeetings    Int?
+// targetRevenue     Decimal?
+
+// Add to Client model:
+// files             File[]
+// folders           Folder[]
+// reports           Report[]
+
+// Add to Campaign model:
+// files             File[]
+// emailAccounts     EmailAccount[]
+// emails            Email[]
+// templates         EmailTemplate[]
+
+// Add to Contact model:
+// emails            Email[]
+
+// Add to Action model:
+// email             Email?
+// recordingUrl      String?
+// transcript        String?  @db.Text
+// sentiment         String?

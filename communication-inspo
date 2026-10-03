@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sales Inbox Dashboard</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white overflow-hidden h-screen flex w-full selection:bg-primary/20">
+<!-- Column 1: Slim Sidebar Navigation -->
+<aside class="w-64 flex flex-col h-full border-r border-slate-200 dark:border-slate-800 bg-background-light dark:bg-background-dark shrink-0">
+<!-- User Profile / Branding -->
+<div class="p-4 mb-2 flex items-center gap-3">
+<div class="size-8 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined !text-[20px]">bolt</span>
+</div>
+<span class="font-bold text-lg tracking-tight">SalesFlow</span>
+</div>
+<!-- Navigation Items -->
+<nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer group transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200">call</span>
+<p class="text-slate-600 dark:text-slate-300 text-sm font-medium">Calls</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer group transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200">mail</span>
+<p class="text-slate-600 dark:text-slate-300 text-sm font-medium">Emails</p>
+</div>
+<!-- Active State -->
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 cursor-pointer">
+<span class="material-symbols-outlined text-primary">chat_bubble</span>
+<div class="flex flex-1 justify-between items-center">
+<p class="text-slate-900 dark:text-white text-sm font-semibold">Inbox</p>
+<span class="bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+</div>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer group transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200">check_box</span>
+<p class="text-slate-600 dark:text-slate-300 text-sm font-medium">Tasks</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer group transition-colors">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200">calendar_month</span>
+<p class="text-slate-600 dark:text-slate-300 text-sm font-medium">Meetings</p>
+</div>
+</nav>
+<!-- Bottom User -->
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-slate-200 dark:border-slate-700" data-alt="User profile picture showing a professional headshot" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDAYJEm2yhZbd7AvvApmkX81CH1iV-6rSvbcRkK6mEGIPa0J7iVqOulmKq04OS8ZNvg4sXqwCOwmioDg6Pb8i7qH6SE8mpeOtHHQDrEDbFd15pB3-ZWpVzcG32RpJNPvx_pwtt8pVdBP9owaN68RkTSWvT-9INW8vFE5sDRrHXWX2C-D54DUZGcNyp_gU0bn8p9QVbrVO1xps4gEX4yCV1AfHiubKgCcWR1rlCUHmfz-PIzXz8chwhYFiC42COVUKLh9Am6kSdR0Nc");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-medium text-slate-900 dark:text-white">Alex Morgan</p>
+<p class="text-xs text-slate-500">Sales Lead</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Column 2: Conversation List Panel -->
+<div class="flex flex-col w-[400px] border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#151c2a] shrink-0 h-full">
+<!-- Search & Header -->
+<div class="p-4 border-b border-slate-100 dark:border-slate-800">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-xl font-semibold text-slate-900 dark:text-white">Inbox</h2>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[20px]">search</span>
+<input class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 text-slate-900 dark:text-white placeholder-slate-400" placeholder="Search messages..." type="text"/>
+</div>
+</div>
+<!-- Smart Filters (Chips) -->
+<div class="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-b border-slate-100 dark:border-slate-800">
+<button class="flex h-7 items-center justify-center px-3 rounded-full bg-primary/10 text-primary border border-primary/20 whitespace-nowrap transition-colors">
+<p class="text-xs font-semibold">Unread</p>
+</button>
+<button class="flex h-7 items-center justify-center px-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 whitespace-nowrap transition-colors">
+<p class="text-xs font-medium text-slate-600 dark:text-slate-300">Assigned to me</p>
+</button>
+<button class="flex h-7 items-center justify-center px-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 whitespace-nowrap transition-colors">
+<p class="text-xs font-medium text-slate-600 dark:text-slate-300">Urgent</p>
+</button>
+<button class="flex h-7 items-center justify-center px-3 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 whitespace-nowrap transition-colors">
+<p class="text-xs font-medium text-slate-600 dark:text-slate-300">Done</p>
+</button>
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto">
+<!-- Item 1 (Active) -->
+<div class="flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer bg-primary/5 relative group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 mt-1" data-alt="Profile picture of Sarah from Acme Corp" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdxNXxKaIRssXxi02kwwxEUQP-YRO2HRHYF-GssXnmwSSN7Qj9Harf20jut8pt00rPRQoIRbS-oS-IrDnAJdXAWwhBof1NbYHfmGVF56VwuNxTXRRSI7KyLTKwYgU4DxCuizCwHa0CzHrjRXYo-ABy1K4vc9EhzoTqNCxpCfgDxL7XKLTJF5l6FOysAWaST8iEjVH0GxZB2J1zSEAexmejN6u1f28Su2TrbLMnvdp7rmhpNjDPXzfRESb-taL-dh0s_samfLP8TDU");'></div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<p class="text-slate-900 dark:text-white text-sm font-semibold truncate pr-2">Acme Corp - Enterprise</p>
+<p class="text-primary text-xs font-medium shrink-0">5m</p>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-xs truncate font-medium">Sarah: Could you clarify the terms on page 3?</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-1.5 py-0.5 text-slate-500 dark:text-slate-400">Proposal</span>
+<span class="text-[10px] bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded px-1.5 py-0.5 font-medium">Hot Lead</span>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 mt-1" data-alt="Profile picture of Mike from TechFlow" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD3yL-Kwgciomvl6zo8XPH-kPrD0rdD9ana8trGb4RKshCzlq8IW2ddcOhNDs03or1cyke-_rZ0Ms_41FeJdxhBD6btuJznflp2Hz-cx7dEAVUuK8qCFyY5ZwgSXHs-GTTiW7bIHtIKCgouARe7EdBJjrrLl9__ZkMta9Dn4ZlOWdcmtrCZU5xY9gpoUJ6QPObJoo7SZeOIGwII42lA6ezJ_ySXEoivDp57dIHvRGl9QDhv41Mb_uC0BvrnuClBnae6HWoeZDxpkEA");'></div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<p class="text-slate-900 dark:text-white text-sm font-medium truncate pr-2">TechFlow - Q4 Expansion</p>
+<p class="text-slate-400 text-xs font-normal shrink-0">1h</p>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs truncate">Mike: Sounds good, let's book the demo.</p>
+</div>
+</div>
+<!-- Item 3 (Unread indicator) -->
+<div class="flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 mt-1" data-alt="Generic placeholder avatar for system notification" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAIeh8RJvyIdya5RW4W9dag_3tfLufXsyyqEeoB44m4USgXtdfHeJeERqOScKv5FnxYvL9cI_g8Hy3qdSYALv69X46gWDYk24LTdYWi901v72wufsMBf71AvpeAmvKbSiJbU_43pfmBsb7rYC_qL8-e3-G7jeh80clAEDYaoyu4lYcRcnXLDnKFVOLzX_8hkBExMAlCU31AMwq7vhWnIh64yZym9wZ7jnwlXHVnD5An_JINQQiatUIjBr9c957SPM_2-0hqgRWeePw");'></div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<p class="text-slate-900 dark:text-white text-sm font-semibold truncate pr-2">Globex - New Lead</p>
+<div class="size-2 rounded-full bg-green-500 shrink-0"></div>
+</div>
+<p class="text-slate-900 dark:text-white text-xs truncate font-medium">System: New inquiry from landing page.</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-1.5 py-0.5 text-slate-500 dark:text-slate-400">Inbound</span>
+</div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer opacity-70">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 mt-1" data-alt="Profile picture of David from Stark Ind" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCwIS7rsc8hh-wBA_XHtxMW5F4sDIrfDE8oZQcx16V2EurdBNz8e15UEXNAKmMOXtq3EbLBnz3dhOKtjHe7aRsh8fAnsdjwr-qMTrMg6F-2EvotRxyrswUfUo2VWRSN8-mi776bXbA_OwRlaKJt562O47fO1svIxpxP9wO_hxzLfuiAcwWLALT_fWbxqbF3XK_cH0ot6jqb7mm5FQdKlKL-pmTw77WG1jnnPMpO6OxiM8gQqh-IbqIe2KL-PWXbMj5yIGozstAXJqo");'></div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<p class="text-slate-900 dark:text-white text-sm font-medium truncate pr-2">Stark Industries - Contract</p>
+<p class="text-slate-400 text-xs font-normal shrink-0">Yesterday</p>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs truncate">David: Please send over the revised NDA.</p>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer opacity-70">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 mt-1" data-alt="Profile picture of Emily from Wayne Ent" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBH867milsXDDHScfo-_r4tvhb3z3L1EkA6J-excJwWMyv2h3o8gW56Ig3XO5D5Mxua5OTvfyB0S0zrS_jAXZ0q1YhGjbEhO97vjrlqGy67Ay1UG7NBi2EGMZu-9VQCoLHUFSk9TE-lhr1cIkZl_3b1bDUsaWphSPDj_v_r05Knz0DEZYrZE2gqLomzLtAH7ouXk8yVXQmdCHom-xqo-k0N0wK0IJnpYwfd-0X72zHZzhEsLoVvkOFoEOshnx9k2bypP3xQidoN0o8");'></div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<p class="text-slate-900 dark:text-white text-sm font-medium truncate pr-2">Wayne Enterprises</p>
+<p class="text-slate-400 text-xs font-normal shrink-0">2d ago</p>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs truncate">Emily: Thanks for the update.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: Active Conversation Panel -->
+<main class="flex flex-col flex-1 h-full bg-white dark:bg-[#151c2a] relative">
+<!-- Sticky Header -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-white/80 dark:bg-[#151c2a]/90 backdrop-blur-sm z-10">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0" data-alt="Profile picture of Sarah from Acme Corp" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC8GvMUb-_7HUT7Ub1i9exgebGdHSKJRsRchfu0uo-d-60rTwNR8va3zFPREfaKArJgKzbRwhlvE1BLjT2y3RfHBcBHLtHsNx8NUExDDZ45m1MPxHqlvye3M8d4gY2ot7KcRr5Ff2vDe_PzRnVZrVCWw665QSm4hY8EXZ9sY6c9rPR4uWlTjG5sk09S5kZMJuheVc-BdO-5k88SP8rI77D_1hYp8jBanPcXUFNRB5cxZSOHPMBE5zVF2bSa-Eo60DtJsXu_LEJd9QE");'></div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-semibold text-slate-900 dark:text-white">Sarah Jenkins</h3>
+<span class="size-1.5 rounded-full bg-green-500"></span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400">VP of Engineering at <span class="text-primary font-medium">Acme Corp</span></p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors" title="Call">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors" title="Schedule Meeting">
+<span class="material-symbols-outlined">calendar_add_on</span>
+</button>
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+<button class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+                    Assign
+                </button>
+<button class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Message Area -->
+<div class="flex-1 overflow-y-auto p-6 bg-background-light dark:bg-background-dark">
+<div class="flex flex-col gap-6 max-w-4xl mx-auto">
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="text-xs font-medium text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Today, Oct 24</span>
+</div>
+<!-- Message Left -->
+<div class="flex gap-4 group">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 mt-1" data-alt="Profile picture of Sarah" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB60jqIAc4BpnJwNWi_LbJNHuFISakI6z6cijfsVz8Dp44w3NXSfpt10vjNQq7fNF9wCKrpPESAuc3FGr6LEkHYz682wlrua5dJw56HQFnKkIBmmyDIsspHceaQQ6tqO2ov_ZQ2h7ET3TfRhUBAn_T6ItDSsYtCGipMPqbHBpYkLgeTJ_5YIJ3KATh2pudocqOLnsaVrkmrX3U1dt_bAs0baoRqgtUALsPl3Uhi5kQuYz1nNYrBfORxq-nBIFWhpg7k7a9TP9lhF1o");'></div>
+<div class="flex flex-col gap-1 max-w-[75%]">
+<div class="flex items-baseline gap-2">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Sarah Jenkins</span>
+<span class="text-xs text-slate-400">10:23 AM</span>
+</div>
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none shadow-sm text-slate-800 dark:text-slate-200 text-sm leading-relaxed">
+<p>Hi Alex,</p>
+<p class="mt-2">Thanks for the demo yesterday. My team was really impressed with the analytics dashboard.</p>
+<p class="mt-2">I was reviewing the proposal you sent over, and I have a quick question about the data retention policy mentioned on page 3. Does the enterprise plan include unlimited history?</p>
+</div>
+</div>
+</div>
+<!-- Message Right (Me) -->
+<div class="flex flex-row-reverse gap-4 group">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 mt-1" data-alt="My profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBE32NrKF_GOVXAm2KCmygswPDpPWQwDl-lokqv8NKZbqY4zWP26E1H-0MnHFB8AJaEBLYiVb5aLD1yxRRt1mcMDBEJnspaU5A6kN7sR6PzKFC_fMElSv034VbL8pcQ6_Z03Yg23Ks0nddrVZJa67VO3o7Xdcl9LifWMae3KkRoOjQHegKVJ2GBsdMwVJ1OwdNt1a1xmgz8zIwXv7RWtY1zPVmt_zUOU_2t3PEGj8SrjdZoLTN7dcHY4oX5-ZvSGZI9OkVMelbaMZE");'></div>
+<div class="flex flex-col gap-1 items-end max-w-[75%]">
+<div class="flex items-baseline gap-2 flex-row-reverse">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">You</span>
+<span class="text-xs text-slate-400">10:45 AM</span>
+</div>
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-none shadow-sm text-sm leading-relaxed">
+<p>Hi Sarah! Glad to hear the team liked the demo.</p>
+<p class="mt-2">Regarding page 3: Yes, the Enterprise plan absolutely includes unlimited data history retention. The clause there is standard language for our Pro plan, I'll update that section to be clearer for your contract.</p>
+</div>
+<span class="text-xs font-medium text-slate-400 flex items-center gap-1">
+                            Read <span class="material-symbols-outlined text-[14px]">done_all</span>
+</span>
+</div>
+</div>
+<!-- Message Left -->
+<div class="flex gap-4 group">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 mt-1" data-alt="Profile picture of Sarah" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA45bRJfM3j5CJOSCz7IPDUhXiP8mn85M6JtusiR88s6ejnR8uuHtVbk5jFV6UoB6xxPntbhpagoSsY9lAH0BSUURXzs76Ob27Rioid7e40mOAGjTuBdp30g7Evl0KmtkIwxSCzi75z7-vKoivmuMd8g3urU3UxgCwsYFQ7aInjuYo0E0hH-04aoPUH24VQ1lu2aC7JdOrVlk0VWBp0hhPNmLq9LjUv_rw8h1QZpwnFY9d9T359U6llWZTFdCcIEFMM3vhO0sDxUso");'></div>
+<div class="flex flex-col gap-1 max-w-[75%]">
+<div class="flex items-baseline gap-2">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Sarah Jenkins</span>
+<span class="text-xs text-slate-400">11:02 AM</span>
+</div>
+<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl rounded-tl-none shadow-sm text-slate-800 dark:text-slate-200 text-sm leading-relaxed">
+<p>Perfect, that's exactly what we need. Could you clarify one more thing about the SLA terms?</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Composer Area -->
+<div class="p-6 bg-white dark:bg-[#151c2a] border-t border-slate-200 dark:border-slate-800">
+<div class="max-w-4xl mx-auto flex flex-col gap-3">
+<!-- Quick Suggestion Chips -->
+<div class="flex gap-2 mb-1">
+<button class="text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors border border-primary/10">Use Template: SLA Terms</button>
+<button class="text-xs font-medium text-slate-500 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-3 py-1.5 rounded-full transition-colors">Schedule Call</button>
+</div>
+<div class="relative bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+<!-- Toolbar -->
+<div class="flex items-center gap-1 p-2 border-b border-slate-100 dark:border-slate-800">
+<button class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+<div class="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-[20px]">attach_file</span></button>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-[20px]">image</span></button>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><span class="material-symbols-outlined text-[20px]">mood</span></button>
+</div>
+<textarea class="w-full bg-transparent border-none p-4 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 resize-none" placeholder="Type your message..." rows="3"></textarea>
+<div class="flex justify-between items-center p-2 pr-4 pl-4 pb-3">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+                             Visible to: Everyone
+                        </div>
+<div class="flex gap-2">
+<button class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-[20px]">schedule_send</span>
+</button>
+<button class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-sm shadow-blue-500/30">
+                                Send
+                                <span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+<p class="text-center text-[10px] text-slate-400 mt-1">Press ⌘ + Enter to send</p>
+</div>
+</div>
+</main>
+</body></html>

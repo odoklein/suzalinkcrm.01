@@ -1,0 +1,153 @@
+---
+routes: ["/client/portal", "/client/portal/reporting", "/client/portal/meetings", "/client/portal/database", "/commercial/portal", "/shared/report"]
+roles: ["CLIENT", "COMMERCIAL", "MANAGER", "BUSINESS_DEVELOPER"]
+keywords: ["client portal", "portail client", "client access", "accès client", "report", "rapport", "meetings", "rdv", "database", "base données", "what can client see", "client visibility", "share report", "partager rapport", "commercial portal", "interlocuteur", "playbook", "files", "fichiers", "aide", "help"]
+priority: 7
+---
+
+# Client Portal & Commercial Portal
+
+## Overview
+
+The **Client Portal** gives clients read-only visibility into their campaign performance, meetings, and prospect database — without exposing internal team operations.
+
+The **Commercial Portal** is for the client's own sales team (ClientInterlocuteur role) — they see the meetings booked for them to attend.
+
+---
+
+## What Clients Can See (and Can't)
+
+### Clients CAN see:
+- Their campaign stats (calls made on their behalf, meetings booked)
+- The list of meetings with date, time, contact, company
+- Campaign performance reports (with date range selection)
+- Shared files and documents
+- Their prospect database (if enabled by manager)
+- Sales playbook materials
+- Help/FAQ resources
+
+### Clients CANNOT see:
+- Individual SDR names (by default — unless manager enables this)
+- Internal team communications (Comms Hub)
+- Call notes or recordings
+- Other clients' data
+- Billing details (unless separately shared)
+- Internal planning or scheduling
+
+---
+
+## Client Login
+
+Clients log in at `/login` with their CLIENT role credentials.
+
+If they don't have credentials yet:
+1. Go to `/manager/team?tab=reglages`
+2. Create a new user → set Role = **CLIENT**
+3. The client uses these credentials to access `/client/portal`
+
+---
+
+## Client Dashboard (`/client/portal`)
+
+After login, the client lands on their dashboard:
+- **Greeting**: "Bonjour [ClientName]"
+- **Stats cards**: Total actions this period | Meetings booked | Monthly objective | Active missions
+- **Animated number counters** — live data from their campaigns
+- **Meetings this month**: carousel of upcoming/recent meetings with date, time, contact, company, status
+- **Month navigation**: ← → arrows to see previous/next month
+
+---
+
+## Client Reports (`/client/portal/reporting`)
+
+1. Client goes to **Rapports** in sidebar
+2. Selects date range (presets or custom)
+3. Optionally selects a specific mission (or sees all)
+4. Checks **Comparer avec la période précédente** to see trends
+5. Clicks **Générer**
+6. Report shows: actions count, meetings booked, contact rate, week-by-week chart
+7. To **save as PDF**: click **Imprimer** → use browser Print → **Save as PDF** (not a direct download button)
+
+---
+
+## Shared Report Links (No Login Required)
+
+For clients who don't have portal access, or to share a one-off report via email:
+
+1. Manager goes to `/manager/clients/[id]`
+2. Clicks **Partager un rapport** (Share a report)
+3. Configures: date range, missions to include, link expiry date
+4. Copy the generated link
+5. Send to client — they open `/shared/report/[token]` in any browser
+6. **No login required** — link is valid until expiry date
+
+This is the easiest way to share a monthly report without giving portal access.
+
+---
+
+## Client Portal Settings (Manager Controls)
+
+The manager can configure what the client sees. In client settings:
+- **Afficher l'historique des appels** — show/hide call activity details
+- **Afficher la base de données** — enable/disable contact database view
+- **Afficher les RDV** — show/hide meetings
+- **Objectif mensuel** — set the monthly RDV target shown on their dashboard
+
+Location: `/manager/clients/[id]` → **Paramètres portail** section.
+
+---
+
+## Commercial Portal (`/commercial/portal`)
+
+The **Commercial Portal** is for the client's internal sales team (ClientInterlocuteur). These are the people who attend the meetings booked by SDRs.
+
+### What they see:
+- **Monthly objective** (meetings target)
+- **Meetings booked for them** this month — with contact details, date, company
+- **Month navigation** (see past/future meetings)
+- **Contacts** associated with their company
+
+### Commercial Portal Login
+- Commercial users log in at `/login` with role **COMMERCIAL**
+- They are linked to a `ClientInterlocuteur` record (specific sales rep at the client company)
+
+---
+
+## File Sharing with Clients (`/client/portal/files`)
+
+Files visible in the client portal are uploaded to the CRM and marked as public for that client:
+
+1. Manager goes to `/manager/files`
+2. Uploads a file or creates a folder
+3. Sets visibility: **Public pour le client** (Public to client)
+4. Client sees the file in their portal at `/client/portal/files`
+
+---
+
+## Sales Playbook (`/client/portal/sales-playbook`)
+
+Clients can view their sales playbook materials here. The playbook is generated by the CRM (AI-assisted) and shared with the client for their commercial team to use during meetings.
+
+To generate/update: Manager goes to their client record → **Playbook** section → regenerate.
+
+---
+
+## Help Section (`/client/portal/aide`)
+
+The client help section contains:
+- FAQs about using the portal
+- How to read their reports
+- Contact information for support
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Client can't log in | Check their account is ACTIVE with role CLIENT in `/manager/team?tab=reglages` |
+| Client doesn't see their meetings | Check meetings are linked to their client's missions. Check portal settings allow meeting visibility. |
+| Client sees empty dashboard | Verify their missions are ACTIVE and have actions logged this period |
+| Shared report link not working | Check link hasn't expired — regenerate if needed |
+| Client can't see database | Manager must enable "Afficher la base de données" in client portal settings |
+| Commercial user doesn't see meetings | Check their ClientInterlocuteur record is correctly linked to the client and meetings |
