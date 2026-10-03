@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId } from "react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui";
+import { useToast, useOverlay } from "@/components/ui";
+import { ROW_FOCUS } from "@/components/ui/recipes";
+import { rowKeyDown } from "@/lib/a11y";
 import {
     CalendarDays,
     Plus,
@@ -120,6 +122,8 @@ export default function EngagementsPage() {
     };
 
     const closeModal = () => setShowModal(false);
+    const modalTitleId = useId();
+    const modalRef = useOverlay<HTMLDivElement>({ open: showModal, onClose: closeModal });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -223,8 +227,10 @@ export default function EngagementsPage() {
                                     return (
                                         <tr
                                             key={e.id}
-                                            className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 cursor-pointer"
+                                            className={`border-b border-slate-100 last:border-0 hover:bg-slate-50/50 cursor-pointer ${ROW_FOCUS}`}
                                             onClick={() => router.push(`/manager/billing/engagements/${e.id}`)}
+                                            tabIndex={0}
+                                            onKeyDown={rowKeyDown(() => router.push(`/manager/billing/engagements/${e.id}`))}
                                         >
                                             <td className="px-5 py-4">
                                                 <div className="font-semibold text-slate-900">{e.clientName}</div>
@@ -263,8 +269,9 @@ export default function EngagementsPage() {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => router.push(`/manager/billing/engagements/${e.id}`)}
+                                                    aria-label="Voir l'engagement"
                                                 >
-                                                    <Eye className="w-4 h-4" />
+                                                    <Eye className="w-4 h-4" aria-hidden />
                                                 </Button>
                                             </td>
                                         </tr>
@@ -285,17 +292,18 @@ export default function EngagementsPage() {
             {/* Modal Nouvel engagement */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby={modalTitleId} tabIndex={-1} className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
-                            <h2 className="text-lg font-bold text-slate-900">Nouvel engagement</h2>
-                            <button type="button" onClick={closeModal} className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
-                                <X className="w-5 h-5" />
+                            <h2 id={modalTitleId} className="text-lg font-bold text-slate-900">Nouvel engagement</h2>
+                            <button type="button" onClick={closeModal} aria-label="Fermer" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
+                                <X className="w-5 h-5" aria-hidden />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Client</label>
+                                <label htmlFor="engagement-client" className="block text-sm font-semibold text-slate-700 mb-1.5">Client</label>
                                 <select
+                                    id="engagement-client"
                                     value={form.clientId}
                                     onChange={(e) => setForm((f) => ({ ...f, clientId: e.target.value }))}
                                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white"
@@ -308,8 +316,9 @@ export default function EngagementsPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Offre tarifaire</label>
+                                <label htmlFor="engagement-offre" className="block text-sm font-semibold text-slate-700 mb-1.5">Offre tarifaire</label>
                                 <select
+                                    id="engagement-offre"
                                     value={form.offreTarifId}
                                     onChange={(e) => setForm((f) => ({ ...f, offreTarifId: e.target.value }))}
                                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white"
@@ -331,8 +340,9 @@ export default function EngagementsPage() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-amber-700 mb-1">Forfait mensuel (€)</label>
+                                            <label htmlFor="engagement-fixe" className="block text-xs font-medium text-amber-700 mb-1">Forfait mensuel (€)</label>
                                             <Input
+                                                id="engagement-fixe"
                                                 type="number"
                                                 min={0}
                                                 step={0.01}
@@ -347,8 +357,9 @@ export default function EngagementsPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-amber-700 mb-1">Prix par RDV (€)</label>
+                                            <label htmlFor="engagement-rdv" className="block text-xs font-medium text-amber-700 mb-1">Prix par RDV (€)</label>
                                             <Input
+                                                id="engagement-rdv"
                                                 type="number"
                                                 min={0}
                                                 step={0.01}
@@ -367,8 +378,9 @@ export default function EngagementsPage() {
                             )}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Durée (mois)</label>
+                                    <label htmlFor="engagement-duree" className="block text-sm font-semibold text-slate-700 mb-1.5">Durée (mois)</label>
                                     <select
+                                        id="engagement-duree"
                                         value={form.dureeMois}
                                         onChange={(e) => setForm((f) => ({ ...f, dureeMois: e.target.value }))}
                                         className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white"
@@ -379,8 +391,9 @@ export default function EngagementsPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Date de début</label>
+                                    <label htmlFor="engagement-debut" className="block text-sm font-semibold text-slate-700 mb-1.5">Date de début</label>
                                     <Input
+                                        id="engagement-debut"
                                         type="date"
                                         value={form.debut}
                                         onChange={(e) => setForm((f) => ({ ...f, debut: e.target.value }))}
@@ -388,8 +401,9 @@ export default function EngagementsPage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Pénalité de résiliation</label>
+                                <label htmlFor="engagement-penalite" className="block text-sm font-semibold text-slate-700 mb-1.5">Pénalité de résiliation</label>
                                 <Input
+                                    id="engagement-penalite"
                                     value={form.penaliteResiliation}
                                     onChange={(e) => setForm((f) => ({ ...f, penaliteResiliation: e.target.value }))}
                                     placeholder="Ex: 2 mois de forfait"

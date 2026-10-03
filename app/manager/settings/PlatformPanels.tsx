@@ -11,7 +11,7 @@ import {
     AlertTriangle, Code2, Eye, Key, Link2, ListOrdered, Loader2, Mail, Megaphone, PhoneCall, RotateCcw, Send,
     ShieldCheck, PenLine, Variable,
 } from "lucide-react";
-import { useToast } from "@/components/ui";
+import { useConfirm, useToast } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { RDV_TEMPLATE_VARIABLES } from "@/lib/email/templates/rdv-notification";
 import { PACE_DEFAULTS, PACE_LIMITS, PACE_THRESHOLDS } from "@/lib/sdr-pace/pace";
@@ -269,6 +269,7 @@ export function EmailsPanel() {
 
 function SenderCard({ onLoaded }: { onLoaded: (v: { from: string; source: "settings" | "env" | "none" }) => void }) {
     const toast = useToast();
+    const confirm = useConfirm();
     const [from, setFrom] = useState("");
     const [source, setSource] = useState<"settings" | "env" | "none" | null>(null);
     const [saving, setSaving] = useState(false);
@@ -305,7 +306,7 @@ function SenderCard({ onLoaded }: { onLoaded: (v: { from: string; source: "setti
     };
 
     const reset = async () => {
-        if (!window.confirm("Réinitialiser l'expéditeur personnalisé et revenir à la variable d'environnement ?")) return;
+        if (!(await confirm({ title: "Réinitialiser l'expéditeur ?", message: "L'expéditeur personnalisé sera supprimé et la variable d'environnement sera utilisée.", variant: "warning", confirmText: "Réinitialiser" }))) return;
         setSaving(true);
         setError(null);
         try {
@@ -398,6 +399,7 @@ function VarChip({ variable, onInsert }: { variable: { name: string; description
 
 function RdvTemplateCard({ senderFrom }: { senderFrom: string | null }) {
     const toast = useToast();
+    const confirm = useConfirm();
     const [template, setTemplate] = useState<TemplateData | null>(null);
     const [loadError, setLoadError] = useState(false);
     const [subject, setSubject] = useState("");
@@ -454,7 +456,7 @@ function RdvTemplateCard({ senderFrom }: { senderFrom: string | null }) {
 
     const restoreDefault = async () => {
         if (!template) return;
-        if (!window.confirm("Remettre le template par défaut ? Vos modifications seront perdues.")) return;
+        if (!(await confirm({ title: "Remettre le template par défaut ?", message: "Vos modifications seront perdues.", variant: "danger", confirmText: "Restaurer" }))) return;
         setResetting(true);
         try {
             await fetch("/api/system-templates/rdv_notification", { method: "DELETE" });
@@ -531,7 +533,7 @@ function RdvTemplateCard({ senderFrom }: { senderFrom: string | null }) {
                             </div>
 
                             {tab === "editor" ? (
-                                <div className="relative bg-zinc-950">
+                                <div className="relative bg-zinc-950 focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                                     <div
                                         ref={gutterRef}
                                         aria-hidden
@@ -602,6 +604,7 @@ function RdvTemplateCard({ senderFrom }: { senderFrom: string | null }) {
 
 export function IntegrationsPanel() {
     const toast = useToast();
+    const confirm = useConfirm();
     const [enabled, setEnabled] = useState<boolean | null>(null);
     const [source, setSource] = useState<"settings" | "env" | "none" | null>(null);
     const [keyId, setKeyId] = useState("");
@@ -641,7 +644,7 @@ export function IntegrationsPanel() {
     };
 
     const disable = async () => {
-        if (!window.confirm("Désactiver la connexion Leexi ? Les imports de sessions ne fonctionneront plus.")) return;
+        if (!(await confirm({ title: "Désactiver la connexion Leexi ?", message: "Les imports de sessions ne fonctionneront plus.", variant: "danger", confirmText: "Désactiver" }))) return;
         setSaving(true);
         setError(null);
         try {
@@ -717,6 +720,7 @@ export function IntegrationsPanel() {
 
 export function MasterPasswordPanel() {
     const toast = useToast();
+    const confirm = useConfirm();
     const [enabled, setEnabled] = useState<boolean | null>(null);
     const [value, setValue] = useState("");
     const [saving, setSaving] = useState(false);
@@ -749,7 +753,7 @@ export function MasterPasswordPanel() {
     };
 
     const disable = async () => {
-        if (!window.confirm("Désactiver le mot de passe maître ? Vous ne pourrez plus vous connecter avec celui-ci.")) return;
+        if (!(await confirm({ title: "Désactiver le mot de passe maître ?", message: "Vous ne pourrez plus vous connecter avec celui-ci.", variant: "danger", confirmText: "Désactiver" }))) return;
         setSaving(true);
         setError(null);
         try {

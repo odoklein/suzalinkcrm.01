@@ -636,6 +636,27 @@ export function DesignSystemGallery({ ramps, identity }: { ramps: RampInfo[]; id
                             description="Les rappels programmés par l'équipe apparaîtront ici."
                             action={<Button size="sm" leftIcon={<Plus className="size-4" />}>Programmer un rappel</Button>}
                         />
+
+                        <DataTable
+                            data={SAMPLE_ROWS}
+                            keyField="id"
+                            searchable
+                            searchPlaceholder="Rechercher une société…"
+                            searchFields={["company", "contact"]}
+                            pagination
+                            pageSize={4}
+                            onRowClick={(row) => toast.info(row.company, "Ligne ouverte au clavier ou à la souris.")}
+                            columns={[
+                                { key: "company", header: "Société", sortable: true },
+                                { key: "contact", header: "Contact", sortable: true },
+                                { key: "calls", header: "Appels", sortable: true, render: (v: number) => <span className="tabular-nums">{v}</span> },
+                                {
+                                    key: "status",
+                                    header: "Statut",
+                                    render: (v: string) => <Badge size="sm" variant={v === "RDV pris" ? "success" : v === "À rappeler" ? "warning" : "default"}>{v}</Badge>,
+                                },
+                            ]}
+                        />
                     </Block>
 
                     {/* ── Overlays ──────────────────────────────────────── */}

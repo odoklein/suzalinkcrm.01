@@ -131,6 +131,7 @@ export default function TasksPage() {
                     {/* View Toggle */}
                     <div className="flex items-center bg-slate-100 rounded-lg p-1">
                         <button
+                            aria-pressed={view === "kanban"}
                             onClick={() => setView("kanban")}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${view === "kanban"
                                     ? "bg-white text-slate-900 shadow-sm"
@@ -141,6 +142,7 @@ export default function TasksPage() {
                             Kanban
                         </button>
                         <button
+                            aria-pressed={view === "list"}
                             onClick={() => setView("list")}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${view === "list"
                                     ? "bg-white text-slate-900 shadow-sm"

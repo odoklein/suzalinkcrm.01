@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, Button, useToast } from "@/components/ui";
-import { Mail, User, Building2, Loader2, ChevronRight } from "lucide-react";
+import { Card, Button, useToast, LoadingState } from "@/components/ui";
+import { Mail, User, Building2, ChevronRight } from "lucide-react";
 import { QuickEmailModal } from "@/components/email/QuickEmailModal";
 import type { ProspectionActionData } from "./ProspectionChannelWorkspace";
 
@@ -88,12 +88,7 @@ export function EmailProspectionPanel({ missionId, listId }: EmailProspectionPan
     }, [currentAction, fetchNext, success, showError]);
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-24">
-                <Loader2 className="w-10 h-10 text-primary-500 animate-spin mb-4" />
-                <p className="text-slate-500 font-medium">Chargement du prochain contact...</p>
-            </div>
-        );
+        return <LoadingState message="Chargement du prochain contact…" />;
     }
 
     if (!currentAction) {

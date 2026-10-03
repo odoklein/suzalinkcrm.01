@@ -221,6 +221,7 @@ export default function SDRProjectsPage() {
 
                 <div className="flex bg-slate-100 border border-slate-200 rounded-lg p-0.5 ml-auto">
                     <button
+                        aria-pressed={view === "grid"}
                         onClick={() => setView("grid")}
                         className={cn(
                             "p-1.5 rounded transition-colors",
@@ -230,6 +231,7 @@ export default function SDRProjectsPage() {
                         <LayoutGrid className="w-4 h-4" />
                     </button>
                     <button
+                        aria-pressed={view === "list"}
                         onClick={() => setView("list")}
                         className={cn(
                             "p-1.5 rounded transition-colors",

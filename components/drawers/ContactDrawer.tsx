@@ -854,6 +854,7 @@ export function ContactDrawer({
                                                 next[idx] = e.target.value;
                                                 setFormData(prev => ({ ...prev, additionalPhones: next }));
                                             }}
+                                            aria-label={`Autre numéro ${idx + 1}`}
                                             icon={<Phone className="w-4 h-4 text-slate-400" />}
                                         />
                                         <button
@@ -863,9 +864,9 @@ export function ContactDrawer({
                                                 additionalPhones: prev.additionalPhones.filter((_, i) => i !== idx),
                                             }))}
                                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                            aria-label="Supprimer"
+                                            aria-label="Supprimer le numéro"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden />
                                         </button>
                                     </div>
                                 ))}
@@ -899,6 +900,7 @@ export function ContactDrawer({
                                                 next[idx] = e.target.value;
                                                 setFormData(prev => ({ ...prev, additionalEmails: next }));
                                             }}
+                                            aria-label={`Autre email ${idx + 1}`}
                                             icon={<Mail className="w-4 h-4 text-slate-400" />}
                                         />
                                         <button
@@ -908,9 +910,9 @@ export function ContactDrawer({
                                                 additionalEmails: prev.additionalEmails.filter((_, i) => i !== idx),
                                             }))}
                                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                            aria-label="Supprimer"
+                                            aria-label="Supprimer l'email"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden />
                                         </button>
                                     </div>
                                 ))}
@@ -964,8 +966,9 @@ export function ContactDrawer({
                                             <button
                                                 onClick={() => copyToClipboard(contact.email!, "Email")}
                                                 className="text-slate-400 hover:text-slate-600"
+                                                aria-label="Copier l'email"
                                             >
-                                                <Copy className="w-3.5 h-3.5" />
+                                                <Copy className="w-3.5 h-3.5" aria-hidden />
                                             </button>
                                         </div>
                                     )
@@ -988,8 +991,9 @@ export function ContactDrawer({
                                                     <button
                                                         onClick={() => copyToClipboard(contact.phone!, "Téléphone")}
                                                         className="text-slate-400 hover:text-slate-600"
+                                                        aria-label="Copier le téléphone"
                                                     >
-                                                        <Copy className="w-3.5 h-3.5" />
+                                                        <Copy className="w-3.5 h-3.5" aria-hidden />
                                                     </button>
                                                 </div>
                                             )}
@@ -1007,8 +1011,9 @@ export function ContactDrawer({
                                                     <button
                                                         onClick={() => copyToClipboard(contact.companyPhone!, "Téléphone")}
                                                         className="text-slate-400 hover:text-slate-600"
+                                                        aria-label="Copier le téléphone de la société"
                                                     >
-                                                        <Copy className="w-3.5 h-3.5" />
+                                                        <Copy className="w-3.5 h-3.5" aria-hidden />
                                                     </button>
                                                 </div>
                                             )}
@@ -1051,9 +1056,9 @@ export function ContactDrawer({
                                                     <button
                                                         onClick={() => copyToClipboard(num, "Numéro")}
                                                         className="p-1 text-emerald-500 hover:bg-emerald-100 rounded-lg transition-colors"
-                                                        aria-label="Copier"
+                                                        aria-label="Copier le numéro"
                                                     >
-                                                        <Copy className="w-3.5 h-3.5" />
+                                                        <Copy className="w-3.5 h-3.5" aria-hidden />
                                                     </button>
                                                 </div>
                                             ))}
@@ -1081,9 +1086,9 @@ export function ContactDrawer({
                                                     <button
                                                         onClick={() => copyToClipboard(em, "Email")}
                                                         className="p-1 text-primary-500 hover:bg-primary-100 rounded-lg transition-colors shrink-0"
-                                                        aria-label="Copier"
+                                                        aria-label="Copier l'email"
                                                     >
-                                                        <Copy className="w-3.5 h-3.5" />
+                                                        <Copy className="w-3.5 h-3.5" aria-hidden />
                                                     </button>
                                                 </div>
                                             ))}
@@ -1107,16 +1112,18 @@ export function ContactDrawer({
                                             <button
                                                 onClick={() => copyToClipboard(contact.linkedin!, "LinkedIn")}
                                                 className="text-slate-400 hover:text-slate-600"
+                                                aria-label="Copier le lien LinkedIn"
                                             >
-                                                <Copy className="w-3.5 h-3.5" />
+                                                <Copy className="w-3.5 h-3.5" aria-hidden />
                                             </button>
                                             <a
                                                 href={contact.linkedin.startsWith("http") ? contact.linkedin : `https://${contact.linkedin}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-slate-400 hover:text-slate-600"
+                                                aria-label="Ouvrir le profil LinkedIn"
                                             >
-                                                <ExternalLink className="w-3.5 h-3.5" />
+                                                <ExternalLink className="w-3.5 h-3.5" aria-hidden />
                                             </a>
                                         </div>
                                     )
@@ -1184,6 +1191,7 @@ export function ContactDrawer({
                                                         key={type}
                                                         type="button"
                                                         onClick={() => setMeetingType(type)}
+                                                        aria-pressed={meetingType === type}
                                                         className={cn(
                                                             "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors",
                                                             meetingType === type ? "border-primary-500 bg-primary-100 text-primary-800" : "border-slate-200 bg-white text-slate-600 hover:border-primary-200 hover:bg-primary-50/50"
@@ -1285,9 +1293,10 @@ export function ContactDrawer({
                                     <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Clock className="w-5 h-5 text-amber-600" />
-                                            <label className="text-sm font-medium text-slate-900">Date de rappel</label>
+                                            <label htmlFor="contact-callback-date" className="text-sm font-medium text-slate-900">Date de rappel</label>
                                         </div>
                                         <input
+                                            id="contact-callback-date"
                                             type="datetime-local"
                                             value={newCallbackDateValue}
                                             onChange={(e) => setNewCallbackDateValue(e.target.value)}
@@ -1302,8 +1311,9 @@ export function ContactDrawer({
                                 {newActionResult !== "ENVOIE_MAIL" && (
                                     <>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Note</label>
+                                            <label htmlFor="contact-action-note" className="block text-sm font-medium text-slate-700 mb-1">Note</label>
                                             <textarea
+                                                id="contact-action-note"
                                                 value={newActionNote}
                                                 onChange={(e) => setNewActionNote(e.target.value)}
                                                 placeholder="Ajouter une note (requise pour Intéressé / Rappel demandé)..."
@@ -1343,10 +1353,11 @@ export function ContactDrawer({
                                 </p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-700 mb-1">
+                                        <label htmlFor="contact-manager-meeting-result" className="block text-xs font-medium text-slate-700 mb-1">
                                             Statut du rendez-vous
                                         </label>
                                         <select
+                                            id="contact-manager-meeting-result"
                                             className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white"
                                             value={managerMeetingResult}
                                             onChange={(e) =>
@@ -1362,10 +1373,11 @@ export function ContactDrawer({
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-700 mb-1">
+                                        <label htmlFor="contact-manager-meeting-date" className="block text-xs font-medium text-slate-700 mb-1">
                                             Date / heure du rendez-vous
                                         </label>
                                         <input
+                                            id="contact-manager-meeting-date"
                                             type="datetime-local"
                                             className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg"
                                             value={effectiveMeetingInput}
@@ -1391,10 +1403,11 @@ export function ContactDrawer({
                                     Ajustez la date du rappel pour ce contact.
                                 </p>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                                    <label htmlFor="contact-manager-callback-date" className="block text-xs font-medium text-slate-700 mb-1">
                                         Date / heure du rappel
                                     </label>
                                     <input
+                                        id="contact-manager-callback-date"
                                         type="datetime-local"
                                         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg max-w-xs"
                                         value={effectiveCallbackInput}

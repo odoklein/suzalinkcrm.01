@@ -17,7 +17,7 @@
  * ============================================================
  */
 
-import { useState, useEffect, use, useRef } from "react";
+import { useState, useEffect, use, useRef, useId } from "react";
 import { useRouter } from "next/navigation";
 import {
     Card,
@@ -45,6 +45,7 @@ import {
 import { AiMark } from "@/components/ui/AiMark";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { pressable } from "@/lib/a11y";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AITaskExtractor, { type ExtractedTask } from "@/components/sessions/AITaskExtractor";
@@ -423,6 +424,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
     const resolvedParams = use(params);
     const router = useRouter();
     const { success, error: showError } = useToast();
+    const uid = useId();
 
     const [client, setClient] = useState<Client | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -1603,8 +1605,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-2">
                     <div className="flex items-center gap-4">
                         <Link href="/manager/clients">
-                            <button className="h-10 w-10 rounded-xl bg-white border border-slate-200/60 text-slate-400 hover:text-slate-700 hover:border-slate-300 hover:shadow-sm flex items-center justify-center transition-all duration-200">
-                                <ArrowLeft className="w-4 h-4" />
+                            <button aria-label="Retour aux clients" className="h-10 w-10 rounded-xl bg-white border border-slate-200/60 text-slate-400 hover:text-slate-700 hover:border-slate-300 hover:shadow-sm flex items-center justify-center transition-all duration-200">
+                                <ArrowLeft aria-hidden className="w-4 h-4" />
                             </button>
                         </Link>
                         <div className="flex items-center gap-4">
@@ -1639,8 +1641,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             <Edit className="w-3.5 h-3.5" />
                             Modifier
                         </Button>
-                        <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)} className="gap-1.5">
-                            <Trash2 className="w-3.5 h-3.5" />
+                        <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)} className="gap-1.5" aria-label="Supprimer le client">
+                            <Trash2 aria-hidden className="w-3.5 h-3.5" />
                         </Button>
                     </div>
                 </div>
@@ -2115,9 +2117,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                             <div className="min-w-0 flex-1">
                                                                 <p className="text-sm font-semibold text-slate-900 truncate flex items-center gap-1.5">
                                                                     {u.name}
-                                                                    <Badge className="text-[9px] bg-primary-100 text-primary-700 border-0">Accès portail client</Badge>
+                                                                    <Badge className="text-3xs bg-primary-100 text-primary-700 border-0">Accès portail client</Badge>
                                                                     {u.isActive === false && (
-                                                                        <Badge className="text-[9px] bg-red-100 text-red-700 border-0">Révoqué</Badge>
+                                                                        <Badge className="text-3xs bg-red-100 text-red-700 border-0">Révoqué</Badge>
                                                                     )}
                                                                 </p>
                                                                 <p className="text-[11px] text-slate-400 truncate">{u.email}</p>
@@ -2156,9 +2158,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                                     <div className="min-w-0">
                                                                         <p className={cn("text-sm font-semibold text-slate-900 truncate flex items-center gap-1.5 flex-wrap", !interl.isActive && "line-through text-slate-400")}>
                                                                             {interl.firstName} {interl.lastName}
-                                                                            <Badge className="text-[9px] bg-slate-100 text-slate-600 border-0">Interlocuteur</Badge>
+                                                                            <Badge className="text-3xs bg-slate-100 text-slate-600 border-0">Interlocuteur</Badge>
                                                                             {interl.portalUser && (
-                                                                                <Badge className="text-[9px] bg-accent-100 text-accent-700 border-0">Commercial</Badge>
+                                                                                <Badge className="text-3xs bg-accent-100 text-accent-700 border-0">Commercial</Badge>
                                                                             )}
                                                                         </p>
                                                                         <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
@@ -2524,6 +2526,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                     value={sessionSearch}
                                     onChange={e => setSessionSearch(e.target.value)}
                                     placeholder="Rechercher dans les sessions..."
+                                    aria-label="Rechercher dans les sessions"
                                     className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 />
                                 <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -2531,6 +2534,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             <div className="flex items-center gap-1.5 flex-wrap">
                                 <button
                                     onClick={() => setSessionTypeFilter("all")}
+                                    aria-pressed={sessionTypeFilter === "all"}
                                     className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all",
                                         sessionTypeFilter === "all" ? "bg-primary-100 text-primary-700 border-primary-200" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
                                     )}
@@ -2541,6 +2545,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                     <button
                                         key={t}
                                         onClick={() => setSessionTypeFilter(sessionTypeFilter === t ? "all" : t)}
+                                        aria-pressed={sessionTypeFilter === t}
                                         className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all",
                                             sessionTypeFilter === t ? SESSION_TYPE_COLORS[t] + " shadow-sm" : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
                                         )}
@@ -2595,10 +2600,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 const openTasks = session.tasks.filter(t => !t.doneAt);
                                 return (
                                     <Card key={session.id} className="border-slate-200 overflow-hidden hover:shadow-md transition-all duration-200">
-                                        {/* Session row */}
-                                        <button
-                                            onClick={() => setExpandedSessionId(isExpanded ? null : session.id)}
-                                            className="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50/80 transition-colors text-left"
+                                        {/* Session row — a div, not a <button>: it holds links and buttons */}
+                                        <div
+                                            {...pressable(() => setExpandedSessionId(isExpanded ? null : session.id))}
+                                            aria-expanded={isExpanded}
+                                            className="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50/80 transition-colors text-left cursor-pointer outline-none focus-visible:bg-surface-2"
                                         >
                                             <div className="flex items-center gap-4">
                                                 <Badge className={cn("text-xs border shrink-0", SESSION_TYPE_COLORS[session.type])}>
@@ -2695,7 +2701,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                 )}
                                                 {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                                             </div>
-                                        </button>
+                                        </div>
 
                                         {/* Expanded content */}
                                         {isExpanded && (
@@ -2760,14 +2766,16 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                                             <button
                                                                                 onClick={() => handleToggleTask(session.id, task.id)}
                                                                                 disabled={togglingTaskId === task.id}
+                                                                                aria-label={`Tâche terminée : ${task.label}`}
+                                                                                aria-pressed={!!task.doneAt}
                                                                                 className={cn("w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors",
                                                                                     task.doneAt
                                                                                         ? "bg-emerald-500 border-emerald-500 text-white"
                                                                                         : "border-slate-300 hover:border-primary-400"
                                                                                 )}
                                                                             >
-                                                                                {task.doneAt && <CheckCircle2 className="w-3 h-3" />}
-                                                                                {togglingTaskId === task.id && <Loader2 className="w-3 h-3 animate-spin text-slate-400" />}
+                                                                                {task.doneAt && <CheckCircle2 aria-hidden className="w-3 h-3" />}
+                                                                                {togglingTaskId === task.id && <Loader2 aria-hidden className="w-3 h-3 animate-spin text-slate-400" />}
                                                                             </button>
                                                                             <span className={cn("text-sm flex-1", task.doneAt ? "line-through text-slate-400" : "text-slate-700")}>
                                                                                 {task.label}
@@ -2891,6 +2899,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                         <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1">
                             <button
                                 onClick={() => setReportDialogTab("cr")}
+                                aria-pressed={reportDialogTab === "cr"}
                                 className={cn(
                                     "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                     reportDialogTab === "cr" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
@@ -2900,6 +2909,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             </button>
                             <button
                                 onClick={() => setReportDialogTab("email")}
+                                aria-pressed={reportDialogTab === "email"}
                                 className={cn(
                                     "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                     reportDialogTab === "email" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
@@ -2957,8 +2967,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="text-sm font-semibold text-slate-700 block mb-1">Type</label>
+                                <label htmlFor={`${uid}-edit-session-type`} className="text-sm font-semibold text-slate-700 block mb-1">Type</label>
                                 <select
+                                    id={`${uid}-edit-session-type`}
                                     value={editingSession.type}
                                     onChange={(e) =>
                                         setEditingSession((prev) =>
@@ -2973,8 +2984,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 </select>
                             </div>
                             <div>
-                                <label className="text-sm font-semibold text-slate-700 block mb-1">Date</label>
+                                <label htmlFor={`${uid}-edit-session-date`} className="text-sm font-semibold text-slate-700 block mb-1">Date</label>
                                 <input
+                                    id={`${uid}-edit-session-date`}
                                     type="date"
                                     value={editingSession.date.slice(0, 10)}
                                     onChange={(e) =>
@@ -2989,7 +3001,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
 
                         <div>
                             <div className="flex items-center justify-between mb-1">
-                                <label className="text-sm font-semibold text-slate-700">Compte rendu (markdown)</label>
+                                <label htmlFor={`${uid}-edit-session-cr`} className="text-sm font-semibold text-slate-700">Compte rendu (markdown)</label>
                                 <button
                                     onClick={() => setEditPreviewMode(!editPreviewMode)}
                                     className={cn(
@@ -3014,6 +3026,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 </div>
                             ) : (
                                 <textarea
+                                    id={`${uid}-edit-session-cr`}
                                     rows={8}
                                     value={editingSession.crMarkdown || ""}
                                     onChange={(e) =>
@@ -3028,8 +3041,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                         </div>
 
                         <div>
-                            <label className="text-sm font-semibold text-slate-700 block mb-1">Mail de synthèse</label>
+                            <label htmlFor={`${uid}-edit-session-email`} className="text-sm font-semibold text-slate-700 block mb-1">Mail de synthèse</label>
                             <textarea
+                                id={`${uid}-edit-session-email`}
                                 rows={5}
                                 value={editingSession.summaryEmail || ""}
                                 onChange={(e) =>
@@ -3084,14 +3098,16 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                         <h2 className="font-bold text-slate-900">Performance & Persona</h2>
                         <div className="flex items-center gap-2">
                             <input type="date" value={statsDateRange.from}
+                                aria-label="Date de début"
                                 onChange={(e) => setStatsDateRange(p => ({ ...p, from: e.target.value }))}
                                 className="px-3 py-1.5 text-sm border border-slate-200 rounded-lg" />
-                            <span className="text-slate-400">→</span>
+                            <span className="text-slate-400" aria-hidden>→</span>
                             <input type="date" value={statsDateRange.to}
+                                aria-label="Date de fin"
                                 onChange={(e) => setStatsDateRange(p => ({ ...p, to: e.target.value }))}
                                 className="px-3 py-1.5 text-sm border border-slate-200 rounded-lg" />
-                            <Button variant="ghost" size="sm" onClick={() => { fetchClientStats(); fetchClientPersona(); }} className="gap-1.5">
-                                <RefreshCw className="w-3.5 h-3.5" />
+                            <Button variant="ghost" size="sm" onClick={() => { fetchClientStats(); fetchClientPersona(); }} className="gap-1.5" aria-label="Actualiser les statistiques">
+                                <RefreshCw aria-hidden className="w-3.5 h-3.5" />
                             </Button>
                         </div>
                     </div>
@@ -3231,6 +3247,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                     customTypeLabel: t === "Autre" ? p.customTypeLabel : "",
                                                 }))
                                             }
+                                            aria-pressed={newSessionForm.type === t}
                                             className={cn(
                                                 "px-3 py-1.5 rounded-lg text-sm font-semibold border transition-all",
                                                 newSessionForm.type === t
@@ -3245,10 +3262,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             </div>
                             {newSessionForm.type === "Autre" && (
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs font-medium text-slate-600">
+                                    <label htmlFor={`${uid}-new-session-label`} className="text-xs font-medium text-slate-600">
                                         Nom de la session (obligatoire pour "Autre")
                                     </label>
                                     <input
+                                        id={`${uid}-new-session-label`}
                                         type="text"
                                         value={newSessionForm.customTypeLabel}
                                         onChange={(e) =>
@@ -3263,12 +3281,13 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
 
                         {/* Session date */}
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-700 block">Date de la session</label>
+                            <label htmlFor={`${uid}-new-session-date`} className="text-sm font-semibold text-slate-700 block">Date de la session</label>
                             <p className="text-xs text-slate-500 mb-1">
                                 Par défaut, on utilise la date de l&apos;enregistrement Leexi (ou la date du jour), mais vous
                                 pouvez la modifier ici.
                             </p>
                             <input
+                                id={`${uid}-new-session-date`}
                                 type="date"
                                 value={sessionDateInput}
                                 onChange={(e) => setSessionDateInput(e.target.value)}
@@ -3284,6 +3303,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             <div className="inline-flex rounded-full bg-slate-100 p-1 gap-1">
                                 <button
                                     onClick={() => setTranscriptMode("leexi")}
+                                    aria-pressed={transcriptMode === "leexi"}
                                     className={cn(
                                         "px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1",
                                         transcriptMode === "leexi"
@@ -3296,6 +3316,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 </button>
                                 <button
                                     onClick={() => setTranscriptMode("text")}
+                                    aria-pressed={transcriptMode === "text"}
                                     className={cn(
                                         "px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1",
                                         transcriptMode === "text"
@@ -3308,6 +3329,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 </button>
                                 <button
                                     onClick={() => setTranscriptMode("cr")}
+                                    aria-pressed={transcriptMode === "cr"}
                                     className={cn(
                                         "px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1",
                                         transcriptMode === "cr"
@@ -3353,6 +3375,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                             t.date ? t.date.slice(0, 10) : ""
                                                         )
                                                     }
+                                                    aria-pressed={newSessionForm.leexiId === t.id}
                                                     className={cn(
                                                         "w-full text-left p-3 rounded-xl border transition-all",
                                                         newSessionForm.leexiId === t.id
@@ -3388,8 +3411,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 </div>
                             ) : transcriptMode === "text" ? (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700">Transcription (texte)</label>
+                                    <label htmlFor={`${uid}-new-session-transcript`} className="text-sm font-semibold text-slate-700">Transcription (texte)</label>
                                     <textarea
+                                        id={`${uid}-new-session-transcript`}
                                         value={manualTranscript}
                                         onChange={(e) => setManualTranscript(e.target.value)}
                                         rows={8}
@@ -3404,10 +3428,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             ) : (
                                 <div className="space-y-3">
                                     <div>
-                                        <label className="text-sm font-semibold text-slate-700 block mb-1">
+                                        <label htmlFor={`${uid}-new-session-cr`} className="text-sm font-semibold text-slate-700 block mb-1">
                                             Compte rendu déjà préparé (markdown)
                                         </label>
                                         <textarea
+                                            id={`${uid}-new-session-cr`}
                                             value={manualCR}
                                             onChange={(e) => setManualCR(e.target.value)}
                                             rows={6}
@@ -3416,10 +3441,11 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-sm font-semibold text-slate-700 block mb-1">
+                                        <label htmlFor={`${uid}-new-session-email`} className="text-sm font-semibold text-slate-700 block mb-1">
                                             Mail de synthèse déjà préparé (optionnel)
                                         </label>
                                         <textarea
+                                            id={`${uid}-new-session-email`}
                                             value={manualSummaryEmail}
                                             onChange={(e) => setManualSummaryEmail(e.target.value)}
                                             rows={4}
@@ -3442,6 +3468,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                     setNewSessionForm(p => ({ ...p, notifyByEmail: !p.notifyByEmail }));
                                 }}
                                 disabled={!client?.email}
+                                role="switch"
+                                aria-checked={newSessionForm.notifyByEmail}
+                                aria-label="Envoyer le mail de synthèse automatiquement"
                                 className={cn(
                                     "w-10 h-6 rounded-full relative transition-colors shrink-0 mt-0.5",
                                     !client?.email
@@ -3515,6 +3544,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                         <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
                             <button
                                 onClick={() => setShowCRTab("cr")}
+                                aria-pressed={showCRTab === "cr"}
                                 className={cn("flex-1 py-2 text-sm font-semibold rounded-md transition-all",
                                     showCRTab === "cr" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
                                 )}
@@ -3523,6 +3553,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                             </button>
                             <button
                                 onClick={() => setShowCRTab("email")}
+                                aria-pressed={showCRTab === "email"}
                                 className={cn("flex-1 py-2 text-sm font-semibold rounded-md transition-all",
                                     showCRTab === "email" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
                                 )}
@@ -3587,8 +3618,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
             >
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Profil cible (ICP)</label>
+                        <label htmlFor={`${uid}-persona-icp`} className="block text-sm font-medium text-slate-700 mb-1.5">Profil cible (ICP)</label>
                         <textarea
+                            id={`${uid}-persona-icp`}
                             className="w-full min-h-[120px] px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="Ex: Directeurs commerciaux en PME B2B, 50–250 employés, secteur industrie ou services..."
                             value={personaValue}
@@ -3760,8 +3792,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{label}</p>
                                 <div className={cn("flex items-center justify-between p-3 border rounded-lg", mono ? "bg-orange-50 border-orange-200" : "bg-slate-50 border-slate-200")}>
                                     <span className={cn("text-sm font-medium select-all", mono ? "font-mono text-orange-900" : "text-slate-900")}>{value}</span>
-                                    <button onClick={() => { navigator.clipboard.writeText(value); success("Copié", ""); }} className={mono ? "text-orange-500 hover:text-orange-700" : "text-slate-400 hover:text-slate-600"}>
-                                        <Copy className="w-4 h-4" />
+                                    <button onClick={() => { navigator.clipboard.writeText(value); success("Copié", ""); }} aria-label={`Copier : ${label}`} className={mono ? "text-orange-500 hover:text-orange-700" : "text-slate-400 hover:text-slate-600"}>
+                                        <Copy aria-hidden className="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -3804,8 +3836,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                 <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
                                 <div className={cn("flex items-center justify-between p-3 border rounded-lg", mono ? "bg-orange-50 border-orange-200" : "bg-slate-50 border-slate-200")}>
                                     <span className={cn("text-sm font-medium select-all", mono ? "font-mono text-orange-900" : "text-slate-900")}>{value}</span>
-                                    <button onClick={() => { navigator.clipboard.writeText(value); success("Copié", ""); }} className={mono ? "text-orange-500 hover:text-orange-700" : "text-slate-400 hover:text-slate-600"}>
-                                        <Copy className="w-4 h-4" />
+                                    <button onClick={() => { navigator.clipboard.writeText(value); success("Copié", ""); }} aria-label={`Copier : ${label}`} className={mono ? "text-orange-500 hover:text-orange-700" : "text-slate-400 hover:text-slate-600"}>
+                                        <Copy aria-hidden className="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -3845,9 +3877,10 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                         </div>
                         <button
                             onClick={closeManageAccessDialog}
+                            aria-label="Fermer"
                             className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-200 rounded-md transition-colors"
                         >
-                            <XCircle className="w-5 h-5" />
+                            <XCircle aria-hidden className="w-5 h-5" />
                         </button>
                     </div>
 
@@ -3885,6 +3918,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                 <li key={u.id}>
                                                     <button
                                                         onClick={() => handleSelectAccessUser(u.id, "CLIENT_USER")}
+                                                        aria-current={isSelected || undefined}
                                                         className={cn(
                                                             "w-full text-left px-3 py-2 rounded-lg transition-all flex items-start gap-2.5",
                                                             isSelected
@@ -3932,6 +3966,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                 <li key={interl.portalUser.id}>
                                                     <button
                                                         onClick={() => handleSelectAccessUser(interl.portalUser!.id, "COMMERCIAL")}
+                                                        aria-current={isSelected || undefined}
                                                         className={cn(
                                                             "w-full text-left px-3 py-2 rounded-lg transition-all flex items-start gap-2.5",
                                                             isSelected
@@ -4037,8 +4072,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{label}</p>
                                                     <div className={cn("flex items-center justify-between p-3 border rounded-lg", mono ? "bg-orange-50 border-orange-200" : "bg-slate-50 border-slate-200")}>
                                                         <span className={cn("text-sm font-medium select-all", mono ? "font-mono text-orange-900" : "text-slate-900")}>{value}</span>
-                                                        <button onClick={() => { navigator.clipboard.writeText(value); success("Copié", ""); }} className={mono ? "text-orange-500 hover:text-orange-700" : "text-slate-400 hover:text-slate-600"}>
-                                                            <Copy className="w-4 h-4" />
+                                                        <button onClick={() => { navigator.clipboard.writeText(value); success("Copié", ""); }} aria-label={`Copier : ${label}`} className={mono ? "text-orange-500 hover:text-orange-700" : "text-slate-400 hover:text-slate-600"}>
+                                                            <Copy aria-hidden className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -4214,9 +4249,10 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                                                     </span>
                                                     <button
                                                         onClick={() => { navigator.clipboard.writeText(resetPasswordResult.password); success("Copié", ""); }}
+                                                        aria-label="Copier le nouveau mot de passe"
                                                         className="text-orange-500 hover:text-orange-700"
                                                     >
-                                                        <Copy className="w-4 h-4" />
+                                                        <Copy aria-hidden className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                                 <div className="flex justify-end">
@@ -4659,6 +4695,7 @@ function InterlocuteurModal({
                     <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Notes internes</h3>
                     <textarea
                         placeholder="Disponibilités, préférences de contact, contexte…"
+                        aria-label="Notes internes"
                         value={form.notes}
                         onChange={(e) => setForm(p => ({ ...p, notes: e.target.value }))}
                         rows={3}

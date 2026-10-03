@@ -193,6 +193,7 @@ export function ClientCalCredentials({ clientId }: { clientId: string }) {
                         value={newLogin}
                         onChange={(e) => setNewLogin(e.target.value)}
                         placeholder="agenda@client.com"
+                        aria-label="Identifiant"
                         className="w-full px-2.5 py-1.5 text-sm text-slate-900 bg-white border border-slate-200 rounded-lg outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
                     />
                 </div>
@@ -205,6 +206,7 @@ export function ClientCalCredentials({ clientId }: { clientId: string }) {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="••••••••"
+                        aria-label="Mot de passe"
                         className="w-full px-2.5 py-1.5 text-sm text-slate-900 bg-white border border-slate-200 rounded-lg outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
                     />
                 </div>
@@ -288,6 +290,7 @@ export function ClientCalCredentials({ clientId }: { clientId: string }) {
                                 }
                             }}
                             placeholder="Nouveau mot de passe"
+                            aria-label="Nouveau mot de passe"
                             className="flex-1 px-2.5 py-1.5 text-sm font-mono text-slate-900 bg-white border border-primary-400 rounded-lg outline-none focus:ring-2 focus:ring-primary-500/20"
                         />
                         <button

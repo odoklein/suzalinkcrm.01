@@ -127,8 +127,8 @@ export default function NewListPage() {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Link href="/manager/lists">
-                    <Button variant="ghost" size="sm">
-                        <ArrowLeft className="w-4 h-4" />
+                    <Button variant="ghost" size="sm" aria-label="Retour aux listes">
+                        <ArrowLeft aria-hidden className="w-4 h-4" />
                     </Button>
                 </Link>
                 <div>
@@ -155,10 +155,11 @@ export default function NewListPage() {
 
                     {/* List Name */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="new-list-name" className="block text-sm font-medium text-slate-700 mb-2">
                             Nom de la liste *
                         </label>
                         <input
+                            id="new-list-name"
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -185,10 +186,11 @@ export default function NewListPage() {
 
                     {/* Source */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="new-list-source" className="block text-sm font-medium text-slate-700 mb-2">
                             Source des données
                         </label>
                         <input
+                            id="new-list-source"
                             type="text"
                             value={formData.source}
                             onChange={(e) => setFormData(prev => ({ ...prev, source: e.target.value }))}

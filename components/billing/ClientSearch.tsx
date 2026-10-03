@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useId } from "react";
 import { Search, Building2, Loader2, Plus, MapPin, Hash, X, UserCheck, Users, Briefcase } from "lucide-react";
 import { Input, Button, useToast } from "@/components/ui";
 
@@ -60,6 +60,7 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
     const [isSavingLegal, setIsSavingLegal] = useState(false);
     const searchTimeoutRef = useRef<NodeJS.Timeout>();
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const fid = useId();
 
     const [manualClient, setManualClient] = useState<Partial<BillingClient>>({ ...LEGAL_FORM_INIT });
 
@@ -236,9 +237,10 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                 <div className="absolute top-3 right-3">
                     <button
                         onClick={() => onSelect(null as any)}
+                        aria-label="Retirer le client sélectionné"
                         className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white/60 transition-all duration-150"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-4 h-4" aria-hidden="true" />
                     </button>
                 </div>
                 <div className="flex items-start gap-4">
@@ -289,9 +291,10 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                             setSelectedCrmClient(null);
                             setLegalForm(LEGAL_FORM_INIT);
                         }}
+                        aria-label="Fermer"
                         className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white transition-all"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-4 h-4" aria-hidden="true" />
                     </button>
                 </div>
                 <p className="text-sm text-slate-600 mb-4">
@@ -299,16 +302,18 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                 </p>
                 <div className="space-y-3">
                     <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Nom légal *</label>
+                        <label htmlFor={`${fid}-legal-legal-name`} className="text-xs font-medium text-slate-500 mb-1 block">Nom légal *</label>
                         <Input
+                            id={`${fid}-legal-legal-name`}
                             placeholder="Raison sociale"
                             value={legalForm.legalName ?? ""}
                             onChange={(e) => setLegalForm({ ...legalForm, legalName: e.target.value })}
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Adresse *</label>
+                        <label htmlFor={`${fid}-legal-address`} className="text-xs font-medium text-slate-500 mb-1 block">Adresse *</label>
                         <Input
+                            id={`${fid}-legal-address`}
                             placeholder="123 rue de la Paix"
                             value={legalForm.address ?? ""}
                             onChange={(e) => setLegalForm({ ...legalForm, address: e.target.value })}
@@ -316,16 +321,18 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">Code postal *</label>
+                            <label htmlFor={`${fid}-legal-postal`} className="text-xs font-medium text-slate-500 mb-1 block">Code postal *</label>
                             <Input
+                                id={`${fid}-legal-postal`}
                                 placeholder="75001"
                                 value={legalForm.postalCode ?? ""}
                                 onChange={(e) => setLegalForm({ ...legalForm, postalCode: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">Ville *</label>
+                            <label htmlFor={`${fid}-legal-city`} className="text-xs font-medium text-slate-500 mb-1 block">Ville *</label>
                             <Input
+                                id={`${fid}-legal-city`}
                                 placeholder="Paris"
                                 value={legalForm.city ?? ""}
                                 onChange={(e) => setLegalForm({ ...legalForm, city: e.target.value })}
@@ -334,16 +341,18 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">SIRET</label>
+                            <label htmlFor={`${fid}-legal-siret`} className="text-xs font-medium text-slate-500 mb-1 block">SIRET</label>
                             <Input
+                                id={`${fid}-legal-siret`}
                                 placeholder="12345678901234"
                                 value={legalForm.siret ?? ""}
                                 onChange={(e) => setLegalForm({ ...legalForm, siret: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">TVA intracom.</label>
+                            <label htmlFor={`${fid}-legal-vat`} className="text-xs font-medium text-slate-500 mb-1 block">TVA intracom.</label>
                             <Input
+                                id={`${fid}-legal-vat`}
                                 placeholder="FR12345678901"
                                 value={legalForm.vatNumber ?? ""}
                                 onChange={(e) => setLegalForm({ ...legalForm, vatNumber: e.target.value })}
@@ -352,8 +361,9 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">Email</label>
+                            <label htmlFor={`${fid}-legal-email`} className="text-xs font-medium text-slate-500 mb-1 block">Email</label>
                             <Input
+                                id={`${fid}-legal-email`}
                                 type="email"
                                 placeholder="facturation@..."
                                 value={legalForm.email ?? ""}
@@ -361,8 +371,9 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">Téléphone</label>
+                            <label htmlFor={`${fid}-legal-phone`} className="text-xs font-medium text-slate-500 mb-1 block">Téléphone</label>
                             <Input
+                                id={`${fid}-legal-phone`}
                                 placeholder="+33..."
                                 value={legalForm.phone ?? ""}
                                 onChange={(e) => setLegalForm({ ...legalForm, phone: e.target.value })}
@@ -406,6 +417,7 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                 <button
                     type="button"
                     onClick={() => setSearchSource("our")}
+                    aria-pressed={searchSource === "our"}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                         searchSource === "our"
                             ? "bg-white text-primary-600 shadow-sm"
@@ -418,6 +430,7 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                 <button
                     type="button"
                     onClick={() => setSearchSource("pappers")}
+                    aria-pressed={searchSource === "pappers"}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                         searchSource === "pappers"
                             ? "bg-white text-primary-600 shadow-sm"
@@ -444,6 +457,7 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                     onFocus={() => {
                         if (hasResults) setShowResults(true);
                     }}
+                    aria-label={searchSource === "our" ? "Rechercher un client" : "Rechercher une entreprise"}
                     className="w-full pl-11 pr-10 py-3 border border-slate-200 rounded-xl bg-white text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all duration-200"
                 />
                 {isSearching && (
@@ -539,23 +553,26 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                         <h4 className="font-semibold text-slate-900">Nouveau client</h4>
                         <button
                             onClick={() => setShowManualForm(false)}
+                            aria-label="Fermer"
                             className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white transition-all"
                         >
-                            <X className="w-4 h-4" />
+                            <X className="w-4 h-4" aria-hidden="true" />
                         </button>
                     </div>
                     <div className="space-y-3">
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">Nom légal *</label>
+                            <label htmlFor={`${fid}-manual-legal-name`} className="text-xs font-medium text-slate-500 mb-1 block">Nom légal *</label>
                             <Input
+                                id={`${fid}-manual-legal-name`}
                                 placeholder="Entreprise SAS"
                                 value={manualClient.legalName}
                                 onChange={(e) => setManualClient({ ...manualClient, legalName: e.target.value })}
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-medium text-slate-500 mb-1 block">Adresse *</label>
+                            <label htmlFor={`${fid}-manual-address`} className="text-xs font-medium text-slate-500 mb-1 block">Adresse *</label>
                             <Input
+                                id={`${fid}-manual-address`}
                                 placeholder="123 rue de la Paix"
                                 value={manualClient.address}
                                 onChange={(e) => setManualClient({ ...manualClient, address: e.target.value })}
@@ -563,16 +580,18 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1 block">Code postal *</label>
+                                <label htmlFor={`${fid}-manual-postal`} className="text-xs font-medium text-slate-500 mb-1 block">Code postal *</label>
                                 <Input
+                                    id={`${fid}-manual-postal`}
                                     placeholder="75001"
                                     value={manualClient.postalCode}
                                     onChange={(e) => setManualClient({ ...manualClient, postalCode: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1 block">Ville *</label>
+                                <label htmlFor={`${fid}-manual-city`} className="text-xs font-medium text-slate-500 mb-1 block">Ville *</label>
                                 <Input
+                                    id={`${fid}-manual-city`}
                                     placeholder="Paris"
                                     value={manualClient.city}
                                     onChange={(e) => setManualClient({ ...manualClient, city: e.target.value })}
@@ -581,16 +600,18 @@ export function ClientSearch({ onSelect, selectedClient, allowManualEntry = true
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1 block">SIRET</label>
+                                <label htmlFor={`${fid}-manual-siret`} className="text-xs font-medium text-slate-500 mb-1 block">SIRET</label>
                                 <Input
+                                    id={`${fid}-manual-siret`}
                                     placeholder="12345678901234"
                                     value={manualClient.siret || ""}
                                     onChange={(e) => setManualClient({ ...manualClient, siret: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1 block">TVA intracom.</label>
+                                <label htmlFor={`${fid}-manual-vat`} className="text-xs font-medium text-slate-500 mb-1 block">TVA intracom.</label>
                                 <Input
+                                    id={`${fid}-manual-vat`}
                                     placeholder="FR12345678901"
                                     value={manualClient.vatNumber || ""}
                                     onChange={(e) => setManualClient({ ...manualClient, vatNumber: e.target.value })}

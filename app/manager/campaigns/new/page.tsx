@@ -394,10 +394,11 @@ export default function NewCampaignPage() {
                         />
 
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            <label htmlFor="campaign-name" className="block text-sm font-semibold text-slate-700 mb-2">
                                 Nom de la campagne *
                             </label>
                             <input
+                                id="campaign-name"
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -413,10 +414,11 @@ export default function NewCampaignPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            <label htmlFor="campaign-icp" className="block text-sm font-semibold text-slate-700 mb-2">
                                 ICP (Profil Client Idéal) *
                             </label>
                             <textarea
+                                id="campaign-icp"
                                 value={formData.icp}
                                 onChange={(e) => setFormData(prev => ({ ...prev, icp: e.target.value }))}
                                 placeholder="Ex: CEOs de startups B2B SaaS entre 10 et 50 employés en France."

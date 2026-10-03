@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import {
     Loader2,
     RefreshCw,
@@ -18,7 +18,7 @@ import {
     X,
     AlertTriangle,
 } from "lucide-react";
-import { Modal } from "@/components/ui";
+import { Modal, useConfirm } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { ACTION_RESULT_LABELS } from "@/lib/types";
 
@@ -367,6 +367,9 @@ export function ManagerCallEnrichmentSyncModal({
     onToast,
 }: ManagerCallEnrichmentSyncModalProps) {
     const allMissionsMode = !missionId;
+    const confirm = useConfirm();
+    const dateFromId = useId();
+    const dateToId = useId();
 
     // Date range
     const [datePreset, setDatePreset] = useState<DatePreset>("30d");
@@ -688,10 +691,11 @@ export function ManagerCallEnrichmentSyncModal({
                     {datePreset === "custom" && (
                         <div className="flex items-end gap-2">
                             <div>
-                                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block mb-1">
+                                <label htmlFor={dateFromId} className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block mb-1">
                                     Du
                                 </label>
                                 <input
+                                    id={dateFromId}
                                     type="date"
                                     value={dateFrom}
                                     max={dateTo || todayStr()}
@@ -707,10 +711,11 @@ export function ManagerCallEnrichmentSyncModal({
                                 />
                             </div>
                             <div>
-                                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block mb-1">
+                                <label htmlFor={dateToId} className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block mb-1">
                                     Au
                                 </label>
                                 <input
+                                    id={dateToId}
                                     type="date"
                                     value={dateTo}
                                     min={dateFrom}
@@ -981,6 +986,7 @@ export function ManagerCallEnrichmentSyncModal({
                                                             disabled={syncing}
                                                             onClick={() => runSync([row.id])}
                                                             title="Synchroniser cette ligne"
+                                                            aria-label="Synchroniser cette ligne"
                                                             className={cn(
                                                                 "opacity-0 group-hover:opacity-100 focus:opacity-100",
                                                                 "transition-opacity ml-auto shrink-0",
@@ -1048,11 +1054,12 @@ export function ManagerCallEnrichmentSyncModal({
                         <button
                             type="button"
                             disabled={syncing || items.length === 0}
-                            onClick={() => {
+                            onClick={async () => {
                                 if (
-                                    window.confirm(
-                                        `Synchroniser les ${items.length} actions (sélection ignorée) ?`,
-                                    )
+                                    await confirm({
+                                        title: `Synchroniser les ${items.length} actions (sélection ignorée) ?`,
+                                        confirmText: "Synchroniser",
+                                    })
                                 ) {
                                     void runSync(items.map((i) => i.id));
                                 }

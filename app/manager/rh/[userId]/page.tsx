@@ -246,7 +246,7 @@ export default function UserHrPage() {
                     }`}
                     style={{ height: `${Math.max(4, (m.totalAmountCents / maxTotal) * 100)}%` }}
                   />
-                  <span className="mt-1 block truncate text-center text-[9px] capitalize text-slate-400">
+                  <span className="mt-1 block truncate text-center text-3xs capitalize text-slate-400">
                     {new Date(`${m.month}-01T00:00:00Z`).toLocaleDateString("fr-FR", { month: "short", timeZone: "UTC" })}
                   </span>
                 </Link>

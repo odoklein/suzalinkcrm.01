@@ -71,11 +71,12 @@ export function SecretCard({
                         onClick={() => copy(secret.login, "login")}
                         className="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700"
                         title="Copier l'identifiant"
+                        aria-label="Copier l'identifiant"
                     >
                         {copied === "login" ? (
-                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                            <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
                         ) : (
-                            <Copy className="h-3.5 w-3.5" />
+                            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                         )}
                     </button>
                 </div>
@@ -90,19 +91,21 @@ export function SecretCard({
                         onClick={() => setVisible((v) => !v)}
                         className="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700"
                         title={visible ? "Masquer" : "Afficher"}
+                        aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                     >
-                        {visible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        {visible ? <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> : <Eye className="h-3.5 w-3.5" aria-hidden="true" />}
                     </button>
                     <button
                         type="button"
                         onClick={() => copy(secret.password, "password")}
                         className="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700"
                         title="Copier le mot de passe"
+                        aria-label="Copier le mot de passe"
                     >
                         {copied === "password" ? (
-                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                            <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
                         ) : (
-                            <Copy className="h-3.5 w-3.5" />
+                            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                         )}
                     </button>
                 </div>

@@ -18,6 +18,7 @@ import {
     Search,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { useConfirm } from "@/components/ui";
 
 // ============================================
 // TYPES
@@ -57,6 +58,7 @@ export default function SequencesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<"all" | "active" | "draft" | "paused">("all");
     const [search, setSearch] = useState("");
+    const confirm = useConfirm();
 
     // Fetch sequences
     useEffect(() => {
@@ -103,7 +105,7 @@ export default function SequencesPage() {
 
     // Delete sequence
     const handleDelete = async (sequenceId: string) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer cette séquence ?")) return;
+        if (!(await confirm({ title: "Supprimer cette séquence ?", message: "Cette action est irréversible.", variant: "danger", confirmText: "Supprimer" }))) return;
         
         try {
             await fetch(`/api/email/sequences/${sequenceId}`, { method: "DELETE" });
@@ -180,6 +182,7 @@ export default function SequencesPage() {
                         <button
                             key={option.value}
                             onClick={() => setFilter(option.value as typeof filter)}
+                            aria-pressed={filter === option.value}
                             className={cn(
                                 "px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
                                 filter === option.value
@@ -199,6 +202,7 @@ export default function SequencesPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Rechercher..."
+                            aria-label="Rechercher une séquence"
                             className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                     </div>
@@ -288,37 +292,42 @@ export default function SequencesPage() {
                                                 onClick={() => handleStatusChange(sequence.id, "PAUSED")}
                                                 className="p-2 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                                                 title="Mettre en pause"
+                                                aria-label="Mettre en pause"
                                             >
-                                                <Pause className="w-4 h-4" />
+                                                <Pause className="w-4 h-4" aria-hidden />
                                             </button>
                                         ) : sequence.status === "PAUSED" || sequence.status === "DRAFT" ? (
                                             <button
                                                 onClick={() => handleStatusChange(sequence.id, "ACTIVE")}
                                                 className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                                                 title="Activer"
+                                                aria-label="Activer"
                                             >
-                                                <Play className="w-4 h-4" />
+                                                <Play className="w-4 h-4" aria-hidden />
                                             </button>
                                         ) : null}
                                         <a
                                             href={`/manager/email/sequences/${sequence.id}`}
                                             className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                                             title="Modifier"
+                                            aria-label="Modifier la séquence"
                                         >
-                                            <Edit className="w-4 h-4" />
+                                            <Edit className="w-4 h-4" aria-hidden />
                                         </a>
                                         <button
                                             onClick={() => handleDelete(sequence.id)}
                                             className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                             title="Supprimer"
+                                            aria-label="Supprimer la séquence"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden />
                                         </button>
                                         <a
                                             href={`/manager/email/sequences/${sequence.id}`}
                                             className="p-2 text-slate-400 hover:text-slate-600 rounded-lg"
+                                            aria-label="Ouvrir la séquence"
                                         >
-                                            <ChevronRight className="w-4 h-4" />
+                                            <ChevronRight className="w-4 h-4" aria-hidden />
                                         </a>
                                     </div>
                                 </div>

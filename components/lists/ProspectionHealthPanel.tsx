@@ -14,6 +14,8 @@ import {
     ConfidenceBadge,
     ActivityScoreBar,
 } from "./ProspectionHealthBadge";
+import { FOCUS_RING } from "@/components/ui/recipes";
+import { pressable } from "@/lib/a11y";
 
 // ============================================
 // DATA FETCHING
@@ -249,8 +251,8 @@ export function ProspectionHealthPanel({
         <div className="space-y-4">
             {/* ── Header ── */}
             <div
-                className={`flex items-center justify-between ${collapsible ? "cursor-pointer" : ""}`}
-                onClick={toggleExpanded}
+                className={`flex items-center justify-between ${collapsible ? `cursor-pointer ${FOCUS_RING}` : ""}`}
+                {...(toggleExpanded ? { ...pressable(toggleExpanded), "aria-expanded": expanded } : {})}
             >
                 <div className="flex items-center gap-3">
                     <ProspectionHealthBadge

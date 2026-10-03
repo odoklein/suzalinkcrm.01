@@ -775,8 +775,9 @@ function ProjectSettings({ project, onUpdate }: { project: ProjectData; onUpdate
     return (
         <div className="max-w-xl space-y-6">
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nom du projet</label>
+                <label htmlFor="project-edit-name" className="block text-sm font-medium text-slate-700 mb-1">Nom du projet</label>
                 <input
+                    id="project-edit-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -784,8 +785,9 @@ function ProjectSettings({ project, onUpdate }: { project: ProjectData; onUpdate
                 />
             </div>
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                <label htmlFor="project-edit-description" className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
+                    id="project-edit-description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
@@ -794,8 +796,9 @@ function ProjectSettings({ project, onUpdate }: { project: ProjectData; onUpdate
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Couleur</label>
+                    <label htmlFor="project-edit-color" className="block text-sm font-medium text-slate-700 mb-1">Couleur</label>
                     <input
+                        id="project-edit-color"
                         type="color"
                         value={color}
                         onChange={(e) => setColor(e.target.value)}
@@ -803,8 +806,9 @@ function ProjectSettings({ project, onUpdate }: { project: ProjectData; onUpdate
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Statut</label>
+                    <label htmlFor="project-edit-status" className="block text-sm font-medium text-slate-700 mb-1">Statut</label>
                     <select
+                        id="project-edit-status"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"

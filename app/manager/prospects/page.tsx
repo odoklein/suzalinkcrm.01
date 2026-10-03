@@ -269,8 +269,9 @@ export default function ProspectsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => router.push(`/manager/prospects/${profile.id}`)}
+                    aria-label="Voir le prospect"
                 >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-4 h-4" aria-hidden />
                 </Button>
             ),
         },
@@ -402,6 +403,7 @@ export default function ProspectsPage() {
                             <input
                                 type="text"
                                 placeholder="Rechercher..."
+                                aria-label="Rechercher un prospect"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -455,16 +457,18 @@ export default function ProspectsPage() {
                                         size="sm"
                                         onClick={() => setPage(1)}
                                         disabled={page === 1}
+                                        aria-label="Première page"
                                     >
-                                        <ChevronsLeft className="w-4 h-4" />
+                                        <ChevronsLeft className="w-4 h-4" aria-hidden />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                                         disabled={page === 1}
+                                        aria-label="Page précédente"
                                     >
-                                        <ChevronLeft className="w-4 h-4" />
+                                        <ChevronLeft className="w-4 h-4" aria-hidden />
                                     </Button>
                                     <div className="flex items-center gap-1 px-2">
                                         {Array.from({ length: Math.min(5, Math.ceil(total / limit)) }, (_, i) => {
@@ -498,16 +502,18 @@ export default function ProspectsPage() {
                                         size="sm"
                                         onClick={() => setPage((p) => Math.min(Math.ceil(total / limit), p + 1))}
                                         disabled={page >= Math.ceil(total / limit)}
+                                        aria-label="Page suivante"
                                     >
-                                        <ChevronRight className="w-4 h-4" />
+                                        <ChevronRight className="w-4 h-4" aria-hidden />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setPage(Math.ceil(total / limit))}
                                         disabled={page >= Math.ceil(total / limit)}
+                                        aria-label="Dernière page"
                                     >
-                                        <ChevronsRight className="w-4 h-4" />
+                                        <ChevronsRight className="w-4 h-4" aria-hidden />
                                     </Button>
                                 </div>
                             </div>

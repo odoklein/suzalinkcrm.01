@@ -319,8 +319,9 @@ function ContextContent({
                         <button
                             onClick={() => onUpdate({ client: null })}
                             className="p-1 text-emerald-600 hover:bg-emerald-100 rounded"
+                            aria-label="Délier le client"
                         >
-                            <Unlink className="w-3 h-3" />
+                            <Unlink className="w-3 h-3" aria-hidden />
                         </button>
                     </div>
                     <p className="text-sm font-semibold text-emerald-900">{context.client.name}</p>
@@ -342,10 +343,11 @@ function ContextContent({
                                 if (e.key === 'Escape') setIsEditingClient(false);
                             }}
                             placeholder="Nom du client..."
+                            aria-label="Nom du client"
                             className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded-lg outline-none focus:border-emerald-500"
                         />
                         <button onClick={handleLinkClient} className="px-2 py-1 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700">OK</button>
-                        <button onClick={() => setIsEditingClient(false)} className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-lg"><X className="w-3 h-3" /></button>
+                        <button onClick={() => setIsEditingClient(false)} className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-lg" aria-label="Annuler"><X className="w-3 h-3" aria-hidden /></button>
                     </div>
                 </div>
             ) : (
@@ -369,8 +371,9 @@ function ContextContent({
                         <button
                             onClick={() => onUpdate({ mission: null })}
                             className="p-1 text-primary-600 hover:bg-primary-100 rounded"
+                            aria-label="Délier la mission"
                         >
-                            <Unlink className="w-3 h-3" />
+                            <Unlink className="w-3 h-3" aria-hidden />
                         </button>
                     </div>
                     <p className="text-sm font-semibold text-primary-900">{context.mission.name}</p>
@@ -390,10 +393,11 @@ function ContextContent({
                                 if (e.key === 'Escape') setIsEditingMission(false);
                             }}
                             placeholder="Nom de la mission..."
+                            aria-label="Nom de la mission"
                             className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded-lg outline-none focus:border-primary-500"
                         />
                         <button onClick={handleLinkMission} className="px-2 py-1 bg-primary-600 text-white text-xs rounded-lg hover:bg-primary-700">OK</button>
-                        <button onClick={() => setIsEditingMission(false)} className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-lg"><X className="w-3 h-3" /></button>
+                        <button onClick={() => setIsEditingMission(false)} className="px-2 py-1 text-slate-500 hover:bg-slate-200 rounded-lg" aria-label="Annuler"><X className="w-3 h-3" aria-hidden /></button>
                     </div>
                 </div>
             ) : (
@@ -501,17 +505,19 @@ function CommentsContent({
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Ajouter une note..."
+                        aria-label="Ajouter une note"
                         className="flex-1 px-3 py-2.5 text-sm text-slate-900 bg-white border border-slate-200 rounded-xl placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                     />
                     <button
                         type="submit"
                         disabled={!newComment.trim() || isSubmitting}
+                        aria-label="Ajouter la note"
                         className="p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         {isSubmitting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
                         ) : (
-                            <Send className="w-4 h-4" />
+                            <Send className="w-4 h-4" aria-hidden />
                         )}
                     </button>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { cn } from "@/lib/utils";
 import {
     FileText,
@@ -20,6 +20,7 @@ import {
     LayoutTemplate,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
+import { useConfirm, useOverlay } from "@/components/ui";
 import { SUPPORTED_TEMPLATE_VARIABLES } from "@/lib/email/constants";
 
 // Sample values for preview (no API call)
@@ -89,6 +90,8 @@ interface TemplateEditorProps {
 }
 
 function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
+    const panelRef = useOverlay<HTMLDivElement>({ open: true, onClose });
+    const fieldId = useId();
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"code" | "preview">("code");
@@ -152,14 +155,20 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
     return (
         <>
             <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-            <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-4xl bg-white shadow-2xl flex flex-col animate-slide-in-right">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={`${fieldId}-title`}
+                className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-4xl bg-white shadow-2xl flex flex-col animate-slide-in-right"
+            >
                 <form onSubmit={handleSubmit} className="flex flex-col h-full">
                     <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-primary-600">
-                        <h2 className="text-lg font-semibold text-white">
+                        <h2 id={`${fieldId}-title`} className="text-lg font-semibold text-white">
                             {template ? "Modifier le template" : "Nouveau template"}
                         </h2>
-                        <button type="button" onClick={onClose} className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors">
-                            <X className="w-5 h-5" />
+                        <button type="button" onClick={onClose} aria-label="Fermer" className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors">
+                            <X className="w-5 h-5" aria-hidden />
                         </button>
                     </div>
 
@@ -170,8 +179,9 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Nom du template *</label>
+                                <label htmlFor={`${fieldId}-name`} className="block text-sm font-medium text-slate-700 mb-1.5">Nom du template *</label>
                                 <input
+                                    id={`${fieldId}-name`}
                                     type="text"
                                     required
                                     value={form.name}
@@ -181,8 +191,9 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Catégorie</label>
+                                <label htmlFor={`${fieldId}-category`} className="block text-sm font-medium text-slate-700 mb-1.5">Catégorie</label>
                                 <select
+                                    id={`${fieldId}-category`}
                                     value={form.category}
                                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -204,8 +215,9 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                 </label>
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Sujet *</label>
+                                <label htmlFor={`${fieldId}-subject`} className="block text-sm font-medium text-slate-700 mb-1.5">Sujet *</label>
                                 <input
+                                    id={`${fieldId}-subject`}
                                     type="text"
                                     required
                                     value={form.subject}
@@ -240,6 +252,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab("code")}
+                                    aria-pressed={activeTab === "code"}
                                     className={cn(
                                         "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors",
                                         activeTab === "code" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
@@ -251,6 +264,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab("preview")}
+                                    aria-pressed={activeTab === "preview"}
                                     className={cn(
                                         "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors",
                                         activeTab === "preview" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
@@ -267,6 +281,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                         <button
                                             type="button"
                                             onClick={() => setBodyMode("text")}
+                                            aria-pressed={bodyMode === "text"}
                                             className={cn(
                                                 "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                                                 bodyMode === "text" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
@@ -277,6 +292,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                         <button
                                             type="button"
                                             onClick={() => setBodyMode("html")}
+                                            aria-pressed={bodyMode === "html"}
                                             className={cn(
                                                 "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                                                 bodyMode === "html" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
@@ -289,6 +305,7 @@ function TemplateEditor({ template, onClose, onSave }: TemplateEditorProps) {
                                         required
                                         value={form.bodyHtml}
                                         onChange={(e) => setForm({ ...form, bodyHtml: e.target.value })}
+                                        aria-label="Contenu de l'email"
                                         rows={bodyMode === "html" ? 20 : 14}
                                         className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500 resize-y min-h-[280px]"
                                         placeholder={bodyMode === "text"
@@ -352,6 +369,9 @@ export default function EmailTemplatesPage() {
     const [editorOpen, setEditorOpen] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
     const [previewTemplate, setPreviewTemplate] = useState<EmailTemplate | null>(null);
+    const confirm = useConfirm();
+    const previewTitleId = useId();
+    const previewRef = useOverlay<HTMLDivElement>({ open: !!previewTemplate, onClose: () => setPreviewTemplate(null) });
 
     const categories = [
         { value: "", label: "Toutes" },
@@ -397,7 +417,7 @@ export default function EmailTemplatesPage() {
 
     // Delete template
     const handleDelete = async (id: string) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer ce template ?")) return;
+        if (!(await confirm({ title: "Supprimer ce template ?", message: "Cette action est irréversible.", variant: "danger", confirmText: "Supprimer" }))) return;
 
         try {
             await fetch(`/api/email/templates/${id}`, { method: "DELETE" });
@@ -483,6 +503,7 @@ export default function EmailTemplatesPage() {
                         <button
                             key={cat.value}
                             onClick={() => setCategoryFilter(cat.value)}
+                            aria-pressed={categoryFilter === cat.value}
                             className={cn(
                                 "px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
                                 categoryFilter === cat.value
@@ -502,6 +523,7 @@ export default function EmailTemplatesPage() {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Rechercher..."
+                            aria-label="Rechercher un template"
                             className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                     </div>
@@ -559,22 +581,25 @@ export default function EmailTemplatesPage() {
                                             }}
                                             className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                             title="Modifier"
+                                            aria-label="Modifier le template"
                                         >
-                                            <Edit className="w-4 h-4" />
+                                            <Edit className="w-4 h-4" aria-hidden />
                                         </button>
                                         <button
                                             onClick={() => handleDuplicate(template)}
                                             className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                             title="Dupliquer"
+                                            aria-label="Dupliquer le template"
                                         >
-                                            <Copy className="w-4 h-4" />
+                                            <Copy className="w-4 h-4" aria-hidden />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(template.id)}
                                             className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                             title="Supprimer"
+                                            aria-label="Supprimer le template"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden />
                                         </button>
                                     </div>
                                 </div>
@@ -627,15 +652,22 @@ export default function EmailTemplatesPage() {
                 return (
                     <>
                         <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setPreviewTemplate(null)} />
-                        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col bg-white rounded-2xl shadow-2xl">
+                        <div
+                            ref={previewRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby={previewTitleId}
+                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col bg-white rounded-2xl shadow-2xl"
+                        >
                             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-                                <h3 className="text-lg font-semibold text-slate-900">Aperçu : {previewTemplate.name}</h3>
+                                <h3 id={previewTitleId} className="text-lg font-semibold text-slate-900">Aperçu : {previewTemplate.name}</h3>
                                 <button
                                     type="button"
                                     onClick={() => setPreviewTemplate(null)}
+                                    aria-label="Fermer"
                                     className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
-                                    <X className="w-5 h-5 text-slate-500" />
+                                    <X className="w-5 h-5 text-slate-500" aria-hidden />
                                 </button>
                             </div>
                             <div className="px-4 py-2 border-b border-slate-100 bg-slate-50 text-sm text-slate-600">

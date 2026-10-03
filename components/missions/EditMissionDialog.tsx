@@ -150,8 +150,9 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                 />
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Nom de la mission *</label>
+                    <label htmlFor="edit-mission-name" className="block text-sm font-medium text-slate-700 mb-2">Nom de la mission *</label>
                     <input
+                        id="edit-mission-name"
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
@@ -162,8 +163,9 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Objectif</label>
+                    <label htmlFor="edit-mission-objective" className="block text-sm font-medium text-slate-700 mb-2">Objectif</label>
                     <textarea
+                        id="edit-mission-objective"
                         value={formData.objective}
                         onChange={(e) => setFormData((prev) => ({ ...prev, objective: e.target.value }))}
                         placeholder="Ex: Générer 50 meetings qualifiés"
@@ -227,8 +229,9 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Date de début</label>
+                        <label htmlFor="edit-mission-start-date" className="block text-sm font-medium text-slate-700 mb-2">Date de début</label>
                         <input
+                            id="edit-mission-start-date"
                             type="date"
                             value={formData.startDate}
                             onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
@@ -236,8 +239,9 @@ export function EditMissionDialog({ isOpen, onClose, mission, onSaved }: EditMis
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Date de fin</label>
+                        <label htmlFor="edit-mission-end-date" className="block text-sm font-medium text-slate-700 mb-2">Date de fin</label>
                         <input
+                            id="edit-mission-end-date"
                             type="date"
                             value={formData.endDate}
                             onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}

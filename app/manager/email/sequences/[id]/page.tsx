@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useId } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +26,8 @@ import {
     AlertTriangle,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui";
+import { pressable } from "@/lib/a11y";
 
 // ============================================
 // TYPES
@@ -112,12 +114,14 @@ function StepEditor({
     isLast: boolean;
     isEditable: boolean;
 }) {
+    const fieldId = useId();
     return (
         <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
             {/* Step Header */}
             <div
-                className="flex items-center gap-3 px-4 py-3 bg-slate-50 cursor-pointer"
-                onClick={() => onChange({ isExpanded: !step.isExpanded })}
+                className="flex items-center gap-3 px-4 py-3 bg-slate-50 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+                {...pressable(() => onChange({ isExpanded: !step.isExpanded }))}
+                aria-expanded={step.isExpanded}
             >
                 {isEditable && (
                     <div className="flex items-center gap-1 text-slate-400">
@@ -125,15 +129,17 @@ function StepEditor({
                             onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
                             disabled={isFirst}
                             className="p-1 hover:bg-slate-200 rounded disabled:opacity-30"
+                            aria-label="Monter l'étape"
                         >
-                            <ChevronUp className="w-4 h-4" />
+                            <ChevronUp className="w-4 h-4" aria-hidden />
                         </button>
                         <button
                             onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
                             disabled={isLast}
                             className="p-1 hover:bg-slate-200 rounded disabled:opacity-30"
+                            aria-label="Descendre l'étape"
                         >
-                            <ChevronDown className="w-4 h-4" />
+                            <ChevronDown className="w-4 h-4" aria-hidden />
                         </button>
                     </div>
                 )}
@@ -164,8 +170,9 @@ function StepEditor({
                     <button
                         onClick={(e) => { e.stopPropagation(); onDelete(); }}
                         className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        aria-label="Supprimer l'étape"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden />
                     </button>
                 )}
                 
@@ -189,6 +196,7 @@ function StepEditor({
                                 min="0"
                                 value={step.delayDays}
                                 onChange={(e) => onChange({ delayDays: parseInt(e.target.value) || 0 })}
+                                aria-label="Délai en jours"
                                 disabled={!isEditable}
                                 className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center disabled:bg-slate-50"
                             />
@@ -199,6 +207,7 @@ function StepEditor({
                                 max="23"
                                 value={step.delayHours}
                                 onChange={(e) => onChange({ delayHours: parseInt(e.target.value) || 0 })}
+                                aria-label="Délai en heures"
                                 disabled={!isEditable}
                                 className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center disabled:bg-slate-50"
                             />
@@ -208,10 +217,11 @@ function StepEditor({
 
                     {/* Subject */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label htmlFor={`${fieldId}-subject`} className="block text-sm font-medium text-slate-700 mb-1.5">
                             Sujet
                         </label>
                         <input
+                            id={`${fieldId}-subject`}
                             type="text"
                             value={step.subject}
                             onChange={(e) => onChange({ subject: e.target.value })}
@@ -222,10 +232,11 @@ function StepEditor({
 
                     {/* Body */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label htmlFor={`${fieldId}-body`} className="block text-sm font-medium text-slate-700 mb-1.5">
                             Contenu de l'email
                         </label>
                         <textarea
+                            id={`${fieldId}-body`}
                             value={step.bodyHtml}
                             onChange={(e) => onChange({ bodyHtml: e.target.value })}
                             disabled={!isEditable}
@@ -491,11 +502,7 @@ export default function SequenceDetailPage({ params }: { params: Promise<{ id: s
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-96">
-                <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
-            </div>
-        );
+        return <LoadingState message="Chargement de la séquence…" />;
     }
 
     if (!sequence) {
@@ -534,8 +541,9 @@ export default function SequenceDetailPage({ params }: { params: Promise<{ id: s
                     <button
                         onClick={() => router.push("/manager/email/sequences")}
                         className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        aria-label="Retour aux séquences"
                     >
-                        <ArrowLeft className="w-5 h-5 text-slate-600" />
+                        <ArrowLeft className="w-5 h-5 text-slate-600" aria-hidden />
                     </button>
                     <div>
                         <div className="flex items-center gap-2">
@@ -647,6 +655,7 @@ export default function SequenceDetailPage({ params }: { params: Promise<{ id: s
             <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg w-fit">
                 <button
                     onClick={() => setActiveTab("steps")}
+                    aria-pressed={activeTab === "steps"}
                     className={cn(
                         "px-4 py-2 text-sm font-medium rounded-md transition-colors",
                         activeTab === "steps" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
@@ -656,6 +665,7 @@ export default function SequenceDetailPage({ params }: { params: Promise<{ id: s
                 </button>
                 <button
                     onClick={() => setActiveTab("enrollments")}
+                    aria-pressed={activeTab === "enrollments"}
                     className={cn(
                         "px-4 py-2 text-sm font-medium rounded-md transition-colors",
                         activeTab === "enrollments" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
@@ -665,6 +675,7 @@ export default function SequenceDetailPage({ params }: { params: Promise<{ id: s
                 </button>
                 <button
                     onClick={() => setActiveTab("settings")}
+                    aria-pressed={activeTab === "settings"}
                     className={cn(
                         "px-4 py-2 text-sm font-medium rounded-md transition-colors",
                         activeTab === "settings" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"

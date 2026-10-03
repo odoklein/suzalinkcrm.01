@@ -159,8 +159,8 @@ export default function EditListPage({ params }: { params: Promise<{ id: string 
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href={`/manager/lists/${listId}`}>
-                        <Button variant="ghost" size="sm">
-                            <ArrowLeft className="w-4 h-4" />
+                        <Button variant="ghost" size="sm" aria-label="Retour à la liste">
+                            <ArrowLeft aria-hidden className="w-4 h-4" />
                         </Button>
                     </Link>
                     <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center">
@@ -177,10 +177,11 @@ export default function EditListPage({ params }: { params: Promise<{ id: string 
             <Card>
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="edit-list-name" className="block text-sm font-medium text-slate-700 mb-2">
                             Nom de la liste *
                         </label>
                         <input
+                            id="edit-list-name"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -211,10 +212,11 @@ export default function EditListPage({ params }: { params: Promise<{ id: string 
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="edit-list-source" className="block text-sm font-medium text-slate-700 mb-2">
                             Source
                         </label>
                         <input
+                            id="edit-list-source"
                             type="text"
                             value={source}
                             onChange={(e) => setSource(e.target.value)}

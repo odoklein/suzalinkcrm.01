@@ -94,6 +94,7 @@ export function ExclusionActionPanel({
                                     type="button"
                                     disabled={unavailable}
                                     onClick={() => set({ target: option.value })}
+                                    aria-pressed={active}
                                     className={cn(
                                         "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all",
                                         active
@@ -128,6 +129,7 @@ export function ExclusionActionPanel({
                             value={state.reason}
                             onChange={(e) => set({ reason: e.target.value.slice(0, 500) })}
                             placeholder="Motif de l'exclusion (obligatoire)"
+                            aria-label="Motif de l'exclusion"
                             className={cn(
                                 "w-full rounded-lg border px-3 py-2 text-sm bg-white outline-none transition-all",
                                 state.reason.trim().length < 3
@@ -144,6 +146,7 @@ export function ExclusionActionPanel({
                                 key={option.value}
                                 type="button"
                                 onClick={() => set({ duration: option.value })}
+                                aria-pressed={state.duration === option.value}
                                 className={cn(
                                     "rounded-lg border px-2.5 py-1 text-xs transition-all",
                                     state.duration === option.value

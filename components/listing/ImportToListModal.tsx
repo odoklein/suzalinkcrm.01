@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button, Select, Input, useToast } from "@/components/ui";
+import { useState, useEffect, useId } from "react";
+import { Button, Select, Input, useToast, useOverlay } from "@/components/ui";
 import {
     X,
     List,
@@ -187,6 +187,9 @@ export function ImportToListModal({
         }
     };
 
+    const titleId = useId();
+    const panelRef = useOverlay<HTMLDivElement>({ open: isOpen, onClose });
+
     if (!isOpen) return null;
 
     const listOptions = [
@@ -217,7 +220,14 @@ export function ImportToListModal({
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
             {/* Modal */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden outline-none"
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
                     <div className="flex items-center gap-2.5">
@@ -225,12 +235,12 @@ export function ImportToListModal({
                             <List className="w-4.5 h-4.5 text-primary-600" />
                         </div>
                         <div>
-                            <h2 className="text-base font-semibold text-slate-900">Ajouter a une liste</h2>
+                            <h2 id={titleId} className="text-base font-semibold text-slate-900">Ajouter a une liste</h2>
                             <p className="text-xs text-slate-500">{results.length} societe(s) selectionnee(s)</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-                        <X className="w-4 h-4 text-slate-400" />
+                    <button onClick={onClose} aria-label="Fermer" className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                        <X className="w-4 h-4 text-slate-400" aria-hidden="true" />
                     </button>
                 </div>
 
@@ -240,6 +250,7 @@ export function ImportToListModal({
                     <div className="flex bg-slate-100 rounded-lg p-0.5">
                         <button
                             onClick={() => setMode("existing")}
+                            aria-pressed={mode === "existing"}
                             className={`flex-1 text-sm font-medium py-2 rounded-md transition-all ${
                                 mode === "existing"
                                     ? "bg-white text-slate-900 shadow-sm"
@@ -250,6 +261,7 @@ export function ImportToListModal({
                         </button>
                         <button
                             onClick={() => setMode("new")}
+                            aria-pressed={mode === "new"}
                             className={`flex-1 text-sm font-medium py-2 rounded-md transition-all flex items-center justify-center gap-1.5 ${
                                 mode === "new"
                                     ? "bg-white text-slate-900 shadow-sm"
@@ -279,8 +291,9 @@ export function ImportToListModal({
                     ) : (
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Nom de la liste</label>
+                                <label htmlFor="import-to-list-name" className="block text-sm font-medium text-slate-700 mb-1">Nom de la liste</label>
                                 <Input
+                                    id="import-to-list-name"
                                     placeholder="Ex: Leads Google Maps Paris"
                                     value={newListName}
                                     onChange={(e) => setNewListName(e.target.value)}

@@ -11,6 +11,9 @@ import { Drawer } from "@/components/ui/Drawer";
 import { AiMark } from "@/components/ui/AiMark";
 import { Tabs } from "@/components/ui/Tabs";
 import { Badge } from "@/components/ui/Badge";
+import { useConfirm } from "@/components/ui";
+import { FOCUS_RING } from "@/components/ui/recipes";
+import { pressable } from "@/lib/a11y";
 
 // ============================================
 // TYPES
@@ -88,6 +91,7 @@ export function TaskDetailDrawer({
     const [newSubtask, setNewSubtask] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [aiLoading, setAiLoading] = useState(false);
+    const confirm = useConfirm();
 
     const fetchTask = useCallback(async () => {
         if (!taskId) return;
@@ -204,7 +208,8 @@ export function TaskDetailDrawer({
     };
 
     const deleteTask = async () => {
-        if (!task || !confirm("Supprimer cette tâche ?")) return;
+        if (!task) return;
+        if (!(await confirm({ title: "Supprimer cette tâche ?", variant: "danger", confirmText: "Supprimer" }))) return;
         try {
             await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
             onUpdate();
@@ -307,6 +312,7 @@ export function TaskDetailDrawer({
                         {/* Status & Priority row */}
                         <div className="flex items-center gap-2 mb-3">
                             <select
+                                aria-label="Statut"
                                 value={task.status}
                                 onChange={(e) => updateTask({ status: e.target.value })}
                                 className={cn(
@@ -319,6 +325,7 @@ export function TaskDetailDrawer({
                                 ))}
                             </select>
                             <select
+                                aria-label="Priorité"
                                 value={task.priority}
                                 onChange={(e) => updateTask({ priority: e.target.value })}
                                 className={cn(
@@ -341,16 +348,17 @@ export function TaskDetailDrawer({
                         {editingTitle ? (
                             <input
                                 autoFocus
+                                aria-label="Titre de la tâche"
                                 value={titleValue}
                                 onChange={(e) => setTitleValue(e.target.value)}
                                 onBlur={saveTitle}
                                 onKeyDown={(e) => e.key === "Enter" && saveTitle()}
-                                className="w-full text-lg font-semibold text-slate-900 bg-transparent border-b-2 border-primary-400 outline-none pb-1"
+                                className="w-full text-lg font-semibold text-slate-900 bg-transparent border-b-2 border-primary-400 outline-none focus-visible:ring-2 focus-visible:ring-focus pb-1"
                             />
                         ) : (
                             <h2
-                                onClick={() => setEditingTitle(true)}
-                                className="text-lg font-semibold text-slate-900 cursor-text hover:text-primary-700 transition-colors"
+                                {...pressable(() => setEditingTitle(true))}
+                                className={cn("text-lg font-semibold text-slate-900 cursor-text hover:text-primary-700 transition-colors", FOCUS_RING)}
                             >
                                 {task.title}
                             </h2>
@@ -373,6 +381,7 @@ export function TaskDetailDrawer({
                                         <User className="w-4 h-4" /> Assigné à
                                     </span>
                                     <select
+                                        aria-label="Assigné à"
                                         value={task.assignee?.id || ""}
                                         onChange={(e) => updateTask({ assigneeId: e.target.value || null })}
                                         className="text-sm text-slate-700 bg-transparent border border-slate-200 rounded-md px-2 py-1 cursor-pointer"
@@ -391,6 +400,7 @@ export function TaskDetailDrawer({
                                     </span>
                                     <input
                                         type="date"
+                                        aria-label="Échéance"
                                         value={task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""}
                                         onChange={(e) => updateTask({ dueDate: e.target.value || null })}
                                         className="text-sm text-slate-700 bg-transparent border border-slate-200 rounded-md px-2 py-1"
@@ -405,6 +415,7 @@ export function TaskDetailDrawer({
                                     <div className="flex items-center gap-1">
                                         <input
                                             type="number"
+                                            aria-label="Estimation (heures)"
                                             step="0.5"
                                             min="0"
                                             value={task.estimatedHours ?? ""}
@@ -476,6 +487,7 @@ export function TaskDetailDrawer({
                                         <div>
                                             <textarea
                                                 autoFocus
+                                                aria-label="Description"
                                                 rows={6}
                                                 value={descValue}
                                                 onChange={(e) => setDescValue(e.target.value)}
@@ -498,9 +510,10 @@ export function TaskDetailDrawer({
                                         </div>
                                     ) : (
                                         <div
-                                            onClick={() => setEditingDesc(true)}
+                                            {...pressable(() => setEditingDesc(true))}
                                             className={cn(
                                                 "text-sm rounded-lg p-3 cursor-text min-h-[60px] border border-transparent hover:border-slate-200",
+                                                FOCUS_RING,
                                                 task.description ? "text-slate-700 whitespace-pre-wrap" : "text-slate-400 italic"
                                             )}
                                         >
@@ -537,6 +550,9 @@ export function TaskDetailDrawer({
                                     >
                                         <button
                                             onClick={() => toggleSubtask(sub.id, sub.status)}
+                                            role="checkbox"
+                                            aria-checked={sub.status === "DONE"}
+                                            aria-label={sub.title}
                                             className={cn(
                                                 "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
                                                 sub.status === "DONE"
@@ -544,7 +560,7 @@ export function TaskDetailDrawer({
                                                     : "border-slate-300 hover:border-primary-400"
                                             )}
                                         >
-                                            {sub.status === "DONE" && <Check className="w-3 h-3" />}
+                                            {sub.status === "DONE" && <Check className="w-3 h-3" aria-hidden="true" />}
                                         </button>
                                         <span className={cn(
                                             "text-sm flex-1",
@@ -565,15 +581,17 @@ export function TaskDetailDrawer({
                                         value={newSubtask}
                                         onChange={(e) => setNewSubtask(e.target.value)}
                                         onKeyDown={(e) => e.key === "Enter" && addSubtask()}
+                                        aria-label="Nouvelle sous-tâche"
                                         placeholder="Ajouter une sous-tâche..."
                                         className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-primary-400"
                                     />
                                     <button
                                         onClick={addSubtask}
                                         disabled={!newSubtask.trim() || submitting}
+                                        aria-label="Ajouter la sous-tâche"
                                         className="px-3 py-2 text-sm font-medium bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
                                     >
-                                        <Plus className="w-4 h-4" />
+                                        <Plus className="w-4 h-4" aria-hidden="true" />
                                     </button>
                                 </div>
 
@@ -626,6 +644,7 @@ export function TaskDetailDrawer({
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder="Écrire un commentaire..."
+                                        aria-label="Nouveau commentaire"
                                         className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-primary-400 resize-none"
                                     />
                                     <button

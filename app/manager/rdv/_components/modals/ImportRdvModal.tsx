@@ -253,8 +253,9 @@ export function ImportRdvModal({ isOpen, onClose, onSuccess }: ImportRdvModalPro
             {step === 1 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Mission *</label>
+                  <label htmlFor="import-rdv-mission" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Mission *</label>
                   <select
+                    id="import-rdv-mission"
                     className="rdv-input"
                     style={{ width: "100%" }}
                     value={missionId}
@@ -267,8 +268,9 @@ export function ImportRdvModal({ isOpen, onClose, onSuccess }: ImportRdvModalPro
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Liste (optionnel)</label>
+                  <label htmlFor="import-rdv-list" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Liste (optionnel)</label>
                   <select
+                    id="import-rdv-list"
                     className="rdv-input"
                     style={{ width: "100%" }}
                     value={listId}
@@ -282,8 +284,9 @@ export function ImportRdvModal({ isOpen, onClose, onSuccess }: ImportRdvModalPro
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Fichier CSV *</label>
+                  <label htmlFor="import-rdv-file" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Fichier CSV *</label>
                   <input
+                    id="import-rdv-file"
                     type="file"
                     accept=".csv,.txt"
                     className="rdv-input"
@@ -344,10 +347,11 @@ export function ImportRdvModal({ isOpen, onClose, onSuccess }: ImportRdvModalPro
                   Dates acceptées : JJ/MM/AAAA (ou avec point ou tiret), AAAA-MM-JJ, ou numéro Excel (ex. 45321). Si seulement 3 lignes sur 9 passent, vérifiez la liste cible et l’option « Créer contact + société ».
                 </p>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 4 }}>
+                  <label htmlFor="import-rdv-missing" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 4 }}>
                     Contacts / sociétés introuvables
                   </label>
                   <select
+                    id="import-rdv-missing"
                     className="rdv-input"
                     style={{ width: "100%" }}
                     value={missingEntityHandling}

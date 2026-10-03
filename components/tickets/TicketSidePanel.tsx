@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Check, CalendarDays, User2, Building2, Globe2, ShieldCheck, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button, Input, Modal, ModalFooter, useToast } from "@/components/ui";
@@ -21,6 +21,7 @@ export function TicketSidePanel({ ticket, currentUserId, isManager, onRefresh }:
 
     const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
     const [blockReason, setBlockReason] = useState("");
+    const blockReasonId = useId();
 
     const canChangeStatus = isManager || ticket.assignee?.id === currentUserId;
     const nextStatuses = TICKET_STATUS_TRANSITIONS[ticket.status] ?? [];
@@ -247,10 +248,11 @@ export function TicketSidePanel({ ticket, currentUserId, isManager, onRefresh }:
                 size="sm"
             >
                 <div className="space-y-3">
-                    <label className="block text-sm font-medium text-slate-700">
+                    <label htmlFor={blockReasonId} className="block text-sm font-medium text-slate-700">
                         Motif du blocage <span className="text-red-500">*</span>
                     </label>
                     <textarea
+                        id={blockReasonId}
                         value={blockReason}
                         onChange={(e) => setBlockReason(e.target.value)}
                         rows={3}
@@ -282,6 +284,7 @@ function PublicationSection({ ticket, onRefresh }: { ticket: TicketDetail; onRef
     const [publicTitle, setPublicTitle] = useState(ticket.publicTitle ?? "");
     const [publicDescription, setPublicDescription] = useState(ticket.publicDescription ?? "");
     const [isSaving, setIsSaving] = useState(false);
+    const publicDescriptionId = useId();
 
     useEffect(() => {
         setPublicTitle(ticket.publicTitle ?? "");
@@ -323,8 +326,9 @@ function PublicationSection({ ticket, onRefresh }: { ticket: TicketDetail; onRef
                 placeholder="Ex : Amélioration de la fiabilité des synchronisations"
             />
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Description publique</label>
+                <label htmlFor={publicDescriptionId} className="block text-sm font-medium text-slate-700 mb-1.5">Description publique</label>
                 <textarea
+                    id={publicDescriptionId}
                     value={publicDescription}
                     onChange={(event) => setPublicDescription(event.target.value)}
                     rows={3}

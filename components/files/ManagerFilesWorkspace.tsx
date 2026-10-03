@@ -3,6 +3,7 @@
 import {
   useDeferredValue,
   useEffect,
+  useId,
   useMemo,
   useState,
 } from "react";
@@ -626,6 +627,8 @@ export default function ManagerFilesWorkspace() {
   const driveFiles = driveFilesQuery.data?.files ?? [];
 
   const bulkMoveDisabled = activeTab !== "crm" || selectionCount === 0;
+  const clientFilterId = useId();
+  const shareClientSelectId = useId();
 
   return (
     <div className="space-y-6 rounded-[28px] border border-slate-200/70 bg-slate-50 p-4 sm:p-6">
@@ -731,6 +734,7 @@ export default function ManagerFilesWorkspace() {
               <button
                 type="button"
                 onClick={() => setActiveTab("crm")}
+                aria-pressed={activeTab === "crm"}
                 className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium ${
                   activeTab === "crm"
                     ? "border-slate-900 bg-slate-900 text-white"
@@ -745,6 +749,7 @@ export default function ManagerFilesWorkspace() {
               <button
                 type="button"
                 onClick={() => driveStatusQuery.data?.connected && setActiveTab("drive")}
+                aria-pressed={activeTab === "drive"}
                 disabled={!driveStatusQuery.data?.connected}
                 className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium ${
                   activeTab === "drive"
@@ -811,6 +816,7 @@ export default function ManagerFilesWorkspace() {
                     <button
                       type="button"
                       aria-pressed={selectedFolders.includes(folder.id)}
+                      aria-label={`Sélectionner le dossier ${folder.name}`}
                       onClick={() =>
                         setSelectedFolders((current) =>
                           current.includes(folder.id)
@@ -824,7 +830,7 @@ export default function ManagerFilesWorkspace() {
                           : "border-slate-300 bg-white text-transparent"
                       }`}
                     >
-                      <Tag className="h-3 w-3" />
+                      <Tag className="h-3 w-3" aria-hidden />
                     </button>
                   </div>
                 ))}
@@ -874,10 +880,11 @@ export default function ManagerFilesWorkspace() {
             extra={
               activeTab === "crm" ? (
                 <div className="space-y-1">
-                  <label className="block text-xs font-medium text-slate-500">
+                  <label htmlFor={clientFilterId} className="block text-xs font-medium text-slate-500">
                     Client
                   </label>
                   <select
+                    id={clientFilterId}
                     value={clientFilter}
                     onChange={(event) => setClientFilter(event.target.value)}
                     className="h-[42px] rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
@@ -1449,6 +1456,7 @@ export default function ManagerFilesWorkspace() {
           <button
             type="button"
             onClick={() => setMoveDestination(null)}
+            aria-pressed={moveDestination === null}
             className={`w-full rounded-xl border px-3 py-2 text-left ${
               moveDestination === null ? "border-primary-600 bg-primary-50" : "border-slate-200"
             }`}
@@ -1460,6 +1468,7 @@ export default function ManagerFilesWorkspace() {
               key={folder.id}
               type="button"
               onClick={() => setMoveDestination(folder.id)}
+              aria-pressed={moveDestination === folder.id}
               className={`w-full rounded-xl border px-3 py-2 text-left ${
                 moveDestination === folder.id
                   ? "border-primary-600 bg-primary-50"
@@ -1487,10 +1496,11 @@ export default function ManagerFilesWorkspace() {
         description="Le fichier apparaîtra dans le portail du client choisi."
       >
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-slate-700">
+          <label htmlFor={shareClientSelectId} className="block text-sm font-medium text-slate-700">
             Client
           </label>
           <select
+            id={shareClientSelectId}
             value={shareClientId}
             onChange={(event) => setShareClientId(event.target.value)}
             className="h-[42px] w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
@@ -1567,6 +1577,7 @@ function TagEditor({
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Ex: contrat, urgent, Q3"
+        aria-label="Tags"
         disabled={disabled}
       />
       <Button

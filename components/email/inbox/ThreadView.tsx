@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useId } from "react";
 import { cn } from "@/lib/utils";
 import {
     X,
@@ -23,6 +23,7 @@ import {
     Paperclip,
 } from "lucide-react";
 import { AiMark } from "@/components/ui/AiMark";
+import { useOverlay } from "@/components/ui";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -158,19 +159,28 @@ function DeleteConfirmDialog({
     onConfirm: () => void;
     onCancel: () => void;
 }) {
+    const panelRef = useOverlay<HTMLDivElement>({ open: true, onClose: onCancel });
+    const titleId = useId();
     return (
         <>
             <div
                 className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 animate-in fade-in duration-150"
                 onClick={onCancel}
             />
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[380px] animate-in zoom-in-95 fade-in duration-200">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[380px] animate-in zoom-in-95 fade-in duration-200"
+            >
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                        <Trash2 className="w-5 h-5 text-red-500" />
+                        <Trash2 className="w-5 h-5 text-red-500" aria-hidden />
                     </div>
                     <div>
-                        <h3 className="text-[15px] font-semibold text-slate-900">
+                        <h3 id={titleId} className="text-[15px] font-semibold text-slate-900">
                             Supprimer cette conversation ?
                         </h3>
                         <p className="text-sm text-slate-500">
@@ -471,30 +481,34 @@ export function ThreadView({
                                     : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                             )}
                             title={thread.isStarred ? "Retirer des favoris" : "Ajouter aux favoris"}
+                            aria-label={thread.isStarred ? "Retirer des favoris" : "Ajouter aux favoris"}
                         >
-                            <Star className={cn("w-[18px] h-[18px]", thread.isStarred && "fill-current")} />
+                            <Star className={cn("w-[18px] h-[18px]", thread.isStarred && "fill-current")} aria-hidden />
                         </button>
                         <button
                             onClick={handleArchive}
                             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all duration-200"
                             title="Archiver"
+                            aria-label="Archiver"
                         >
-                            <Archive className="w-[18px] h-[18px]" />
+                            <Archive className="w-[18px] h-[18px]" aria-hidden />
                         </button>
                         <button
                             onClick={() => setShowDeleteConfirm(true)}
                             className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
                             title="Supprimer"
+                            aria-label="Supprimer"
                         >
-                            <Trash2 className="w-[18px] h-[18px]" />
+                            <Trash2 className="w-[18px] h-[18px]" aria-hidden />
                         </button>
                         <div className="w-px h-5 bg-slate-200 mx-1" />
                         <button
                             onClick={onClose}
                             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all duration-200"
                             title="Fermer"
+                            aria-label="Fermer"
                         >
-                            <X className="w-[18px] h-[18px]" />
+                            <X className="w-[18px] h-[18px]" aria-hidden />
                         </button>
                     </div>
                 </div>
@@ -532,16 +546,18 @@ export function ThreadView({
                         </button>
                         <button
                             onClick={handleReplyAll}
+                            aria-label="Répondre à tous"
                             className="flex items-center gap-2 px-4 py-2.5 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-100 transition-all duration-200"
                         >
-                            <ReplyAll className="w-4 h-4" />
+                            <ReplyAll className="w-4 h-4" aria-hidden />
                             <span className="hidden sm:inline">Répondre à tous</span>
                         </button>
                         <button
                             onClick={handleForward}
+                            aria-label="Transférer"
                             className="flex items-center gap-2 px-4 py-2.5 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-100 transition-all duration-200"
                         >
-                            <Forward className="w-4 h-4" />
+                            <Forward className="w-4 h-4" aria-hidden />
                             <span className="hidden sm:inline">Transférer</span>
                         </button>
                     </div>
@@ -611,6 +627,7 @@ function EmailMessage({
             {/* Header */}
             <button
                 onClick={onToggle}
+                aria-expanded={isExpanded}
                 className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-slate-50/50 transition-colors text-left"
             >
                 {/* Avatar */}

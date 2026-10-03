@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Search, Command, Target, User, Calendar, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useOverlay } from "@/components/ui/useOverlay";
 import { usePermissions } from "@/lib/permissions/PermissionProvider";
 import type { NavSection } from "@/lib/navigation/config";
 
@@ -70,6 +71,8 @@ export function GlobalSearchModal({ open, onClose, navigation }: GlobalSearchMod
     const [meetings, setMeetings] = useState<SearchResultItem[]>([]);
     const [loading, setLoading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    // Escape (top layer only), Tab kept inside, focus back to the opener on close.
+    const dialogRef = useOverlay<HTMLDivElement>({ open, onClose });
     const listRef = useRef<HTMLDivElement>(null);
 
     const userRole = session?.user?.role as string | undefined;
@@ -286,10 +289,6 @@ export function GlobalSearchModal({ open, onClose, navigation }: GlobalSearchMod
     useEffect(() => {
         if (!open) return;
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                onClose();
-                return;
-            }
             if (e.key === "ArrowDown") {
                 e.preventDefault();
                 setSelectedIndex((prev) => (prev + 1) % Math.max(1, totalItems));
@@ -322,15 +321,17 @@ export function GlobalSearchModal({ open, onClose, navigation }: GlobalSearchMod
     return (
         <>
             <div
-                className="fixed inset-0 bg-black/40 z-[100] backdrop-blur-sm"
+                className="fixed inset-0 bg-ink/40 z-[100] backdrop-blur-sm animate-in fade-in duration-150"
                 aria-hidden
                 onClick={onClose}
             />
             <div
+                ref={dialogRef}
+                tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-label="Recherche rapide"
-                className="fixed left-1/2 top-[20%] -translate-x-1/2 z-[101] w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+                className="fixed left-1/2 top-[12%] sm:top-[20%] -translate-x-1/2 z-[101] w-[calc(100%-2rem)] max-w-xl bg-surface rounded-2xl shadow-overlay border border-line overflow-hidden outline-none animate-in fade-in zoom-in-95 duration-150"
             >
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
                     <Search className="w-5 h-5 text-slate-400 shrink-0" />

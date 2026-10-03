@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useId } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { MailboxSwitcher, type MailboxData } from "./MailboxSwitcher";
@@ -22,6 +22,7 @@ import {
     X,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { useOverlay } from "@/components/ui";
 
 // ============================================
 // TYPES
@@ -79,8 +80,9 @@ function ToastContainer({
                     <button
                         onClick={() => onDismiss(toast.id)}
                         className="p-0.5 rounded-md hover:bg-black/5 transition-colors flex-shrink-0"
+                        aria-label="Fermer la notification"
                     >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-3.5 h-3.5" aria-hidden />
                     </button>
                 </div>
             ))}
@@ -212,6 +214,7 @@ export function InboxLayout({
                 e.preventDefault();
                 handleCompose();
             } else if (e.key === 'Escape') {
+                if (e.defaultPrevented) return; // an open dialog already handled it
                 if (isComposerOpen) {
                     // Let composer handle its own close (with discard check)
                 } else if (selectedThread) {
@@ -289,6 +292,9 @@ export function InboxLayout({
         fetchMailboxes();
         addToast("success", "Boîte mail connectée");
     }, [fetchMailboxes, addToast]);
+
+    const shortcutsRef = useOverlay<HTMLDivElement>({ open: showShortcuts, onClose: () => setShowShortcuts(false) });
+    const shortcutsTitleId = useId();
 
     const containerHeight = standalone ? "h-screen" : "h-[calc(100vh-8rem)]";
 
@@ -382,12 +388,13 @@ export function InboxLayout({
                         <button
                             onClick={handleCloseThread}
                             className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 transition-colors lg:hidden"
+                            aria-label="Retour à la liste"
                         >
-                            <ArrowLeft className="w-4 h-4" />
+                            <ArrowLeft className="w-4 h-4" aria-hidden />
                         </button>
                     ) : standalone ? (
-                        <Link href={showTeamInbox ? "/manager/dashboard" : "/sdr"} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 transition-colors">
-                            <ArrowLeft className="w-4 h-4" />
+                        <Link href={showTeamInbox ? "/manager/dashboard" : "/sdr"} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 transition-colors" aria-label="Retour">
+                            <ArrowLeft className="w-4 h-4" aria-hidden />
                         </Link>
                     ) : null}
                     <div className="flex items-center gap-2.5">
@@ -404,11 +411,12 @@ export function InboxLayout({
                         onClick={() => setIsLeftPanelCollapsed(!isLeftPanelCollapsed)}
                         className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors mr-2 hidden lg:flex"
                         title={isLeftPanelCollapsed ? "Afficher les dossiers" : "Masquer les dossiers"}
+                        aria-label={isLeftPanelCollapsed ? "Afficher les dossiers" : "Masquer les dossiers"}
                     >
                         {isLeftPanelCollapsed ? (
-                            <PanelLeftOpen className="w-4 h-4" />
+                            <PanelLeftOpen className="w-4 h-4" aria-hidden />
                         ) : (
-                            <PanelLeftClose className="w-4 h-4" />
+                            <PanelLeftClose className="w-4 h-4" aria-hidden />
                         )}
                     </button>
                     <h1 className="text-sm font-semibold text-slate-700">
@@ -425,15 +433,17 @@ export function InboxLayout({
                         disabled={isSyncing}
                         className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50"
                         title="Synchroniser"
+                        aria-label="Synchroniser"
                     >
-                        <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
+                        <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} aria-hidden />
                     </button>
                     <button
                         onClick={() => setShowShortcuts(s => !s)}
                         className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors hidden sm:flex"
                         title="Raccourcis clavier (Shift+?)"
+                        aria-label="Raccourcis clavier"
                     >
-                        <Keyboard className="w-4 h-4" />
+                        <Keyboard className="w-4 h-4" aria-hidden />
                     </button>
                 </div>
             </header>
@@ -556,8 +566,15 @@ export function InboxLayout({
                         className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 animate-in fade-in duration-200"
                         onClick={() => setShowShortcuts(false)}
                     />
-                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[380px] max-w-[calc(100vw-2rem)] animate-in zoom-in-95 fade-in duration-200">
-                        <h3 className="text-lg font-semibold text-slate-900 mb-4">Raccourcis clavier</h3>
+                    <div
+                        ref={shortcutsRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby={shortcutsTitleId}
+                        tabIndex={-1}
+                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[380px] max-w-[calc(100vw-2rem)] animate-in zoom-in-95 fade-in duration-200"
+                    >
+                        <h3 id={shortcutsTitleId} className="text-lg font-semibold text-slate-900 mb-4">Raccourcis clavier</h3>
                         <div className="space-y-3">
                             {[
                                 { key: "C", desc: "Nouveau message" },

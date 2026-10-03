@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useToast } from "@/components/ui";
+import { useState, useEffect, useCallback, useId } from "react";
+import { useToast, useConfirm, useOverlay } from "@/components/ui";
 import {
     Tag,
     Plus,
@@ -32,6 +32,7 @@ const STATUT_LABEL: Record<string, string> = {
 
 export default function OffresPage() {
     const { success, error: showError } = useToast();
+    const confirm = useConfirm();
     const [offres, setOffres] = useState<OffreTarif[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showArchived, setShowArchived] = useState(false);
@@ -87,6 +88,8 @@ export default function OffresPage() {
         setShowModal(false);
         setEditingId(null);
     };
+    const modalTitleId = useId();
+    const modalRef = useOverlay<HTMLDivElement>({ open: showModal, onClose: closeModal });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -145,7 +148,7 @@ export default function OffresPage() {
     };
 
     const handleArchive = async (id: string) => {
-        if (!confirm("Archiver cette offre ? Les engagements existants restent inchangés.")) return;
+        if (!(await confirm({ title: "Archiver cette offre ?", message: "Les engagements existants restent inchangés.", variant: "warning", confirmText: "Archiver" }))) return;
         setArchivingId(id);
         try {
             const res = await fetch(`/api/billing/offres/${id}`, {
@@ -256,9 +259,10 @@ export default function OffresPage() {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => openEdit(o)}
+                                                    aria-label="Modifier l'offre"
                                                     className="text-slate-600"
                                                 >
-                                                    <Edit2 className="w-4 h-4" />
+                                                    <Edit2 className="w-4 h-4" aria-hidden />
                                                 </Button>
                                                 {o.statut === "ACTIF" && (
                                                     <Button
@@ -266,12 +270,13 @@ export default function OffresPage() {
                                                         size="sm"
                                                         onClick={() => handleArchive(o.id)}
                                                         disabled={archivingId === o.id}
+                                                        aria-label="Archiver l'offre"
                                                         className="text-amber-600 hover:text-amber-700"
                                                     >
                                                         {archivingId === o.id ? (
-                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
                                                         ) : (
-                                                            <Archive className="w-4 h-4" />
+                                                            <Archive className="w-4 h-4" aria-hidden />
                                                         )}
                                                     </Button>
                                                 )}
@@ -294,23 +299,25 @@ export default function OffresPage() {
             {/* Modal Create / Edit */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby={modalTitleId} tabIndex={-1} className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
-                            <h2 className="text-lg font-bold text-slate-900">
+                            <h2 id={modalTitleId} className="text-lg font-bold text-slate-900">
                                 {editingId ? "Modifier l'offre" : "Nouvelle offre"}
                             </h2>
                             <button
                                 type="button"
                                 onClick={closeModal}
+                                aria-label="Fermer"
                                 className="p-2 rounded-lg text-slate-500 hover:bg-slate-100"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" aria-hidden />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Nom de l'offre</label>
+                                <label htmlFor="offre-nom" className="block text-sm font-semibold text-slate-700 mb-1.5">Nom de l'offre</label>
                                 <Input
+                                    id="offre-nom"
                                     value={form.nom}
                                     onChange={(e) => setForm((f) => ({ ...f, nom: e.target.value }))}
                                     placeholder="Ex: Pack Standard"
@@ -318,8 +325,9 @@ export default function OffresPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
+                                <label htmlFor="offre-description" className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
                                 <textarea
+                                    id="offre-description"
                                     value={form.description}
                                     onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                                     placeholder="Brève description"
@@ -329,8 +337,9 @@ export default function OffresPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Forfait mensuel (€)</label>
+                                    <label htmlFor="offre-fixe" className="block text-sm font-semibold text-slate-700 mb-1.5">Forfait mensuel (€)</label>
                                     <Input
+                                        id="offre-fixe"
                                         type="number"
                                         min={0}
                                         step={0.01}
@@ -341,8 +350,9 @@ export default function OffresPage() {
                                     <p className="text-xs text-slate-500 mt-1">Laisser 0 si pas de forfait</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Prix par RDV (€)</label>
+                                    <label htmlFor="offre-rdv" className="block text-sm font-semibold text-slate-700 mb-1.5">Prix par RDV (€)</label>
                                     <Input
+                                        id="offre-rdv"
                                         type="number"
                                         min={0}
                                         step={0.01}

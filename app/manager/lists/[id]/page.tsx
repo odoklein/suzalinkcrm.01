@@ -698,8 +698,8 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="flex items-start gap-5">
                     <Link href={isManager ? "/manager/lists" : "/sdr/lists"}>
-                        <button className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-primary-600 hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm">
-                            <ArrowLeft className="w-5 h-5" />
+                        <button aria-label="Retour aux listes" className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-primary-600 hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm">
+                            <ArrowLeft aria-hidden className="w-5 h-5" />
                         </button>
                     </Link>
                     <div className="flex items-start gap-4">
@@ -733,9 +733,10 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
                     <button
                         onClick={fetchList}
                         title="Rafraîchir"
+                        aria-label="Rafraîchir"
                         className="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-primary-600 hover:bg-slate-50 transition-colors shadow-sm"
                     >
-                        <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+                        <RefreshCw aria-hidden className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
                     </button>
                     {isManager && (
                         <>
@@ -757,8 +758,9 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
                                 onClick={() => setShowDeleteModal(true)}
                                 className="flex items-center justify-center w-10 h-10 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-300 transition-colors shadow-sm"
                                 title="Supprimer la liste"
+                                aria-label="Supprimer la liste"
                             >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 aria-hidden className="w-4 h-4" />
                             </button>
                         </>
                     )}
@@ -866,6 +868,7 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
                         <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/60 shadow-inner">
                             <button
                                 onClick={() => setView("companies")}
+                                aria-pressed={view === "companies"}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${view === "companies"
                                     ? "bg-white text-primary-700 shadow border-b border-primary-100"
                                     : "text-slate-500 hover:text-slate-700"
@@ -876,6 +879,7 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
                             </button>
                             <button
                                 onClick={() => setView("contacts")}
+                                aria-pressed={view === "contacts"}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${view === "contacts"
                                     ? "bg-white text-primary-700 shadow border-b border-primary-100"
                                     : "text-slate-500 hover:text-slate-700"

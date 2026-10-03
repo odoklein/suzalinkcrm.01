@@ -17,6 +17,8 @@ import {
     UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { rowKeyDown } from "@/lib/a11y";
+import { ROW_FOCUS } from "@/components/ui/recipes";
 import { Button, Input, EmptyState, LoadingState, useToast } from "@/components/ui";
 import { TicketStatusBadge, TicketPriorityBadge, TicketCategoryBadge } from "./TicketBadges";
 import { TicketThread } from "./TicketThread";
@@ -530,6 +532,7 @@ export function TicketWorkspace({
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder="Rechercher un ticket…"
+                        aria-label="Rechercher un ticket"
                         icon={<Search className="w-4 h-4 text-slate-400" />}
                     />
                 </div>
@@ -543,6 +546,7 @@ export function TicketWorkspace({
                             key={filter.value}
                             type="button"
                             onClick={() => setStatusFilter(filter.value)}
+                            aria-pressed={statusFilter === filter.value}
                             className={cn(
                                 "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                                 statusFilter === filter.value
@@ -645,8 +649,11 @@ export function TicketWorkspace({
                                             <tr
                                                 key={ticket.id}
                                                 onClick={() => { setSelectedId(ticket.id); setIsDrawerOpen(true); }}
+                                                tabIndex={0}
+                                                onKeyDown={rowKeyDown(() => { setSelectedId(ticket.id); setIsDrawerOpen(true); })}
                                                 className={cn(
                                                     "cursor-pointer transition-colors hover:bg-slate-50",
+                                                    ROW_FOCUS,
                                                     PRIORITY_ACCENT[ticket.priority],
                                                 )}
                                             >
@@ -738,6 +745,7 @@ export function TicketWorkspace({
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
                             placeholder="Rechercher un ticket…"
+                            aria-label="Rechercher un ticket"
                             icon={<Search className="w-4 h-4 text-slate-400" />}
                         />
                         {scopeControl}
@@ -747,6 +755,7 @@ export function TicketWorkspace({
                                     key={filter.value}
                                     type="button"
                                     onClick={() => setStatusFilter(filter.value)}
+                                    aria-pressed={statusFilter === filter.value}
                                     className={cn(
                                         "px-2.5 py-1 text-xs font-medium rounded-full border transition-colors",
                                         statusFilter === filter.value
@@ -896,6 +905,7 @@ export function TicketWorkspace({
                                         <button
                                             type="button"
                                             onClick={() => setActiveMobileTab("thread")}
+                                            aria-pressed={activeMobileTab === "thread"}
                                             className={cn(
                                                 "px-2.5 py-1 rounded-md font-medium transition-colors",
                                                 activeMobileTab === "thread"
@@ -908,6 +918,7 @@ export function TicketWorkspace({
                                         <button
                                             type="button"
                                             onClick={() => setActiveMobileTab("details")}
+                                            aria-pressed={activeMobileTab === "details"}
                                             className={cn(
                                                 "px-2.5 py-1 rounded-md font-medium transition-colors flex items-center gap-1.5",
                                                 activeMobileTab === "details"

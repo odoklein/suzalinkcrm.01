@@ -113,6 +113,7 @@ export function InlineText({
                                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) commit();
                             }}
                             rows={3}
+                            aria-label={label || "Modifier la valeur"}
                             className="flex-1 px-2.5 py-1.5 text-sm text-slate-900 bg-white border border-primary-400 rounded-lg outline-none focus:ring-2 focus:ring-primary-500/20 resize-none"
                         />
                     ) : (
@@ -126,6 +127,7 @@ export function InlineText({
                                 if (e.key === "Enter") commit();
                                 if (e.key === "Escape") cancel();
                             }}
+                            aria-label={label || "Modifier la valeur"}
                             className="flex-1 px-2.5 py-1.5 text-sm text-slate-900 bg-white border border-primary-400 rounded-lg outline-none focus:ring-2 focus:ring-primary-500/20"
                         />
                     )}
@@ -361,6 +363,9 @@ export function InlineToggle({ label, description, value, onSave, readOnly }: In
             type="button"
             disabled={readOnly || saving}
             onClick={handle}
+            role="switch"
+            aria-checked={value}
+            aria-label={label}
             className="w-full flex items-start gap-3 py-2 px-3 -mx-3 rounded-lg hover:bg-slate-50 transition-colors text-left"
         >
             <div className="flex-1 min-w-0">

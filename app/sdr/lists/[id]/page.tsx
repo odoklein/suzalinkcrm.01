@@ -21,6 +21,9 @@ import {
     PenLine
 } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { FOCUS_RING } from "@/components/ui/recipes";
+import { pressable } from "@/lib/a11y";
 
 // ============================================
 // TYPES
@@ -225,7 +228,7 @@ export default function SDRListDetailPage({ params }: { params: Promise<{ id: st
             header: "Société",
             sortable: true,
             render: (_, company) => (
-                <div className="flex items-center gap-3 group cursor-pointer" onClick={() => handleEditCompany(company)}>
+                <div {...pressable(() => handleEditCompany(company))} className={cn("flex items-center gap-3 group cursor-pointer rounded-lg", FOCUS_RING)}>
                     <div className="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center">
                         <Building2 className="w-5 h-5 text-primary-500" />
                     </div>
@@ -294,7 +297,7 @@ export default function SDRListDetailPage({ params }: { params: Promise<{ id: st
             header: "Contact",
             sortable: true,
             render: (_, contact) => (
-                <div className="flex items-center gap-3 group cursor-pointer" onClick={() => handleEditContact(contact)}>
+                <div {...pressable(() => handleEditContact(contact))} className={cn("flex items-center gap-3 group cursor-pointer rounded-lg", FOCUS_RING)}>
                     <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
                         <Users className="w-5 h-5 text-emerald-500" />
                     </div>
@@ -320,7 +323,7 @@ export default function SDRListDetailPage({ params }: { params: Promise<{ id: st
             key: "email",
             header: "Email",
             render: (value, contact) => (
-                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => handleEditContact(contact)}>
+                <div {...pressable(() => handleEditContact(contact))} className={cn("flex items-center gap-2 group cursor-pointer rounded-lg", FOCUS_RING)}>
                     {value ? (
                         <span className="text-sm text-slate-600">{value}</span>
                     ) : (
@@ -333,7 +336,7 @@ export default function SDRListDetailPage({ params }: { params: Promise<{ id: st
             key: "phone",
             header: "Téléphone",
             render: (value, contact) => (
-                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => handleEditContact(contact)}>
+                <div {...pressable(() => handleEditContact(contact))} className={cn("flex items-center gap-2 group cursor-pointer rounded-lg", FOCUS_RING)}>
                     {value ? (
                         <span className="text-sm text-slate-600">{value}</span>
                     ) : (
@@ -375,6 +378,7 @@ export default function SDRListDetailPage({ params }: { params: Promise<{ id: st
                 </div>
                 <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-slate-200">
                     <button
+                        aria-pressed={view === "contacts"}
                         onClick={() => setView("contacts")}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === "contacts" ? "bg-primary-50 text-primary-700 shadow-sm" : "text-slate-600 hover:bg-slate-50"
                             }`}
@@ -382,6 +386,7 @@ export default function SDRListDetailPage({ params }: { params: Promise<{ id: st
                         Vue Contacts
                     </button>
                     <button
+                        aria-pressed={view === "companies"}
                         onClick={() => setView("companies")}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === "companies" ? "bg-primary-50 text-primary-700 shadow-sm" : "text-slate-600 hover:bg-slate-50"
                             }`}

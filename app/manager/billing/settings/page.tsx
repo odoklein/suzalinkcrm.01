@@ -20,7 +20,7 @@ import {
     Shield,
     Plug,
 } from "lucide-react";
-import { Button, Input, Badge } from "@/components/ui";
+import { Button, Input, Badge, LoadingState } from "@/components/ui";
 import Link from "next/link";
 
 interface CompanyIssuer {
@@ -68,10 +68,10 @@ function SectionCard({ icon: Icon, iconBg, iconColor, title, description, childr
     );
 }
 
-function FormField({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
+function FormField({ label, required, hint, htmlFor, children }: { label: string; required?: boolean; hint?: string; htmlFor?: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+            <label htmlFor={htmlFor} className="text-xs font-medium text-slate-500 mb-1.5 block">
                 {label} {required && <span className="text-red-400">*</span>}
             </label>
             {children}
@@ -153,11 +153,7 @@ export default function BillingSettingsPage() {
     })();
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-400" />
-            </div>
-        );
+        return <LoadingState message="Chargement des paramètres..." />;
     }
 
     return (
@@ -232,30 +228,30 @@ export default function BillingSettingsPage() {
             >
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Raison sociale" required>
-                            <Input value={issuer.legalName} onChange={(e) => setIssuer({ ...issuer, legalName: e.target.value })} placeholder="Nom légal" />
+                        <FormField label="Raison sociale" htmlFor="issuer-legalName" required>
+                            <Input id="issuer-legalName" value={issuer.legalName} onChange={(e) => setIssuer({ ...issuer, legalName: e.target.value })} placeholder="Nom légal" />
                         </FormField>
-                        <FormField label="Forme juridique" hint="SAS, SARL, EURL, SA...">
-                            <Input value={issuer.legalForm} onChange={(e) => setIssuer({ ...issuer, legalForm: e.target.value })} placeholder="SAS" />
+                        <FormField label="Forme juridique" htmlFor="issuer-legalForm" hint="SAS, SARL, EURL, SA...">
+                            <Input id="issuer-legalForm" value={issuer.legalForm} onChange={(e) => setIssuer({ ...issuer, legalForm: e.target.value })} placeholder="SAS" />
                         </FormField>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Capital social">
-                            <Input value={issuer.capitalSocial} onChange={(e) => setIssuer({ ...issuer, capitalSocial: e.target.value })} placeholder="10 000 €" />
+                        <FormField label="Capital social" htmlFor="issuer-capitalSocial">
+                            <Input id="issuer-capitalSocial" value={issuer.capitalSocial} onChange={(e) => setIssuer({ ...issuer, capitalSocial: e.target.value })} placeholder="10 000 €" />
                         </FormField>
-                        <FormField label="Pays">
-                            <Input value={issuer.country} onChange={(e) => setIssuer({ ...issuer, country: e.target.value })} placeholder="France" />
+                        <FormField label="Pays" htmlFor="issuer-country">
+                            <Input id="issuer-country" value={issuer.country} onChange={(e) => setIssuer({ ...issuer, country: e.target.value })} placeholder="France" />
                         </FormField>
                     </div>
-                    <FormField label="Adresse" required>
-                        <Input value={issuer.address} onChange={(e) => setIssuer({ ...issuer, address: e.target.value })} placeholder="Adresse du siège social" />
+                    <FormField label="Adresse" htmlFor="issuer-address" required>
+                        <Input id="issuer-address" value={issuer.address} onChange={(e) => setIssuer({ ...issuer, address: e.target.value })} placeholder="Adresse du siège social" />
                     </FormField>
                     <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Code postal" required>
-                            <Input value={issuer.postalCode} onChange={(e) => setIssuer({ ...issuer, postalCode: e.target.value })} placeholder="75001" />
+                        <FormField label="Code postal" htmlFor="issuer-postalCode" required>
+                            <Input id="issuer-postalCode" value={issuer.postalCode} onChange={(e) => setIssuer({ ...issuer, postalCode: e.target.value })} placeholder="75001" />
                         </FormField>
-                        <FormField label="Ville" required>
-                            <Input value={issuer.city} onChange={(e) => setIssuer({ ...issuer, city: e.target.value })} placeholder="Paris" />
+                        <FormField label="Ville" htmlFor="issuer-city" required>
+                            <Input id="issuer-city" value={issuer.city} onChange={(e) => setIssuer({ ...issuer, city: e.target.value })} placeholder="Paris" />
                         </FormField>
                     </div>
                 </div>
@@ -270,18 +266,18 @@ export default function BillingSettingsPage() {
                 description="Mentions légales obligatoires"
             >
                 <div className="space-y-4">
-                    <FormField label="SIRET" required hint="Numéro à 14 chiffres (SIREN + NIC)">
-                        <Input value={issuer.siret} onChange={(e) => setIssuer({ ...issuer, siret: e.target.value })} placeholder="12345678901234" />
+                    <FormField label="SIRET" htmlFor="issuer-siret" required hint="Numéro à 14 chiffres (SIREN + NIC)">
+                        <Input id="issuer-siret" value={issuer.siret} onChange={(e) => setIssuer({ ...issuer, siret: e.target.value })} placeholder="12345678901234" />
                     </FormField>
-                    <FormField label="TVA intracommunautaire">
-                        <Input value={issuer.vatNumber} onChange={(e) => setIssuer({ ...issuer, vatNumber: e.target.value })} placeholder="FR12345678901" />
+                    <FormField label="TVA intracommunautaire" htmlFor="issuer-vatNumber">
+                        <Input id="issuer-vatNumber" value={issuer.vatNumber} onChange={(e) => setIssuer({ ...issuer, vatNumber: e.target.value })} placeholder="FR12345678901" />
                     </FormField>
                     <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Ville du RCS">
-                            <Input value={issuer.rcsCity} onChange={(e) => setIssuer({ ...issuer, rcsCity: e.target.value })} placeholder="Paris" />
+                        <FormField label="Ville du RCS" htmlFor="issuer-rcsCity">
+                            <Input id="issuer-rcsCity" value={issuer.rcsCity} onChange={(e) => setIssuer({ ...issuer, rcsCity: e.target.value })} placeholder="Paris" />
                         </FormField>
-                        <FormField label="Numéro RCS">
-                            <Input value={issuer.rcsNumber} onChange={(e) => setIssuer({ ...issuer, rcsNumber: e.target.value })} placeholder="Paris B 123 456 789" />
+                        <FormField label="Numéro RCS" htmlFor="issuer-rcsNumber">
+                            <Input id="issuer-rcsNumber" value={issuer.rcsNumber} onChange={(e) => setIssuer({ ...issuer, rcsNumber: e.target.value })} placeholder="Paris B 123 456 789" />
                         </FormField>
                     </div>
                 </div>
@@ -296,11 +292,11 @@ export default function BillingSettingsPage() {
                 description="Pour le paiement par virement"
             >
                 <div className="space-y-4">
-                    <FormField label="IBAN">
-                        <Input value={issuer.iban} onChange={(e) => setIssuer({ ...issuer, iban: e.target.value })} placeholder="FR76 1234 5678 9012 3456 7890 123" />
+                    <FormField label="IBAN" htmlFor="issuer-iban">
+                        <Input id="issuer-iban" value={issuer.iban} onChange={(e) => setIssuer({ ...issuer, iban: e.target.value })} placeholder="FR76 1234 5678 9012 3456 7890 123" />
                     </FormField>
-                    <FormField label="BIC / SWIFT">
-                        <Input value={issuer.bic} onChange={(e) => setIssuer({ ...issuer, bic: e.target.value })} placeholder="BNPAFRPPXXX" />
+                    <FormField label="BIC / SWIFT" htmlFor="issuer-bic">
+                        <Input id="issuer-bic" value={issuer.bic} onChange={(e) => setIssuer({ ...issuer, bic: e.target.value })} placeholder="BNPAFRPPXXX" />
                     </FormField>
                 </div>
             </SectionCard>
@@ -314,24 +310,27 @@ export default function BillingSettingsPage() {
                 description="Pénalités, escompte, délais"
             >
                 <div className="space-y-4">
-                    <FormField label="Délai de paiement (jours)" hint="Délai légal max : 60j ou 45j fin de mois">
+                    <FormField label="Délai de paiement (jours)" htmlFor="issuer-defaultPaymentTermsDays" hint="Délai légal max : 60j ou 45j fin de mois">
                         <Input
+                            id="issuer-defaultPaymentTermsDays"
                             type="number" min="0" max="365"
                             value={issuer.defaultPaymentTermsDays}
                             onChange={(e) => setIssuer({ ...issuer, defaultPaymentTermsDays: parseInt(e.target.value) || 30 })}
                             placeholder="30"
                         />
                     </FormField>
-                    <FormField label="Taux pénalités de retard (%)" hint="Si 0, la mention &quot;3x le taux légal&quot; sera affichée. L'indemnité de 40€ est toujours mentionnée.">
+                    <FormField label="Taux pénalités de retard (%)" htmlFor="issuer-defaultLatePenaltyRate" hint="Si 0, la mention &quot;3x le taux légal&quot; sera affichée. L'indemnité de 40€ est toujours mentionnée.">
                         <Input
+                            id="issuer-defaultLatePenaltyRate"
                             type="number" step="0.01" min="0" max="100"
                             value={issuer.defaultLatePenaltyRate}
                             onChange={(e) => setIssuer({ ...issuer, defaultLatePenaltyRate: parseFloat(e.target.value) || 0 })}
                             placeholder="3.75"
                         />
                     </FormField>
-                    <FormField label="Escompte paiement anticipé" hint="Mention obligatoire même si aucun escompte n'est accordé">
+                    <FormField label="Escompte paiement anticipé" htmlFor="issuer-defaultEarlyPaymentDiscount" hint="Mention obligatoire même si aucun escompte n'est accordé">
                         <Input
+                            id="issuer-defaultEarlyPaymentDiscount"
                             value={issuer.defaultEarlyPaymentDiscount}
                             onChange={(e) => setIssuer({ ...issuer, defaultEarlyPaymentDiscount: e.target.value })}
                             placeholder="Pas d'escompte pour paiement anticipé"
@@ -349,10 +348,11 @@ export default function BillingSettingsPage() {
                 description="Coordonnées de l'entreprise"
             >
                 <div className="space-y-4">
-                    <FormField label="Email">
+                    <FormField label="Email" htmlFor="issuer-email">
                         <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
+                                id="issuer-email"
                                 type="email"
                                 value={issuer.email}
                                 onChange={(e) => setIssuer({ ...issuer, email: e.target.value })}
@@ -361,10 +361,11 @@ export default function BillingSettingsPage() {
                             />
                         </div>
                     </FormField>
-                    <FormField label="Téléphone">
+                    <FormField label="Téléphone" htmlFor="issuer-phone">
                         <div className="relative">
                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
+                                id="issuer-phone"
                                 value={issuer.phone}
                                 onChange={(e) => setIssuer({ ...issuer, phone: e.target.value })}
                                 placeholder="+33 1 23 45 67 89"

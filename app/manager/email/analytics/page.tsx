@@ -13,10 +13,10 @@ import {
     TrendingDown,
     Minus,
     BarChart3,
-    Loader2,
     ArrowUpRight,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui";
 
 // ============================================
 // TYPES
@@ -114,11 +114,7 @@ export default function EmailAnalyticsPage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-96">
-                <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
-            </div>
-        );
+        return <LoadingState message="Chargement des analytics…" />;
     }
 
     if (!analytics) {
@@ -148,6 +144,7 @@ export default function EmailAnalyticsPage() {
                         <button
                             key={option.value}
                             onClick={() => setPeriod(option.value)}
+                            aria-pressed={period === option.value}
                             className={cn(
                                 "px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
                                 period === option.value

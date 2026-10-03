@@ -54,10 +54,11 @@ export function MissionDetails({ data, onChange, clients, errors }: MissionDetai
 
                     {/* Objective */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="mission-objective" className="block text-sm font-medium text-slate-700 mb-2">
                             Objectif
                         </label>
                         <textarea
+                            id="mission-objective"
                             value={data.objective}
                             onChange={(e) => handleChange("objective", e.target.value)}
                             placeholder="Ex: Générer 50 meetings qualifiés"
@@ -142,10 +143,11 @@ export function MissionDetails({ data, onChange, clients, errors }: MissionDetai
 
                     {/* ICP */}
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        <label htmlFor="mission-icp" className="block text-sm font-semibold text-slate-700 mb-2">
                             ICP (Profil Client Idéal) *
                         </label>
                         <textarea
+                            id="mission-icp"
                             value={data.icp}
                             onChange={(e) => handleChange("icp", e.target.value)}
                             placeholder="Ex: CEOs de startups B2B SaaS entre 10 et 50 employés en France."

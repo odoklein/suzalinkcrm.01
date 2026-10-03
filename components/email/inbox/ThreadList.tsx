@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { pressable } from "@/lib/a11y";
 import {
     Star,
     Clock,
@@ -453,6 +454,7 @@ function SearchBar({
                     ref={searchRef}
                     type="text"
                     placeholder="Rechercher des emails..."
+                    aria-label="Rechercher des emails"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
@@ -462,9 +464,10 @@ function SearchBar({
                 {searchInput && (
                     <button
                         onClick={() => setSearchInput("")}
+                        aria-label="Effacer la recherche"
                         className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                     >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-3.5 h-3.5" aria-hidden />
                     </button>
                 )}
             </div>
@@ -501,9 +504,9 @@ function ThreadListItem({
 
     return (
         <div
-            onClick={onSelect}
+            {...pressable(onSelect)}
             className={cn(
-                "group relative px-5 py-4 cursor-pointer transition-all duration-150 border-b border-slate-100/80",
+                "group relative px-5 py-4 cursor-pointer transition-all duration-150 border-b border-slate-100/80 outline-none focus-visible:bg-surface-2",
                 isSelected
                     ? "bg-primary-50/60"
                     : "hover:bg-slate-50/80",
@@ -594,7 +597,7 @@ function ThreadListItem({
             </div>
 
             {/* Hover actions */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-white shadow-lg border border-slate-200 rounded-xl px-1.5 py-1 z-10">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex group-focus-within:flex items-center gap-0.5 bg-white shadow-lg border border-slate-200 rounded-xl px-1.5 py-1 z-10">
                 <button
                     onClick={onStar}
                     className={cn(
@@ -604,22 +607,25 @@ function ThreadListItem({
                             : "text-slate-400 hover:text-amber-400 hover:bg-slate-50"
                     )}
                     title={thread.isStarred ? "Retirer des favoris" : "Ajouter aux favoris"}
+                    aria-label={thread.isStarred ? "Retirer des favoris" : "Ajouter aux favoris"}
                 >
-                    <Star className={cn("w-4 h-4", thread.isStarred && "fill-current")} />
+                    <Star className={cn("w-4 h-4", thread.isStarred && "fill-current")} aria-hidden />
                 </button>
                 <button
                     onClick={onArchive}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
                     title="Archiver"
+                    aria-label="Archiver"
                 >
-                    <Archive className="w-4 h-4" />
+                    <Archive className="w-4 h-4" aria-hidden />
                 </button>
                 <button
                     onClick={onTrash}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                     title="Supprimer"
+                    aria-label="Supprimer"
                 >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4" aria-hidden />
                 </button>
             </div>
         </div>

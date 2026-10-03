@@ -5,11 +5,12 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
     AlertTriangle, TrendingDown, TrendingUp,
-    Search, Loader2,
+    Search,
     Target, Activity, PieChart, CalendarCheck,
     Clock, ChevronRight, Info, ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
+import { LoadingState } from "@/components/ui";
 import {
     type ListHealthSummary,
     type ClientListsIntelligence,
@@ -229,8 +230,8 @@ function StagnationAlertCard({ alert }: { alert: StagnationAlert }) {
                 <p className="text-xs font-bold">{alert.daysSinceLastAction}j</p>
                 <p className="text-[10px] opacity-70">{SEVERITY_LABELS[alert.severity]}</p>
             </div>
-            <Link href={`/manager/lists/${alert.listId}`}>
-                <ChevronRight className="w-4 h-4 opacity-50 hover:opacity-100" />
+            <Link href={`/manager/lists/${alert.listId}`} aria-label={`Ouvrir la liste ${alert.listName}`}>
+                <ChevronRight className="w-4 h-4 opacity-50 hover:opacity-100" aria-hidden />
             </Link>
         </div>
     );
@@ -697,13 +698,7 @@ export function ListHealthDashboard({
 
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-                <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
-                <p className="text-sm text-slate-500">Calcul des métriques de santé…</p>
-                <p className="text-xs text-slate-400">Analyse des actions et contacts en cours</p>
-            </div>
-        );
+        return <LoadingState message="Calcul des métriques de santé…" />;
     }
 
 
@@ -900,6 +895,7 @@ export function ListHealthDashboard({
                     <input
                         type="text"
                         placeholder="Rechercher une liste…"
+                        aria-label="Rechercher une liste"
                         value={filters.search}
                         onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
                         className="w-full h-7 pl-8 pr-3 text-xs font-medium bg-slate-50 border border-transparent focus:bg-white focus:border-primary-400 rounded-md transition-all"
@@ -915,6 +911,7 @@ export function ListHealthDashboard({
                     <button
                         key={s}
                         onClick={() => setFilters(f => ({ ...f, status: s }))}
+                        aria-pressed={filters.status === s}
                         className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${
                             filters.status === s
                                 ? 'bg-primary-50 text-primary-700 border border-primary-200'
@@ -933,6 +930,7 @@ export function ListHealthDashboard({
 
                 {/* Sort */}
                 <select
+                    aria-label="Trier par"
                     value={filters.sortBy}
                     onChange={e => setFilters(f => ({ ...f, sortBy: e.target.value as FilterState['sortBy'] }))}
                     className="h-7 px-2 text-xs font-medium bg-slate-50 border border-slate-200 rounded-md text-slate-600"

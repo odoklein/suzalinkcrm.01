@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { Button, Card, Input, Select, Modal, useToast } from "@/components/ui";
 import { getRuleCreatedNotification } from "@/lib/prospects/notifications";
 import {
@@ -117,6 +117,7 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
     const [testResult, setTestResult] = useState<any>(null);
     const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
     const [sources, setSources] = useState<Array<{ id: string; name: string }>>([]);
+    const fid = useId();
 
     // Fetch clients and sources
     useEffect(() => {
@@ -294,20 +295,22 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
                 return (
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor={`${fid}-name`} className="block text-sm font-medium text-slate-700 mb-2">
                                 Nom de la règle *
                             </label>
                             <Input
+                                id={`${fid}-name`}
                                 value={formData.name}
                                 onChange={(e) => updateField("name", e.target.value)}
                                 placeholder="Ex: Valider les emails professionnels"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor={`${fid}-description`} className="block text-sm font-medium text-slate-700 mb-2">
                                 Description
                             </label>
                             <textarea
+                                id={`${fid}-description`}
                                 value={formData.description}
                                 onChange={(e) => updateField("description", e.target.value)}
                                 placeholder="Description de la règle..."
@@ -359,10 +362,11 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor={`${fid}-priority`} className="block text-sm font-medium text-slate-700 mb-2">
                                 Priorité
                             </label>
                             <Input
+                                id={`${fid}-priority`}
                                 type="number"
                                 value={formData.priority}
                                 onChange={(e) => updateField("priority", parseInt(e.target.value) || 0)}
@@ -408,12 +412,13 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
                             formData.condition.operator !== "isEmpty" &&
                             formData.condition.operator !== "isNotEmpty" && (
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    <label htmlFor={`${fid}-condition-value`} className="block text-sm font-medium text-slate-700 mb-2">
                                         Valeur *
                                     </label>
                                     {formData.condition.field === "qualityScore" ||
                                     formData.condition.field === "confidenceScore" ? (
                                         <Input
+                                            id={`${fid}-condition-value`}
                                             type="number"
                                             value={formData.condition.value || ""}
                                             onChange={(e) =>
@@ -423,6 +428,7 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
                                         />
                                     ) : (
                                         <Input
+                                            id={`${fid}-condition-value`}
                                             value={formData.condition.value || ""}
                                             onChange={(e) => updateCondition("value", e.target.value)}
                                             placeholder="Valeur à comparer"
@@ -477,10 +483,11 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
                             <>
                                 {(formData.action.type === "adjustScore" || formData.action.type === "setScore") && (
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                                        <label htmlFor={`${fid}-action-value`} className="block text-sm font-medium text-slate-700 mb-2">
                                             {formData.action.type === "adjustScore" ? "Ajustement" : "Score"} *
                                         </label>
                                         <Input
+                                            id={`${fid}-action-value`}
                                             type="number"
                                             value={formData.action.value || 0}
                                             onChange={(e) => updateAction("value", parseInt(e.target.value) || 0)}
@@ -494,10 +501,11 @@ export function RuleWizard({ isOpen, onClose, onSuccess }: RuleWizardProps) {
                                     </div>
                                 )}
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    <label htmlFor={`${fid}-reason`} className="block text-sm font-medium text-slate-700 mb-2">
                                         Raison / Explication *
                                     </label>
                                     <textarea
+                                        id={`${fid}-reason`}
                                         value={formData.action.reason || ""}
                                         onChange={(e) => updateAction("reason", e.target.value)}
                                         placeholder="Ex: Fournisseur d'email gratuit détecté"

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { Card, Button, Input, Select, useToast } from "@/components/ui";
+import { Card, Button, Input, Select, useToast, LoadingState } from "@/components/ui";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { ProspectSourceType } from "@prisma/client";
 
@@ -117,11 +117,7 @@ export default function EditSourcePage({ params }: { params: Promise<{ id: strin
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-            </div>
-        );
+        return <LoadingState message="Chargement de la source..." />;
     }
 
     if (!source) {
@@ -137,8 +133,9 @@ export default function EditSourcePage({ params }: { params: Promise<{ id: strin
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push("/manager/prospects/sources")}
+                        aria-label="Retour aux sources"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4" aria-hidden />
                     </Button>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">Modifier la source</h1>
@@ -152,10 +149,11 @@ export default function EditSourcePage({ params }: { params: Promise<{ id: strin
                 <div className="space-y-6">
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="source-name" className="block text-sm font-medium text-slate-700 mb-2">
                             Nom de la source
                         </label>
                         <Input
+                            id="source-name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             placeholder="Ex: Formulaire de contact"
@@ -164,10 +162,11 @@ export default function EditSourcePage({ params }: { params: Promise<{ id: strin
 
                     {/* Type (read-only) */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="source-type" className="block text-sm font-medium text-slate-700 mb-2">
                             Type
                         </label>
                         <Input
+                            id="source-type"
                             value={source.type}
                             disabled
                             className="bg-slate-50"
@@ -229,11 +228,12 @@ export default function EditSourcePage({ params }: { params: Promise<{ id: strin
                     {/* API Key / Webhook URL (read-only if exists) */}
                     {source.metadata?.apiKey && (
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor="source-api-key" className="block text-sm font-medium text-slate-700 mb-2">
                                 Clé API
                             </label>
                             <div className="flex gap-2">
                                 <Input
+                                    id="source-api-key"
                                     value={source.metadata.apiKey}
                                     disabled
                                     className="bg-slate-50 font-mono text-sm"
@@ -254,11 +254,12 @@ export default function EditSourcePage({ params }: { params: Promise<{ id: strin
 
                     {source.metadata?.webhookUrl && (
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor="source-webhook-url" className="block text-sm font-medium text-slate-700 mb-2">
                                 URL Webhook
                             </label>
                             <div className="flex gap-2">
                                 <Input
+                                    id="source-webhook-url"
                                     value={source.metadata.webhookUrl}
                                     disabled
                                     className="bg-slate-50 font-mono text-sm"

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useToast } from "@/components/ui";
+import { useToast, useConfirm } from "@/components/ui";
 import {
     ArrowLeft,
     Edit2,
@@ -11,7 +11,7 @@ import {
     Loader2,
     CalendarDays,
 } from "lucide-react";
-import { Button, Card, PageHeader, Badge } from "@/components/ui";
+import { Button, Card, PageHeader, Badge, LoadingState } from "@/components/ui";
 import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -59,6 +59,7 @@ export default function EngagementDetailPage() {
     const router = useRouter();
     const id = params.id as string;
     const { success, error: showError } = useToast();
+    const confirm = useConfirm();
     const [engagement, setEngagement] = useState<EngagementDetail | null>(null);
     const [rdvCount, setRdvCount] = useState<RdvCountResult | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -111,7 +112,7 @@ export default function EngagementDetailPage() {
     };
 
     const handleResilier = async () => {
-        if (!confirm("Résilier cet engagement ? Le statut passera à Résilié.")) return;
+        if (!(await confirm({ title: "Résilier cet engagement ?", message: "Le statut passera à Résilié.", variant: "danger", confirmText: "Résilier" }))) return;
         setActioning("resilier");
         try {
             const res = await fetch(`/api/billing/engagements/${id}`, {
@@ -132,11 +133,7 @@ export default function EngagementDetailPage() {
     };
 
     if (isLoading || !engagement) {
-        return (
-            <div className="flex justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-            </div>
-        );
+        return <LoadingState message="Chargement de l'engagement..." />;
     }
 
     const fixe = engagement.fixeOverride ?? engagement.offreTarif.fixeMensuel;

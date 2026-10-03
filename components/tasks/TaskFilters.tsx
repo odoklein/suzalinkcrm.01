@@ -84,6 +84,7 @@ export function TaskFilters({
                     <input
                         type="text"
                         placeholder="Rechercher des tâches..."
+                        aria-label="Rechercher des tâches"
                         value={filters.search}
                         onChange={(e) => updateFilters({ search: e.target.value })}
                         className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-400"
@@ -91,9 +92,10 @@ export function TaskFilters({
                     {filters.search && (
                         <button
                             onClick={() => updateFilters({ search: "" })}
+                            aria-label="Effacer la recherche"
                             className="absolute right-3 top-1/2 -translate-y-1/2"
                         >
-                            <X className="w-3.5 h-3.5 text-slate-400" />
+                            <X className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
                         </button>
                     )}
                 </div>
@@ -143,6 +145,7 @@ export function TaskFilters({
                                 <button
                                     key={opt.value}
                                     onClick={() => toggleArrayValue("statuses", opt.value)}
+                                    aria-pressed={filters.statuses.includes(opt.value)}
                                     className={cn(
                                         "flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border transition-colors",
                                         filters.statuses.includes(opt.value)
@@ -167,6 +170,7 @@ export function TaskFilters({
                                 <button
                                     key={opt.value}
                                     onClick={() => toggleArrayValue("priorities", opt.value)}
+                                    aria-pressed={filters.priorities.includes(opt.value)}
                                     className={cn(
                                         "flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border transition-colors",
                                         filters.priorities.includes(opt.value)
@@ -190,6 +194,7 @@ export function TaskFilters({
                             <div className="flex flex-wrap gap-1.5">
                                 <button
                                     onClick={() => toggleArrayValue("assigneeIds", "unassigned")}
+                                    aria-pressed={filters.assigneeIds.includes("unassigned")}
                                     className={cn(
                                         "px-2.5 py-1 text-xs font-medium rounded-md border transition-colors",
                                         filters.assigneeIds.includes("unassigned")
@@ -203,6 +208,7 @@ export function TaskFilters({
                                     <button
                                         key={m.id}
                                         onClick={() => toggleArrayValue("assigneeIds", m.id)}
+                                        aria-pressed={filters.assigneeIds.includes(m.id)}
                                         className={cn(
                                             "px-2.5 py-1 text-xs font-medium rounded-md border transition-colors",
                                             filters.assigneeIds.includes(m.id)

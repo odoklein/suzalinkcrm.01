@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui";
+import { useToast, useOverlay } from "@/components/ui";
 import { createMission, CreateMissionInput } from "@/app/actions/mission-wizard";
 import { Channel } from "@prisma/client";
 import type { MissionStatusValue } from "@/lib/constants/missionStatus";
@@ -263,6 +263,9 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
         }
     };
 
+    const titleId = useId();
+    const panelRef = useOverlay<HTMLDivElement>({ open: isOpen, onClose });
+
     if (!isOpen) return null;
 
     const clientName = clients.find(c => c.id === form.clientId)?.name;
@@ -277,7 +280,14 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
             />
 
             {/* Dialog */}
-            <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                className="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50 outline-none"
+            >
 
                 {/* ── Header ─────────────────────────────────────────────── */}
                 <div className="relative overflow-hidden bg-slate-900 px-8 pt-8 pb-6 flex-shrink-0">
@@ -291,7 +301,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                     </div>
                                     <span className="text-xs font-semibold text-primary-300 uppercase tracking-widest">Nouvelle mission</span>
                                 </div>
-                                <h2 className="text-2xl font-bold text-white">
+                                <h2 id={titleId} className="text-2xl font-bold text-white">
                                     {step === 1 && "Informations générales"}
                                     {step === 2 && "Stratégie de prospection"}
                                     {step === 3 && "Script d'appel"}
@@ -306,9 +316,10 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                             </div>
                             <button
                                 onClick={onClose}
+                                aria-label="Fermer"
                                 className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" aria-hidden="true" />
                             </button>
                         </div>
 
@@ -324,6 +335,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                             onClick={() => done ? (setDirection(s.id < step ? "back" : "forward"), setStep(s.id)) : undefined}
                                             className={`flex items-center gap-2 ${done ? "cursor-pointer" : "cursor-default"}`}
                                             disabled={!done && !active}
+                                            aria-label={s.label}
                                         >
                                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 text-xs font-bold ${done
                                                     ? "bg-emerald-500 text-white"
@@ -360,13 +372,14 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
 
                                 {/* Client */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    <label htmlFor="new-mission-client" className="block text-sm font-semibold text-slate-700 mb-2">
                                         Client <span className="text-red-500">*</span>
                                     </label>
                                     {isLoadingClients ? (
                                         <div className="h-11 bg-slate-100 rounded-xl animate-pulse" />
                                     ) : (
                                         <select
+                                            id="new-mission-client"
                                             value={form.clientId}
                                             onChange={e => setForm(p => ({ ...p, clientId: e.target.value }))}
                                             className="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
@@ -381,10 +394,11 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
 
                                 {/* Name */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                    <label htmlFor="new-mission-name" className="block text-sm font-semibold text-slate-700 mb-2">
                                         Nom de la mission <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        id="new-mission-name"
                                         type="text"
                                         value={form.name}
                                         onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
@@ -395,8 +409,9 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
 
                                 {/* Objective */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Objectif</label>
+                                    <label htmlFor="new-mission-objective" className="block text-sm font-semibold text-slate-700 mb-2">Objectif</label>
                                     <textarea
+                                        id="new-mission-objective"
                                         value={form.objective}
                                         onChange={e => setForm(p => ({ ...p, objective: e.target.value }))}
                                         placeholder="Ex: Générer 50 rendez-vous qualifiés en 3 mois..."
@@ -457,8 +472,9 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                 {/* Dates */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">Date de début</label>
+                                        <label htmlFor="new-mission-start-date" className="block text-sm font-semibold text-slate-700 mb-2">Date de début</label>
                                         <input
+                                            id="new-mission-start-date"
                                             type="date"
                                             value={form.startDate}
                                             onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))}
@@ -466,8 +482,9 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-2">Date de fin</label>
+                                        <label htmlFor="new-mission-end-date" className="block text-sm font-semibold text-slate-700 mb-2">Date de fin</label>
                                         <input
+                                            id="new-mission-end-date"
                                             type="date"
                                             value={form.endDate}
                                             onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))}
@@ -513,11 +530,12 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    <label htmlFor="new-mission-icp" className="block text-sm font-semibold text-slate-700 mb-1.5">
                                         ICP — Profil Client Idéal <span className="text-red-500">*</span>
                                     </label>
                                     <p className="text-xs text-slate-500 mb-2">Qui cherchez-vous à contacter ? Soyez précis : secteur, taille, poste, problème...</p>
                                     <textarea
+                                        id="new-mission-icp"
                                         value={form.icp}
                                         onChange={e => setForm(p => ({ ...p, icp: e.target.value }))}
                                         placeholder="Ex: CEOs et DG de startups B2B SaaS entre 10 et 100 employés en France, dans les secteurs RH et finance, qui cherchent à automatiser leur prospection."
@@ -576,7 +594,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                     <div key={sec.key}>
                                         <div className="flex items-center justify-between mb-2">
                                             <div>
-                                                <label className="text-sm font-semibold text-slate-700">
+                                                <label htmlFor={`new-mission-${sec.key}`} className="text-sm font-semibold text-slate-700">
                                                     {sec.label}
                                                     {sec.required && <span className="text-red-500 ml-1">*</span>}
                                                 </label>
@@ -599,6 +617,7 @@ export function NewMissionDialog({ isOpen, onClose, onCreated }: Props) {
                                             </button>
                                         </div>
                                         <textarea
+                                            id={`new-mission-${sec.key}`}
                                             value={(form as any)[sec.key]}
                                             onChange={e => setForm(p => ({ ...p, [sec.key]: e.target.value }))}
                                             placeholder={sec.placeholder}

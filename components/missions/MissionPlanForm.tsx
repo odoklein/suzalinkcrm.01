@@ -302,8 +302,9 @@ export function MissionPlanForm({
     return (
         <div className="space-y-6">
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Fréquence</label>
+                <label htmlFor="mission-plan-frequency" className="block text-sm font-medium text-slate-700 mb-2">Fréquence</label>
                 <select
+                    id="mission-plan-frequency"
                     value={frequency}
                     onChange={(e) => setFrequency(Number(e.target.value))}
                     className="w-full max-w-xs h-10 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -338,6 +339,7 @@ export function MissionPlanForm({
                             key={opt.value}
                             type="button"
                             onClick={() => setTimePreference(opt.value)}
+                            aria-pressed={timePreference === opt.value}
                             className={cn(
                                 "px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors",
                                 timePreference === opt.value
@@ -352,8 +354,9 @@ export function MissionPlanForm({
                 {timePreference === "CUSTOM" && (
                     <div className="flex gap-4 mt-2">
                         <div>
-                            <label className="block text-xs text-slate-500 mb-1">Début</label>
+                            <label htmlFor="mission-plan-custom-start" className="block text-xs text-slate-500 mb-1">Début</label>
                             <select
+                                id="mission-plan-custom-start"
                                 value={customStartTime}
                                 onChange={(e) => setCustomStartTime(e.target.value)}
                                 className="h-10 px-3 border border-slate-200 rounded-lg"
@@ -364,8 +367,9 @@ export function MissionPlanForm({
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs text-slate-500 mb-1">Fin</label>
+                            <label htmlFor="mission-plan-custom-end" className="block text-xs text-slate-500 mb-1">Fin</label>
                             <select
+                                id="mission-plan-custom-end"
                                 value={customEndTime}
                                 onChange={(e) => setCustomEndTime(e.target.value)}
                                 className="h-10 px-3 border border-slate-200 rounded-lg"
@@ -386,8 +390,9 @@ export function MissionPlanForm({
                 <label className="block text-sm font-medium text-slate-700 mb-2">Durée</label>
                 <div className="flex flex-wrap gap-4 items-end">
                     <div>
-                        <label className="block text-xs text-slate-500 mb-1">Date de début</label>
+                        <label htmlFor="mission-plan-start-date" className="block text-xs text-slate-500 mb-1">Date de début</label>
                         <input
+                            id="mission-plan-start-date"
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
@@ -395,8 +400,9 @@ export function MissionPlanForm({
                         />
                     </div>
                     <div>
-                        <label className="block text-xs text-slate-500 mb-1">Date de fin (optionnel)</label>
+                        <label htmlFor="mission-plan-end-date" className="block text-xs text-slate-500 mb-1">Date de fin (optionnel)</label>
                         <input
+                            id="mission-plan-end-date"
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
@@ -421,9 +427,10 @@ export function MissionPlanForm({
                             <button
                                 type="button"
                                 onClick={() => removeSdr(sdr.id)}
+                                aria-label={`Retirer ${sdr.name}`}
                                 className="p-0.5 rounded hover:bg-slate-200 text-slate-500"
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-4 h-4" aria-hidden="true" />
                             </button>
                         </span>
                     ))}

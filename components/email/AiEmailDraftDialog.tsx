@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useId } from "react";
 import { cn } from "@/lib/utils";
 import { X, Loader2, AlertCircle, Copy, Check, RefreshCw } from "lucide-react";
 import { AiMark } from "@/components/ui/AiMark";
+import { useOverlay } from "@/components/ui";
 
 // Basic HTML sanitization for preview
 function sanitizeHtml(html: string): string {
@@ -132,6 +133,10 @@ export function AiEmailDraftDialog({
         onClose();
     };
 
+    const panelRef = useOverlay<HTMLDivElement>({ open, onClose: handleClose });
+    const titleId = useId();
+    const instructionId = useId();
+
     if (!open) return null;
 
     return (
@@ -141,6 +146,11 @@ export function AiEmailDraftDialog({
                 onClick={handleClose}
             />
             <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
                 className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -151,15 +161,16 @@ export function AiEmailDraftDialog({
                             <AiMark className="w-4.5 h-4.5 text-white" />
                         </div>
                         <div>
-                            <h2 className="text-[15px] font-semibold text-white">Rédaction assistée par IA</h2>
+                            <h2 id={titleId} className="text-[15px] font-semibold text-white">Rédaction assistée par IA</h2>
                             <p className="text-[11px] text-white/70">Décrivez ce que vous voulez écrire</p>
                         </div>
                     </div>
                     <button
                         onClick={handleClose}
                         className="p-2 rounded-lg hover:bg-white/20 text-white/80 hover:text-white transition-colors"
+                        aria-label="Fermer"
                     >
-                        <X className="w-4.5 h-4.5" />
+                        <X className="w-4.5 h-4.5" aria-hidden />
                     </button>
                 </div>
 
@@ -167,10 +178,11 @@ export function AiEmailDraftDialog({
                 <div className="p-5 space-y-4">
                     {/* Instruction */}
                     <div>
-                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                        <label htmlFor={instructionId} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                             Instructions
                         </label>
                         <textarea
+                            id={instructionId}
                             value={instruction}
                             onChange={(e) => setInstruction(e.target.value)}
                             placeholder="Ex. : proposer un rendez-vous la semaine prochaine pour présenter notre offre de services..."
@@ -196,6 +208,7 @@ export function AiEmailDraftDialog({
                                     key={tone.id}
                                     onClick={() => setSelectedTone(tone.id)}
                                     disabled={isLoading}
+                                    aria-pressed={selectedTone === tone.id}
                                     className={cn(
                                         "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-all duration-150",
                                         selectedTone === tone.id
@@ -220,8 +233,9 @@ export function AiEmailDraftDialog({
                             <button
                                 onClick={() => setError(null)}
                                 className="text-red-400 hover:text-red-600 flex-shrink-0"
+                                aria-label="Masquer l'erreur"
                             >
-                                <X className="w-3.5 h-3.5" />
+                                <X className="w-3.5 h-3.5" aria-hidden />
                             </button>
                         </div>
                     )}

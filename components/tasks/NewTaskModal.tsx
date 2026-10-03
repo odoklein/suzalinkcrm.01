@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { Loader2, Plus, X } from "lucide-react";
 import { AiMark } from "@/components/ui/AiMark";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,7 @@ export function NewTaskModal({
     const [aiLoading, setAiLoading] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [labelInput, setLabelInput] = useState("");
+    const fid = useId();
 
     const [form, setForm] = useState({
         title: "",
@@ -190,9 +191,10 @@ export function NewTaskModal({
             <div className="space-y-4">
                 {/* Title + AI Enhance */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Titre *</label>
+                    <label htmlFor={`${fid}-title`} className="block text-sm font-medium text-slate-700 mb-1">Titre *</label>
                     <div className="flex gap-2">
                         <input
+                            id={`${fid}-title`}
                             type="text"
                             value={form.title}
                             onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -219,8 +221,9 @@ export function NewTaskModal({
                 {/* Project selector */}
                 {!lockProject && (
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Projet *</label>
+                        <label htmlFor={`${fid}-project`} className="block text-sm font-medium text-slate-700 mb-1">Projet *</label>
                         <select
+                            id={`${fid}-project`}
                             value={form.projectId}
                             onChange={(e) => setForm({ ...form, projectId: e.target.value })}
                             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-primary-400 bg-white"
@@ -235,8 +238,9 @@ export function NewTaskModal({
 
                 {/* Assignee */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Assigné à</label>
+                    <label htmlFor={`${fid}-assignee`} className="block text-sm font-medium text-slate-700 mb-1">Assigné à</label>
                     <select
+                        id={`${fid}-assignee`}
                         value={form.assigneeId}
                         onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-primary-400 bg-white"
@@ -269,8 +273,9 @@ export function NewTaskModal({
 
                 {/* Due date */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Échéance</label>
+                    <label htmlFor={`${fid}-due`} className="block text-sm font-medium text-slate-700 mb-1">Échéance</label>
                     <input
+                        id={`${fid}-due`}
                         type="date"
                         value={form.dueDate}
                         onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
@@ -280,8 +285,9 @@ export function NewTaskModal({
 
                 {/* Description */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                    <label htmlFor={`${fid}-desc`} className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                     <textarea
+                        id={`${fid}-desc`}
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
                         rows={3}
@@ -303,8 +309,9 @@ export function NewTaskModal({
                     <div className="space-y-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
                         {/* Start date */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Date de début</label>
+                            <label htmlFor={`${fid}-start`} className="block text-sm font-medium text-slate-700 mb-1">Date de début</label>
                             <input
+                                id={`${fid}-start`}
                                 type="date"
                                 value={form.startDate}
                                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
@@ -314,8 +321,9 @@ export function NewTaskModal({
 
                         {/* Estimated hours */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Estimation (heures)</label>
+                            <label htmlFor={`${fid}-hours`} className="block text-sm font-medium text-slate-700 mb-1">Estimation (heures)</label>
                             <input
+                                id={`${fid}-hours`}
                                 type="number"
                                 step="0.5"
                                 min="0"
@@ -328,19 +336,20 @@ export function NewTaskModal({
 
                         {/* Labels */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Labels</label>
+                            <label htmlFor={`${fid}-label`} className="block text-sm font-medium text-slate-700 mb-1">Labels</label>
                             <div className="flex flex-wrap gap-1 mb-2">
                                 {form.labels.map((l) => (
                                     <span key={l} className="flex items-center gap-1 text-xs bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md">
                                         {l}
-                                        <button onClick={() => removeLabel(l)}>
-                                            <X className="w-3 h-3" />
+                                        <button onClick={() => removeLabel(l)} aria-label={`Retirer le label ${l}`}>
+                                            <X className="w-3 h-3" aria-hidden="true" />
                                         </button>
                                     </span>
                                 ))}
                             </div>
                             <div className="flex gap-2">
                                 <input
+                                    id={`${fid}-label`}
                                     type="text"
                                     value={labelInput}
                                     onChange={(e) => setLabelInput(e.target.value)}
@@ -350,9 +359,10 @@ export function NewTaskModal({
                                 />
                                 <button
                                     onClick={addLabel}
+                                    aria-label="Ajouter le label"
                                     className="px-2 py-1.5 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                                 >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>

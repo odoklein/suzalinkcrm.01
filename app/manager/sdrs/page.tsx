@@ -348,10 +348,11 @@ export default function SDRsPage() {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label htmlFor="sdr-create-name" className="block text-sm font-medium text-slate-700 mb-2">
                                     Nom complet *
                                 </label>
                                 <input
+                                    id="sdr-create-name"
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -365,10 +366,11 @@ export default function SDRsPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label htmlFor="sdr-create-email" className="block text-sm font-medium text-slate-700 mb-2">
                                     Email *
                                 </label>
                                 <input
+                                    id="sdr-create-email"
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -381,10 +383,11 @@ export default function SDRsPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label htmlFor="sdr-create-password" className="block text-sm font-medium text-slate-700 mb-2">
                                     Mot de passe
                                 </label>
                                 <input
+                                    id="sdr-create-password"
                                     type="text"
                                     value={formData.password}
                                     onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}

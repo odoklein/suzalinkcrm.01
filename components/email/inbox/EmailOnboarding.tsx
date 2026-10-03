@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useId } from "react";
 import {
     Mail,
     Inbox,
@@ -164,6 +164,7 @@ function ImapConfigForm({
         displayName: "",
     });
     const [showPassword, setShowPassword] = useState(false);
+    const fieldId = useId();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -215,10 +216,11 @@ function ImapConfigForm({
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-email`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Adresse email
                     </label>
                     <input
+                        id={`${fieldId}-email`}
                         type="email"
                         required
                         value={formData.email}
@@ -229,10 +231,11 @@ function ImapConfigForm({
                 </div>
 
                 <div className="col-span-2">
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-name`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Nom d&apos;affichage
                     </label>
                     <input
+                        id={`${fieldId}-name`}
                         type="text"
                         value={formData.displayName}
                         onChange={(e) => updateField("displayName", e.target.value)}
@@ -242,11 +245,12 @@ function ImapConfigForm({
                 </div>
 
                 <div className="col-span-2">
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-password`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Mot de passe / App Password
                     </label>
                     <div className="relative">
                         <input
+                            id={`${fieldId}-password`}
                             type={showPassword ? "text" : "password"}
                             required
                             value={formData.password}
@@ -258,8 +262,10 @@ function ImapConfigForm({
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                            aria-label="Afficher le mot de passe"
+                            aria-pressed={showPassword}
                         >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showPassword ? <EyeOff className="w-4 h-4" aria-hidden /> : <Eye className="w-4 h-4" aria-hidden />}
                         </button>
                     </div>
                     <p className="mt-1.5 text-[11px] text-slate-400">
@@ -268,10 +274,11 @@ function ImapConfigForm({
                 </div>
 
                 <div>
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-imap-host`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Serveur IMAP
                     </label>
                     <input
+                        id={`${fieldId}-imap-host`}
                         type="text"
                         required
                         value={formData.imapHost}
@@ -282,10 +289,11 @@ function ImapConfigForm({
                 </div>
 
                 <div>
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-imap-port`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Port IMAP
                     </label>
                     <input
+                        id={`${fieldId}-imap-port`}
                         type="text"
                         required
                         value={formData.imapPort}
@@ -296,10 +304,11 @@ function ImapConfigForm({
                 </div>
 
                 <div>
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-smtp-host`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Serveur SMTP
                     </label>
                     <input
+                        id={`${fieldId}-smtp-host`}
                         type="text"
                         required
                         value={formData.smtpHost}
@@ -310,10 +319,11 @@ function ImapConfigForm({
                 </div>
 
                 <div>
-                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
+                    <label htmlFor={`${fieldId}-smtp-port`} className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                         Port SMTP
                     </label>
                     <input
+                        id={`${fieldId}-smtp-port`}
                         type="text"
                         required
                         value={formData.smtpPort}

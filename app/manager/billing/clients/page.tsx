@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui";
+import { useToast, useConfirm } from "@/components/ui";
 import {
     Building2,
     Search,
@@ -37,6 +37,7 @@ interface BillingClient {
 
 export default function BillingClientsPage() {
     const { success, error: showError } = useToast();
+    const confirm = useConfirm();
     const router = useRouter();
     const [clients, setClients] = useState<BillingClient[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +73,7 @@ export default function BillingClientsPage() {
     };
 
     const handleDelete = async (clientId: string) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
+        if (!(await confirm({ title: "Supprimer ce client ?", message: "Êtes-vous sûr de vouloir supprimer ce client ?", variant: "danger", confirmText: "Supprimer" }))) {
             return;
         }
 
@@ -126,6 +127,7 @@ export default function BillingClientsPage() {
                         placeholder="Rechercher par nom ou SIRET..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        aria-label="Rechercher un client"
                         className="pl-10"
                     />
                 </div>
@@ -175,20 +177,22 @@ export default function BillingClientsPage() {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => router.push(`/manager/billing/clients/${client.id}`)}
+                                        aria-label="Modifier le client"
                                     >
-                                        <Edit className="w-4 h-4" />
+                                        <Edit className="w-4 h-4" aria-hidden />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => handleDelete(client.id)}
                                         disabled={isDeleting === client.id}
+                                        aria-label="Supprimer le client"
                                         className="text-red-600 hover:text-red-700"
                                     >
                                         {isDeleting === client.id ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
                                         ) : (
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden />
                                         )}
                                     </Button>
                                 </div>

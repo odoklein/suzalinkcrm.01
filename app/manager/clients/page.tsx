@@ -3,7 +3,9 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useToast, Badge } from "@/components/ui";
+import { useToast, Badge, LoadingState } from "@/components/ui";
+import { FOCUS_RING } from "@/components/ui/recipes";
+import { pressable } from "@/lib/a11y";
 import {
     Search,
     Plus,
@@ -373,14 +375,7 @@ function ClientsPageInner() {
     }
 
     if (isLoading && clients.length === 0) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-                    <p className="text-sm text-slate-500">Chargement des clients...</p>
-                </div>
-            </div>
-        );
+        return <LoadingState message="Chargement des clients..." />;
     }
 
     return (
@@ -396,9 +391,10 @@ function ClientsPageInner() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => refetchClients()}
+                        aria-label="Actualiser la liste des clients"
                         className="p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
                     >
-                        <RefreshCw className={`w-4 h-4 text-slate-500 ${isFetching ? "animate-spin" : ""}`} />
+                        <RefreshCw aria-hidden className={`w-4 h-4 text-slate-500 ${isFetching ? "animate-spin" : ""}`} />
                     </button>
                     <Link
                         href="/manager/playbook/import"
@@ -463,6 +459,7 @@ function ClientsPageInner() {
                 <input
                     type="text"
                     placeholder="Rechercher par nom, secteur..."
+                    aria-label="Rechercher un client par nom ou secteur"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="mgr-search-input w-full h-12 pl-12 pr-4 text-sm text-slate-900"
@@ -470,9 +467,10 @@ function ClientsPageInner() {
                 {searchQuery && (
                     <button
                         onClick={() => setSearchQuery("")}
+                        aria-label="Effacer la recherche"
                         className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full transition-colors"
                     >
-                        <X className="w-4 h-4 text-slate-400" />
+                        <X aria-hidden className="w-4 h-4 text-slate-400" />
                     </button>
                 )}
             </div>
@@ -519,8 +517,9 @@ function ClientsPageInner() {
                                             className="p-3 bg-accent-50/50 border border-accent-100 rounded-xl"
                                         >
                                             <div
-                                                className="flex items-center justify-between cursor-pointer"
-                                                onClick={() => setExpandedRecapId(expandedRecapId === recap.id ? null : recap.id)}
+                                                className={`flex items-center justify-between cursor-pointer rounded-md ${FOCUS_RING}`}
+                                                {...pressable(() => setExpandedRecapId(expandedRecapId === recap.id ? null : recap.id))}
+                                                aria-expanded={expandedRecapId === recap.id}
                                             >
                                                 <div className="flex items-center gap-2 min-w-0">
                                                     <Mic className="w-3.5 h-3.5 text-accent-500 flex-shrink-0" />
@@ -565,8 +564,9 @@ function ClientsPageInner() {
                                             className="p-3 bg-slate-50 border border-slate-100 rounded-xl mb-2"
                                         >
                                             <div
-                                                className="flex items-center justify-between cursor-pointer"
-                                                onClick={() => setExpandedRecapId(expandedRecapId === recap.id ? null : recap.id)}
+                                                className={`flex items-center justify-between cursor-pointer rounded-md ${FOCUS_RING}`}
+                                                {...pressable(() => setExpandedRecapId(expandedRecapId === recap.id ? null : recap.id))}
+                                                aria-expanded={expandedRecapId === recap.id}
                                             >
                                                 <div className="flex items-center gap-2 min-w-0">
                                                     <Mic className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
@@ -684,8 +684,8 @@ function ClientsPageInner() {
                         return (
                             <div
                                 key={client.id}
-                                onClick={() => handleClientClick(client)}
-                                className={`group relative flex flex-col rounded-xl border border-slate-200 ${statusInfo.surface} ${statusInfo.muted ? "opacity-75 hover:opacity-100" : ""} hover:border-primary-300 hover:shadow-sm transition-colors cursor-pointer overflow-hidden`}
+                                {...pressable(() => handleClientClick(client))}
+                                className={`group relative flex flex-col rounded-xl border border-slate-200 ${statusInfo.surface} ${statusInfo.muted ? "opacity-75 hover:opacity-100" : ""} hover:border-primary-300 hover:shadow-sm transition-colors cursor-pointer overflow-hidden ${FOCUS_RING}`}
                             >
                                 {/* status rule */}
                                 <div className={`absolute inset-y-0 left-0 w-0.5 ${statusInfo.rule}`} />

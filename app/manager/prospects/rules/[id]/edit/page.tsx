@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { Card, Button, Input, Select, useToast } from "@/components/ui";
+import { Card, Button, Input, Select, useToast, LoadingState } from "@/components/ui";
 import { ArrowLeft, Save, Loader2, Eye } from "lucide-react";
 import { ProspectPipelineStep } from "@prisma/client";
 
@@ -112,11 +112,7 @@ export default function EditRulePage({ params }: { params: Promise<{ id: string 
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-            </div>
-        );
+        return <LoadingState message="Chargement de la règle..." />;
     }
 
     if (!rule) {
@@ -132,8 +128,9 @@ export default function EditRulePage({ params }: { params: Promise<{ id: string 
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push("/manager/prospects/rules")}
+                        aria-label="Retour aux règles"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4" aria-hidden />
                     </Button>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">Modifier la règle</h1>
@@ -147,10 +144,11 @@ export default function EditRulePage({ params }: { params: Promise<{ id: string 
                 <div className="space-y-6">
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="rule-name" className="block text-sm font-medium text-slate-700 mb-2">
                             Nom de la règle *
                         </label>
                         <Input
+                            id="rule-name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             placeholder="Ex: Valider les emails"
@@ -159,10 +157,11 @@ export default function EditRulePage({ params }: { params: Promise<{ id: string 
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="rule-description" className="block text-sm font-medium text-slate-700 mb-2">
                             Description
                         </label>
                         <textarea
+                            id="rule-description"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             placeholder="Description de la règle..."
@@ -173,10 +172,11 @@ export default function EditRulePage({ params }: { params: Promise<{ id: string 
 
                     {/* Step (read-only) */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="rule-step" className="block text-sm font-medium text-slate-700 mb-2">
                             Étape du pipeline
                         </label>
                         <Input
+                            id="rule-step"
                             value={PIPELINE_STEPS.find((s) => s.value === rule.step)?.label || rule.step}
                             disabled
                             className="bg-slate-50"
@@ -188,10 +188,11 @@ export default function EditRulePage({ params }: { params: Promise<{ id: string 
 
                     {/* Priority */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="rule-priority" className="block text-sm font-medium text-slate-700 mb-2">
                             Priorité
                         </label>
                         <Input
+                            id="rule-priority"
                             type="number"
                             value={formData.priority}
                             onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}

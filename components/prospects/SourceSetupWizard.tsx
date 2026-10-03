@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, Input, Select, Modal, useToast } from "@/components/ui";
 import { getSourceCreatedNotification, getSourceTestedNotification } from "@/lib/prospects/notifications";
@@ -128,6 +128,7 @@ export function SourceSetupWizard({ isOpen, onClose, onSuccess }: SourceSetupWiz
     const [createdSource, setCreatedSource] = useState<any>(null);
     const [missions, setMissions] = useState<Array<{ id: string; name: string }>>([]);
     const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
+    const nameId = useId();
 
     // Fetch missions and clients
     useEffect(() => {
@@ -343,10 +344,11 @@ export function SourceSetupWizard({ isOpen, onClose, onSuccess }: SourceSetupWiz
                 return (
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor={nameId} className="block text-sm font-medium text-slate-700 mb-2">
                                 Nom de la source *
                             </label>
                             <Input
+                                id={nameId}
                                 value={formData.name}
                                 onChange={(e) => updateField("name", e.target.value)}
                                 placeholder="Ex: Formulaire de contact principal"
@@ -365,6 +367,7 @@ export function SourceSetupWizard({ isOpen, onClose, onSuccess }: SourceSetupWiz
                                             key={type.id}
                                             type="button"
                                             onClick={() => updateField("type", type.id)}
+                                            aria-pressed={isSelected}
                                             className={cn(
                                                 "p-4 border-2 rounded-xl text-left transition-all",
                                                 "hover:shadow-md",
@@ -415,8 +418,9 @@ export function SourceSetupWizard({ isOpen, onClose, onSuccess }: SourceSetupWiz
                                                     navigator.clipboard.writeText(createdSource.metadata.apiKey);
                                                     success("Copié", "Clé API copiée dans le presse-papiers");
                                                 }}
+                                                aria-label="Copier la clé API"
                                             >
-                                                <Copy className="w-4 h-4" />
+                                                <Copy className="w-4 h-4" aria-hidden />
                                             </Button>
                                         </div>
                                     )}
@@ -452,8 +456,9 @@ export function SourceSetupWizard({ isOpen, onClose, onSuccess }: SourceSetupWiz
                                                     navigator.clipboard.writeText(createdSource.metadata.webhookUrl);
                                                     success("Copié", "URL webhook copiée");
                                                 }}
+                                                aria-label="Copier l'URL du webhook"
                                             >
-                                                <Copy className="w-4 h-4" />
+                                                <Copy className="w-4 h-4" aria-hidden />
                                             </Button>
                                         </div>
                                     )}

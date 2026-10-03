@@ -1366,8 +1366,8 @@ export default function ImportListPage() {
             {/* Header — compact: title, context, and a slim step rail */}
             <div className="flex items-center gap-3">
                 <Link href="/manager/lists">
-                    <Button variant="ghost" size="sm">
-                        <ArrowLeft className="w-4 h-4" />
+                    <Button variant="ghost" size="sm" aria-label="Retour aux listes">
+                        <ArrowLeft aria-hidden className="w-4 h-4" />
                     </Button>
                 </Link>
                 <div className="min-w-0 flex-1">
@@ -1447,10 +1447,11 @@ export default function ImportListPage() {
 
                         {importMode === "new" ? (
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label htmlFor="import-list-name" className="block text-sm font-medium text-slate-700 mb-2">
                                     Nom de la liste *
                                 </label>
                                 <input
+                                    id="import-list-name"
                                     type="text"
                                     value={listName}
                                     onChange={(e) => setListName(e.target.value)}
@@ -1519,10 +1520,11 @@ export default function ImportListPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor="import-already-worked" className="block text-sm font-medium text-slate-700 mb-2">
                                 Si la société a déjà été travaillée
                             </label>
                             <select
+                                id="import-already-worked"
                                 value={whenAlreadyWorkedOn}
                                 onChange={(e) => setWhenAlreadyWorkedOn(e.target.value as "skip" | "add_anyway")}
                                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
@@ -1571,6 +1573,7 @@ export default function ImportListPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <button
                                 onClick={() => setImportType("companies-only")}
+                                aria-pressed={importType === "companies-only"}
                                 className={`p-6 rounded-xl border-2 transition-all text-left ${importType === "companies-only"
                                     ? "border-primary-500 bg-primary-50"
                                     : "border-slate-200 bg-white hover:border-slate-300"
@@ -1597,6 +1600,7 @@ export default function ImportListPage() {
 
                             <button
                                 onClick={() => setImportType("companies-contacts")}
+                                aria-pressed={importType === "companies-contacts"}
                                 className={`p-6 rounded-xl border-2 transition-all text-left ${importType === "companies-contacts"
                                     ? "border-primary-500 bg-primary-50"
                                     : "border-slate-200 bg-white hover:border-slate-300"
@@ -1711,6 +1715,7 @@ export default function ImportListPage() {
                                     <input
                                         type="text"
                                         placeholder="Rechercher une colonne..."
+                                        aria-label="Rechercher une colonne"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
@@ -1743,6 +1748,9 @@ export default function ImportListPage() {
                                 <button
                                     type="button"
                                     onClick={() => setImportActions(!importActions)}
+                                    role="switch"
+                                    aria-checked={importActions}
+                                    aria-label="Importer l'historique des actions"
                                     className={`relative w-11 h-6 rounded-full transition-colors ${importActions ? "bg-primary-600" : "bg-slate-300"}`}
                                 >
                                     <span
@@ -1899,6 +1907,7 @@ export default function ImportListPage() {
                                             <button
                                                 type="button"
                                                 className={`px-3 py-1.5 text-xs rounded ${actionColumnMode === "single" ? "bg-primary-600 text-white" : "text-slate-700"}`}
+                                                aria-pressed={actionColumnMode === "single"}
                                                 onClick={() => setActionColumnMode("single")}
                                             >
                                                 Colonne unique
@@ -1906,6 +1915,7 @@ export default function ImportListPage() {
                                             <button
                                                 type="button"
                                                 className={`px-3 py-1.5 text-xs rounded ${actionColumnMode === "multi-column" ? "bg-primary-600 text-white" : "text-slate-700"}`}
+                                                aria-pressed={actionColumnMode === "multi-column"}
                                                 onClick={() => setActionColumnMode("multi-column")}
                                             >
                                                 Multi-colonnes

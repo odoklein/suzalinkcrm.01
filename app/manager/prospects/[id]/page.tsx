@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { Card, Badge, Button, useToast, Tabs, Modal, Select } from "@/components/ui";
+import { Card, Badge, Button, useToast, usePrompt, LoadingState, Tabs, Modal, Select } from "@/components/ui";
 import { PipelineViewer } from "@/components/prospects/PipelineViewer";
 import {
     ArrowLeft,
@@ -128,6 +128,7 @@ export default function ProspectDetailPage({ params }: { params: Promise<{ id: s
     const resolvedParams = use(params);
     const router = useRouter();
     const { success, error: showError } = useToast();
+    const prompt = usePrompt();
 
     const [profile, setProfile] = useState<ProspectDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -222,7 +223,13 @@ export default function ProspectDetailPage({ params }: { params: Promise<{ id: s
     };
 
     const handleReject = async () => {
-        const reason = prompt("Raison du rejet (optionnel):");
+        const reason = await prompt({
+            title: "Rejeter le prospect",
+            label: "Raison du rejet (optionnel)",
+            variant: "danger",
+            confirmText: "Rejeter",
+        });
+        if (reason === null) return;
         setIsProcessing(true);
         try {
             const res = await fetch(`/api/prospects/profiles/${resolvedParams.id}/review`, {
@@ -283,11 +290,7 @@ export default function ProspectDetailPage({ params }: { params: Promise<{ id: s
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <RefreshCw className="w-8 h-8 text-primary-600 animate-spin" />
-            </div>
-        );
+        return <LoadingState message="Chargement du prospect..." />;
     }
 
     if (!profile) {
@@ -317,8 +320,9 @@ export default function ProspectDetailPage({ params }: { params: Promise<{ id: s
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push("/manager/prospects")}
+                        aria-label="Retour à la liste des prospects"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4" aria-hidden />
                     </Button>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">{fullName}</h1>

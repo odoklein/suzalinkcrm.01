@@ -125,7 +125,7 @@ export function InvoiceItemsTable({ items, onChange, readOnly = false }: Invoice
                             >
                                 {!readOnly && (
                                     <td className="px-2 py-3">
-                                        <GripVertical className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <GripVertical className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                                     </td>
                                 )}
                                 <td className="px-4 py-3">
@@ -136,7 +136,8 @@ export function InvoiceItemsTable({ items, onChange, readOnly = false }: Invoice
                                             value={item.description}
                                             onChange={(e) => updateItem(index, "description", e.target.value)}
                                             placeholder="Description de la prestation..."
-                                            className="w-full bg-transparent border-0 p-0 text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 text-sm"
+                                            aria-label={`Description (ligne ${index + 1})`}
+                                            className="w-full bg-transparent border-0 p-0 text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-focus text-sm"
                                         />
                                     )}
                                 </td>
@@ -150,7 +151,8 @@ export function InvoiceItemsTable({ items, onChange, readOnly = false }: Invoice
                                             min="0"
                                             value={item.quantity}
                                             onChange={(e) => updateItem(index, "quantity", parseFloat(e.target.value) || 0)}
-                                            className="w-full bg-transparent border-0 p-0 text-right text-slate-700 focus:outline-none focus:ring-0 text-sm tabular-nums"
+                                            aria-label={`Quantité (ligne ${index + 1})`}
+                                            className="w-full bg-transparent border-0 p-0 text-right text-slate-700 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-focus text-sm tabular-nums"
                                         />
                                     )}
                                 </td>
@@ -164,7 +166,8 @@ export function InvoiceItemsTable({ items, onChange, readOnly = false }: Invoice
                                             min="0"
                                             value={item.unitPriceHt}
                                             onChange={(e) => updateItem(index, "unitPriceHt", parseFloat(e.target.value) || 0)}
-                                            className="w-full bg-transparent border-0 p-0 text-right text-slate-700 focus:outline-none focus:ring-0 text-sm tabular-nums"
+                                            aria-label={`Prix unitaire HT (ligne ${index + 1})`}
+                                            className="w-full bg-transparent border-0 p-0 text-right text-slate-700 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-focus text-sm tabular-nums"
                                         />
                                     )}
                                 </td>
@@ -183,7 +186,8 @@ export function InvoiceItemsTable({ items, onChange, readOnly = false }: Invoice
                                             max="100"
                                             value={item.vatRate}
                                             onChange={(e) => updateItem(index, "vatRate", parseFloat(e.target.value) || 0)}
-                                            className="w-full bg-transparent border-0 p-0 text-right text-slate-700 focus:outline-none focus:ring-0 text-sm tabular-nums"
+                                            aria-label={`Taux de TVA en % (ligne ${index + 1})`}
+                                            className="w-full bg-transparent border-0 p-0 text-right text-slate-700 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-focus text-sm tabular-nums"
                                         />
                                     )}
                                 </td>
@@ -196,9 +200,10 @@ export function InvoiceItemsTable({ items, onChange, readOnly = false }: Invoice
                                     <td className="px-2 py-3">
                                         <button
                                             onClick={() => removeItem(index)}
-                                            className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-150"
+                                            aria-label={`Supprimer la ligne ${index + 1}`}
+                                            className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-150"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden="true" />
                                         </button>
                                     </td>
                                 )}

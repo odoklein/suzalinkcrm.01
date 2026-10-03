@@ -50,6 +50,7 @@ export function DayToggleChips({ value, onChange, frequency, disabled }: DayTogg
                         type="button"
                         onClick={() => toggle(dayValue)}
                         disabled={disabled}
+                        aria-pressed={isSelected}
                         className={cn(
                             "px-3 py-1.5 text-sm font-medium rounded-lg transition-colors",
                             isSelected

@@ -244,15 +244,17 @@ export default function SourcesPage() {
                         onClick={() => handleTest(source.id)}
                         disabled={testingSource === source.id || !source.isActive}
                         title="Envoyer un lead de test"
+                        aria-label="Envoyer un lead de test"
                     >
-                        <TestTube className="w-4 h-4" />
+                        <TestTube className="w-4 h-4" aria-hidden />
                     </Button>
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push(`/manager/prospects/sources/${source.id}/edit`)}
+                        aria-label="Modifier la source"
                     >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-4 h-4" aria-hidden />
                     </Button>
                     <Button
                         variant="ghost"
@@ -262,8 +264,9 @@ export default function SourcesPage() {
                             setShowDeleteModal(true);
                         }}
                         className="text-red-600 hover:text-red-700"
+                        aria-label="Supprimer la source"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden />
                     </Button>
                 </div>
             ),
@@ -318,6 +321,7 @@ export default function SourcesPage() {
                     <input
                         type="text"
                         placeholder="Rechercher une source..."
+                        aria-label="Rechercher une source"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"

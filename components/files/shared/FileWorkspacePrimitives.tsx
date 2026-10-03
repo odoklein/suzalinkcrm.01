@@ -249,6 +249,7 @@ export function FileToolbar({
               key={tab.value}
               type="button"
               onClick={() => onTabChange(tab.value)}
+              aria-pressed={activeTab === tab.value}
               className={cn(
                 "rounded-xl px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40",
                 activeTab === tab.value
@@ -298,6 +299,7 @@ export function FileToolbar({
                   key={mode}
                   type="button"
                   onClick={() => onViewModeChange(mode)}
+                  aria-pressed={viewMode === mode}
                   className={cn(
                     "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40",
                     viewMode === mode
@@ -394,7 +396,7 @@ export function FileActionsMenu({
         onClick={() => setOpen((value) => !value)}
         className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
       >
-        <MoreVertical className="h-4 w-4" />
+        <MoreVertical className="h-4 w-4" aria-hidden />
       </button>
       {open ? (
         <div
@@ -469,6 +471,7 @@ export function FileListRow({
         <button
           type="button"
           aria-pressed={selected}
+          aria-label={`Sélectionner ${item.originalName || item.name}`}
           onClick={() => onSelectChange?.(!selected)}
           className={cn(
             "flex h-5 w-5 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40",
@@ -477,7 +480,7 @@ export function FileListRow({
               : "border-slate-300 bg-white text-transparent hover:text-slate-400",
           )}
         >
-          <Check className="h-3 w-3" />
+          <Check className="h-3 w-3" aria-hidden />
         </button>
       ) : null}
       <button
@@ -606,7 +609,7 @@ export function FileDetailsPanel({
             onClick={onClose}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden />
           </button>
         ) : null}
       </div>
@@ -815,7 +818,7 @@ export function DefaultFileRowActions({
           className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
           aria-label="Ouvrir le lien"
         >
-          <ExternalLink className="h-4 w-4" />
+          <ExternalLink className="h-4 w-4" aria-hidden />
         </a>
       ) : onOpen ? (
         <button
@@ -824,7 +827,7 @@ export function DefaultFileRowActions({
           className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
           aria-label="Voir les détails"
         >
-          <Eye className="h-4 w-4" />
+          <Eye className="h-4 w-4" aria-hidden />
         </button>
       ) : null}
       <FileActionsMenu label="Actions du fichier" items={menuItems} />

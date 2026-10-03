@@ -124,8 +124,9 @@ export default function RulesPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => router.push(`/manager/prospects/rules/${rule.id}/edit`)}
+                        aria-label="Modifier la règle"
                     >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-4 h-4" aria-hidden />
                     </Button>
                     <Button
                         variant="ghost"
@@ -135,8 +136,9 @@ export default function RulesPage() {
                             setShowDeleteModal(true);
                         }}
                         className="text-red-600 hover:text-red-700"
+                        aria-label="Supprimer la règle"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden />
                     </Button>
                 </div>
             ),

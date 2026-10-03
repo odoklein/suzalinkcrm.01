@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { cn } from "@/lib/utils";
 import {
     Mail,
@@ -18,6 +18,7 @@ import {
     X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
+import { useConfirm, useOverlay } from "@/components/ui";
 import { brand } from "@/lib/brand";
 
 // ============================================
@@ -81,6 +82,8 @@ interface AddMailboxModalProps {
 }
 
 function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
+    const panelRef = useOverlay<HTMLDivElement>({ open: isOpen, onClose });
+    const fieldId = useId();
     const [step, setStep] = useState<'select' | 'imap' | 'reachinbox'>('select');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -219,7 +222,13 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
     return (
         <>
             <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={`${fieldId}-title`}
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg"
+            >
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-slate-200">
@@ -228,11 +237,12 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                 <button
                                     onClick={() => setStep('select')}
                                     className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                                    aria-label="Retour"
                                 >
-                                    <ArrowRight className="w-4 h-4 rotate-180 text-slate-500" />
+                                    <ArrowRight className="w-4 h-4 rotate-180 text-slate-500" aria-hidden />
                                 </button>
                             )}
-                            <h2 className="text-lg font-semibold text-slate-900">
+                            <h2 id={`${fieldId}-title`} className="text-lg font-semibold text-slate-900">
                                 {step === 'select'
                                     ? 'Ajouter une boîte mail'
                                     : step === 'reachinbox'
@@ -243,8 +253,9 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                         <button
                             onClick={onClose}
                             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            aria-label="Fermer"
                         >
-                            <X className="w-5 h-5 text-slate-500" />
+                            <X className="w-5 h-5 text-slate-500" aria-hidden />
                         </button>
                     </div>
 
@@ -292,10 +303,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
 
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-ri-email`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Adresse email *
                                         </label>
                                         <input
+                                            id={`${fieldId}-ri-email`}
                                             type="email"
                                             required
                                             value={reachInboxForm.email}
@@ -306,10 +318,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-ri-name`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Nom d&apos;affichage
                                         </label>
                                         <input
+                                            id={`${fieldId}-ri-name`}
                                             type="text"
                                             value={reachInboxForm.displayName}
                                             onChange={(e) => setReachInboxForm({ ...reachInboxForm, displayName: e.target.value })}
@@ -319,10 +332,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-ri-key`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Cle API ReachInbox *
                                         </label>
                                         <input
+                                            id={`${fieldId}-ri-key`}
                                             type="password"
                                             required
                                             value={reachInboxForm.apiKey}
@@ -369,10 +383,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
 
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-imap-email`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Adresse email *
                                         </label>
                                         <input
+                                            id={`${fieldId}-imap-email`}
                                             type="email"
                                             required
                                             value={imapForm.email}
@@ -383,10 +398,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-imap-name`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Nom d&apos;affichage
                                         </label>
                                         <input
+                                            id={`${fieldId}-imap-name`}
                                             type="text"
                                             value={imapForm.displayName}
                                             onChange={(e) => setImapForm({ ...imapForm, displayName: e.target.value })}
@@ -396,10 +412,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-imap-password`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Mot de passe / App Password *
                                         </label>
                                         <input
+                                            id={`${fieldId}-imap-password`}
                                             type="password"
                                             required
                                             value={imapForm.password}
@@ -410,10 +427,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-imap-host`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Serveur IMAP *
                                         </label>
                                         <input
+                                            id={`${fieldId}-imap-host`}
                                             type="text"
                                             required
                                             value={imapForm.imapHost}
@@ -424,10 +442,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-imap-port`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Port IMAP *
                                         </label>
                                         <input
+                                            id={`${fieldId}-imap-port`}
                                             type="text"
                                             required
                                             value={imapForm.imapPort}
@@ -438,10 +457,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-smtp-host`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Serveur SMTP *
                                         </label>
                                         <input
+                                            id={`${fieldId}-smtp-host`}
                                             type="text"
                                             required
                                             value={imapForm.smtpHost}
@@ -452,10 +472,11 @@ function AddMailboxModal({ isOpen, onClose, onSuccess }: AddMailboxModalProps) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        <label htmlFor={`${fieldId}-smtp-port`} className="block text-sm font-medium text-slate-700 mb-1">
                                             Port SMTP *
                                         </label>
                                         <input
+                                            id={`${fieldId}-smtp-port`}
                                             type="text"
                                             required
                                             value={imapForm.smtpPort}
@@ -506,6 +527,8 @@ interface TeamPermissionsModalProps {
 }
 
 function TeamPermissionsModal({ mailbox, isOpen, onClose }: TeamPermissionsModalProps) {
+    const panelRef = useOverlay<HTMLDivElement>({ open: isOpen && !!mailbox, onClose });
+    const titleId = useId();
     const [users, setUsers] = useState<TeamUser[]>([]);
     const [ownerId, setOwnerId] = useState<string | null>(null);
     const [permissions, setPermissions] = useState<Record<string, EditablePermission>>({});
@@ -632,15 +655,21 @@ function TeamPermissionsModal({ mailbox, isOpen, onClose }: TeamPermissionsModal
     return (
         <>
             <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-3xl max-h-[88vh] overflow-hidden">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-3xl max-h-[88vh] overflow-hidden"
+            >
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
                     <div className="flex items-center justify-between p-4 border-b border-slate-200">
                         <div>
-                            <h2 className="text-lg font-semibold text-slate-900">Accès équipe</h2>
+                            <h2 id={titleId} className="text-lg font-semibold text-slate-900">Accès équipe</h2>
                             <p className="text-sm text-slate-500">{mailbox.displayName || mailbox.email}</p>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                            <X className="w-5 h-5 text-slate-500" />
+                        <button onClick={onClose} aria-label="Fermer" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <X className="w-5 h-5 text-slate-500" aria-hidden />
                         </button>
                     </div>
 
@@ -755,6 +784,7 @@ export default function MailboxesPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [teamMailbox, setTeamMailbox] = useState<Mailbox | null>(null);
     const [copiedWebhookMailboxId, setCopiedWebhookMailboxId] = useState<string | null>(null);
+    const confirm = useConfirm();
 
     // Fetch mailboxes
     useEffect(() => {
@@ -807,7 +837,7 @@ export default function MailboxesPage() {
 
     // Delete mailbox
     const handleDelete = async (mailboxId: string) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer cette boîte mail ?")) return;
+        if (!(await confirm({ title: "Supprimer cette boîte mail ?", message: "Cette action est irréversible.", variant: "danger", confirmText: "Supprimer" }))) return;
 
         try {
             await fetch(`/api/email/mailboxes/${mailboxId}`, { method: "DELETE" });
@@ -1053,22 +1083,25 @@ export default function MailboxesPage() {
                                             href={`/manager/email/mailboxes/${mailbox.id}`}
                                             className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                                             title="Paramètres"
+                                            aria-label="Paramètres de la boîte mail"
                                         >
-                                            <Settings className="w-4 h-4" />
+                                            <Settings className="w-4 h-4" aria-hidden />
                                         </a>
                                         <button
                                             onClick={() => setTeamMailbox(mailbox)}
                                             className="p-2 text-slate-500 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
                                             title="Accès équipe"
+                                            aria-label="Accès équipe"
                                         >
-                                            <Users className="w-4 h-4" />
+                                            <Users className="w-4 h-4" aria-hidden />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(mailbox.id)}
                                             className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                             title="Supprimer"
+                                            aria-label="Supprimer la boîte mail"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-4 h-4" aria-hidden />
                                         </button>
                                     </div>
                                 </div>

@@ -978,9 +978,10 @@ export default function AnalyseIAPage() {
                         <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                             <button
                                 onClick={() => setWeekOffset(o => o - 1)}
+                                aria-label="Semaine précédente"
                                 className="p-1.5 rounded hover:bg-white hover:shadow-sm transition-all"
                             >
-                                <ChevronLeft className="w-4 h-4 text-slate-600" />
+                                <ChevronLeft className="w-4 h-4 text-slate-600" aria-hidden />
                             </button>
                             <div className="flex items-center gap-2 px-3">
                                 <Calendar className="w-4 h-4 text-slate-500" />
@@ -996,14 +997,16 @@ export default function AnalyseIAPage() {
                             <button
                                 onClick={() => setWeekOffset(o => Math.min(0, o + 1))}
                                 disabled={weekOffset === 0}
+                                aria-label="Semaine suivante"
                                 className="p-1.5 rounded hover:bg-white hover:shadow-sm transition-all disabled:opacity-30"
                             >
-                                <ChevronRight className="w-4 h-4 text-slate-600" />
+                                <ChevronRight className="w-4 h-4 text-slate-600" aria-hidden />
                             </button>
                         </div>
 
                         <input
                             type="text"
+                            aria-label="Label de l'analyse (optionnel)"
                             placeholder="Label optionnel (ex: Mission Alpha S.15)"
                             value={runLabel}
                             onChange={(e) => setRunLabel(e.target.value)}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useId } from "react";
 import Link from "next/link";
+import { LoadingState, useConfirm } from "@/components/ui";
 import {
     ArrowLeft,
     Save,
@@ -84,6 +85,8 @@ type TabKey = (typeof TAB_KEYS)[number];
 // ============================================
 
 export default function ManagerSettingsStatusesPage() {
+    const confirm = useConfirm();
+    const fieldId = useId();
     const [activeTab, setActiveTab] = useState<TabKey>("statuses");
 
     // Data
@@ -328,7 +331,7 @@ export default function ManagerSettingsStatusesPage() {
     }
 
     async function handleDeleteCategory(cat: ResultCategory) {
-        if (!window.confirm("Supprimer cette catégorie ? Les statuts qui y sont rattachés n'auront plus de catégorie.")) return;
+        if (!(await confirm({ title: "Supprimer cette catégorie ?", message: "Les statuts qui y sont rattachés n'auront plus de catégorie.", variant: "danger", confirmText: "Supprimer" }))) return;
         setCategoryDeleting(cat.id);
         setMessage(null);
         try {
@@ -364,9 +367,12 @@ export default function ManagerSettingsStatusesPage() {
             return;
         }
         if (
-            !window.confirm(
-                `Remapper ${entries.length} statut(s) pour ${selectedImpactCount.toLocaleString()} action(s) ? Les statuts MISSION hérités correspondants seront désactivés.`
-            )
+            !(await confirm({
+                title: `Remapper ${entries.length} statut(s) ?`,
+                message: `${selectedImpactCount.toLocaleString()} action(s) seront modifiées. Les statuts MISSION hérités correspondants seront désactivés. Cette opération est irréversible.`,
+                variant: "danger",
+                confirmText: "Remapper",
+            }))
         ) return;
 
         setRemapping(true);
@@ -440,12 +446,7 @@ export default function ManagerSettingsStatusesPage() {
     // ============================================
 
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-                <p className="text-sm text-slate-500">Chargement des statuts…</p>
-            </div>
-        );
+        return <LoadingState message="Chargement des statuts…" />;
     }
 
     return (
@@ -455,8 +456,9 @@ export default function ManagerSettingsStatusesPage() {
                 <Link
                     href="/manager/settings"
                     className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                    aria-label="Retour aux paramètres"
                 >
-                    <ArrowLeft className="w-4 h-4 text-slate-600" />
+                    <ArrowLeft className="w-4 h-4 text-slate-600" aria-hidden />
                 </Link>
                 <div className="flex-1">
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
@@ -513,6 +515,7 @@ export default function ManagerSettingsStatusesPage() {
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
+                        aria-pressed={activeTab === tab.key}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                             activeTab === tab.key
                                 ? "bg-white text-slate-900 shadow-sm"
@@ -537,6 +540,7 @@ export default function ManagerSettingsStatusesPage() {
                             <input
                                 type="text"
                                 placeholder="Rechercher un statut…"
+                                aria-label="Rechercher un statut"
                                 value={statusSearch}
                                 onChange={(e) => setStatusSearch(e.target.value)}
                                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary-400"
@@ -583,8 +587,9 @@ export default function ManagerSettingsStatusesPage() {
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Code *</label>
+                                    <label htmlFor={`${fieldId}-status-code`} className="block text-xs font-medium text-slate-600 mb-1">Code *</label>
                                     <input
+                                        id={`${fieldId}-status-code`}
                                         type="text"
                                         value={newStatus.code}
                                         onChange={(e) => setNewStatus((p) => ({ ...p, code: e.target.value.toUpperCase().replace(/\s/g, "_") }))}
@@ -593,8 +598,9 @@ export default function ManagerSettingsStatusesPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Libellé *</label>
+                                    <label htmlFor={`${fieldId}-status-label`} className="block text-xs font-medium text-slate-600 mb-1">Libellé *</label>
                                     <input
+                                        id={`${fieldId}-status-label`}
                                         type="text"
                                         value={newStatus.label}
                                         onChange={(e) => setNewStatus((p) => ({ ...p, label: e.target.value }))}
@@ -603,9 +609,10 @@ export default function ManagerSettingsStatusesPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Couleur</label>
+                                    <label htmlFor={`${fieldId}-status-color`} className="block text-xs font-medium text-slate-600 mb-1">Couleur</label>
                                     <div className="flex gap-2">
                                         <input
+                                            id={`${fieldId}-status-color`}
                                             type="color"
                                             value={newStatus.color}
                                             onChange={(e) => setNewStatus((p) => ({ ...p, color: e.target.value }))}
@@ -615,13 +622,15 @@ export default function ManagerSettingsStatusesPage() {
                                             type="text"
                                             value={newStatus.color}
                                             onChange={(e) => setNewStatus((p) => ({ ...p, color: e.target.value }))}
+                                            aria-label="Code couleur hexadécimal"
                                             className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:ring-2 focus:ring-primary-400 focus:outline-none"
                                         />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Priorité</label>
+                                    <label htmlFor={`${fieldId}-status-priority`} className="block text-xs font-medium text-slate-600 mb-1">Priorité</label>
                                     <select
+                                        id={`${fieldId}-status-priority`}
                                         value={newStatus.priorityLabel}
                                         onChange={(e) => setNewStatus((p) => ({ ...p, priorityLabel: e.target.value as PriorityLabel }))}
                                         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-400 focus:outline-none bg-white"
@@ -632,8 +641,9 @@ export default function ManagerSettingsStatusesPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">Catégorie</label>
+                                    <label htmlFor={`${fieldId}-status-category`} className="block text-xs font-medium text-slate-600 mb-1">Catégorie</label>
                                     <select
+                                        id={`${fieldId}-status-category`}
                                         value={newStatus.resultCategoryCode ?? ""}
                                         onChange={(e) => setNewStatus((p) => ({ ...p, resultCategoryCode: e.target.value || null }))}
                                         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-400 focus:outline-none bg-white"
@@ -729,6 +739,7 @@ export default function ManagerSettingsStatusesPage() {
                                                             type="color"
                                                             value={s.color ?? "#64748b"}
                                                             onChange={(e) => updateStatusField(s.code, "color", e.target.value)}
+                                                            aria-label={`Couleur du statut ${s.code}`}
                                                             className="w-8 h-8 rounded border border-slate-200 cursor-pointer"
                                                         />
                                                     ) : (
@@ -745,6 +756,7 @@ export default function ManagerSettingsStatusesPage() {
                                                             type="text"
                                                             value={s.label ?? ""}
                                                             onChange={(e) => updateStatusField(s.code, "label", e.target.value)}
+                                                            aria-label={`Libellé du statut ${s.code}`}
                                                             className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-400 focus:outline-none"
                                                         />
                                                     ) : (
@@ -756,6 +768,7 @@ export default function ManagerSettingsStatusesPage() {
                                                         <select
                                                             value={s.priorityLabel}
                                                             onChange={(e) => updateStatusField(s.code, "priorityLabel", e.target.value)}
+                                                            aria-label={`Priorité du statut ${s.code}`}
                                                             className="text-xs px-2 py-1.5 border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-400 focus:outline-none"
                                                         >
                                                             {PRIORITY_OPTIONS.map((o) => (
@@ -774,6 +787,7 @@ export default function ManagerSettingsStatusesPage() {
                                                             type="checkbox"
                                                             checked={s.requiresNote}
                                                             onChange={(e) => updateStatusField(s.code, "requiresNote", e.target.checked)}
+                                                            aria-label={`Note obligatoire pour ${s.code}`}
                                                             className="rounded border-slate-300 text-primary-600"
                                                         />
                                                     ) : (
@@ -786,6 +800,7 @@ export default function ManagerSettingsStatusesPage() {
                                                             type="checkbox"
                                                             checked={s.triggersCallback}
                                                             onChange={(e) => updateStatusField(s.code, "triggersCallback", e.target.checked)}
+                                                            aria-label={`${s.code} déclenche un rappel`}
                                                             className="rounded border-slate-300 text-primary-600"
                                                         />
                                                     ) : (
@@ -798,6 +813,7 @@ export default function ManagerSettingsStatusesPage() {
                                                             type="checkbox"
                                                             checked={s.triggersOpportunity}
                                                             onChange={(e) => updateStatusField(s.code, "triggersOpportunity", e.target.checked)}
+                                                            aria-label={`${s.code} crée une opportunité`}
                                                             className="rounded border-slate-300 text-primary-600"
                                                         />
                                                     ) : (
@@ -809,6 +825,7 @@ export default function ManagerSettingsStatusesPage() {
                                                         <select
                                                             value={s.resultCategoryCode ?? ""}
                                                             onChange={(e) => updateStatusField(s.code, "resultCategoryCode", e.target.value || null)}
+                                                            aria-label={`Catégorie du statut ${s.code}`}
                                                             className="text-xs px-2 py-1.5 border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-400 focus:outline-none min-w-[120px]"
                                                         >
                                                             <option value="">—</option>
@@ -831,10 +848,13 @@ export default function ManagerSettingsStatusesPage() {
                                                         disabled={saving}
                                                         className="text-slate-400 hover:text-slate-700"
                                                         title={s.isActive ? "Désactiver" : "Réactiver"}
+                                                        role="switch"
+                                                        aria-checked={s.isActive}
+                                                        aria-label={`Statut ${s.code} actif`}
                                                     >
                                                         {s.isActive
-                                                            ? <ToggleRight className="w-5 h-5 text-emerald-500" />
-                                                            : <ToggleLeft className="w-5 h-5 text-slate-300" />
+                                                            ? <ToggleRight className="w-5 h-5 text-emerald-500" aria-hidden />
+                                                            : <ToggleLeft className="w-5 h-5 text-slate-300" aria-hidden />
                                                         }
                                                     </button>
                                                 </td>
@@ -848,8 +868,9 @@ export default function ManagerSettingsStatusesPage() {
                                                                 : "text-slate-400 hover:text-primary-600 hover:bg-primary-50"
                                                         }`}
                                                         title={isEditing ? "Terminer" : "Modifier"}
+                                                        aria-label={isEditing ? `Terminer la modification de ${s.code}` : `Modifier le statut ${s.code}`}
                                                     >
-                                                        <Pencil className="w-4 h-4" />
+                                                        <Pencil className="w-4 h-4" aria-hidden />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -897,8 +918,9 @@ export default function ManagerSettingsStatusesPage() {
                         {showAddCategory && (
                             <div className="flex flex-wrap items-end gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Code</label>
+                                    <label htmlFor={`${fieldId}-cat-code`} className="block text-xs font-medium text-slate-500 mb-1">Code</label>
                                     <input
+                                        id={`${fieldId}-cat-code`}
                                         type="text"
                                         value={newCategoryCode}
                                         onChange={(e) => setNewCategoryCode(e.target.value.toUpperCase().replace(/\s/g, "_"))}
@@ -907,8 +929,9 @@ export default function ManagerSettingsStatusesPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Libellé</label>
+                                    <label htmlFor={`${fieldId}-cat-label`} className="block text-xs font-medium text-slate-500 mb-1">Libellé</label>
                                     <input
+                                        id={`${fieldId}-cat-label`}
                                         type="text"
                                         value={newCategoryLabel}
                                         onChange={(e) => setNewCategoryLabel(e.target.value)}
@@ -917,8 +940,9 @@ export default function ManagerSettingsStatusesPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Couleur</label>
+                                    <label htmlFor={`${fieldId}-cat-color`} className="block text-xs font-medium text-slate-500 mb-1">Couleur</label>
                                     <input
+                                        id={`${fieldId}-cat-color`}
                                         type="color"
                                         value={newCategoryColor}
                                         onChange={(e) => setNewCategoryColor(e.target.value)}
@@ -926,8 +950,9 @@ export default function ManagerSettingsStatusesPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Ordre</label>
+                                    <label htmlFor={`${fieldId}-cat-order`} className="block text-xs font-medium text-slate-500 mb-1">Ordre</label>
                                     <input
+                                        id={`${fieldId}-cat-order`}
                                         type="number"
                                         min={0}
                                         value={newCategorySortOrder}
@@ -982,12 +1007,14 @@ export default function ManagerSettingsStatusesPage() {
                                                 type="text"
                                                 value={editingCategory.label}
                                                 onChange={(e) => setEditingCategory((p) => (p ? { ...p, label: e.target.value } : null))}
+                                                aria-label="Libellé de la catégorie"
                                                 className="flex-1 px-3 py-1.5 text-sm border border-slate-200 rounded-lg"
                                             />
                                             <input
                                                 type="color"
                                                 value={editingCategory.color ?? "#64748b"}
                                                 onChange={(e) => setEditingCategory((p) => (p ? { ...p, color: e.target.value } : null))}
+                                                aria-label="Couleur de la catégorie"
                                                 className="w-10 h-8 rounded border border-slate-200 cursor-pointer"
                                             />
                                             <input
@@ -1000,6 +1027,7 @@ export default function ManagerSettingsStatusesPage() {
                                                     )
                                                 }
                                                 className="w-16 px-2 py-1.5 text-sm border border-slate-200 rounded-lg"
+                                                aria-label="Ordre de la catégorie"
                                             />
                                             <button
                                                 type="button"
@@ -1029,8 +1057,9 @@ export default function ManagerSettingsStatusesPage() {
                                                 onClick={() => setEditingCategory({ ...cat })}
                                                 className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                                                 title="Modifier"
+                                                aria-label={`Modifier la catégorie ${cat.label}`}
                                             >
-                                                <Pencil className="w-4 h-4" />
+                                                <Pencil className="w-4 h-4" aria-hidden />
                                             </button>
                                             <button
                                                 type="button"
@@ -1038,11 +1067,12 @@ export default function ManagerSettingsStatusesPage() {
                                                 disabled={categoryDeleting === cat.id}
                                                 className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                                                 title="Supprimer"
+                                                aria-label={`Supprimer la catégorie ${cat.label}`}
                                             >
                                                 {categoryDeleting === cat.id ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
                                                 ) : (
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-4 h-4" aria-hidden />
                                                 )}
                                             </button>
                                         </>
@@ -1169,6 +1199,7 @@ export default function ManagerSettingsStatusesPage() {
                                                         </td>
                                                         <td className="py-3 px-4">
                                                             <select
+                                                                aria-label={`Remapper ${rc.code} vers`}
                                                                 value={mappings[rc.code] ?? ""}
                                                                 onChange={(e) =>
                                                                     setMappings((prev) => ({

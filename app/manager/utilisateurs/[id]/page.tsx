@@ -920,12 +920,12 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
                 <p className="font-semibold text-slate-900 text-sm">Informations du compte</p>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className={labelClass}>Nom</label>
-                        <input className={fieldClass} value={formData.name} onChange={(e) => patch({ name: e.target.value })} />
+                        <label htmlFor="user-access-name" className={labelClass}>Nom</label>
+                        <input id="user-access-name" className={fieldClass} value={formData.name} onChange={(e) => patch({ name: e.target.value })} />
                     </div>
                     <div>
-                        <label className={labelClass}>Rôle</label>
-                        <select className={fieldClass} value={formData.role} onChange={(e) => patch({ role: e.target.value })}>
+                        <label htmlFor="user-access-role" className={labelClass}>Rôle</label>
+                        <select id="user-access-role" className={fieldClass} value={formData.role} onChange={(e) => patch({ role: e.target.value })}>
                             <option value="SDR">SDR</option>
                             <option value="BOOKER">Booker</option>
                             <option value="BUSINESS_DEVELOPER">Business Dev</option>
@@ -938,23 +938,23 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className={labelClass}>Email</label>
-                        <input className={fieldClass} type="email" value={formData.email} onChange={(e) => patch({ email: e.target.value })} />
+                        <label htmlFor="user-access-email" className={labelClass}>Email</label>
+                        <input id="user-access-email" className={fieldClass} type="email" value={formData.email} onChange={(e) => patch({ email: e.target.value })} />
                     </div>
                     <div>
-                        <label className={labelClass}>Numéro Allo</label>
-                        <input className={fieldClass} value={formData.alloPhoneNumber} onChange={(e) => patch({ alloPhoneNumber: e.target.value })} placeholder="+33…" />
+                        <label htmlFor="user-access-allo" className={labelClass}>Numéro Allo</label>
+                        <input id="user-access-allo" className={fieldClass} value={formData.alloPhoneNumber} onChange={(e) => patch({ alloPhoneNumber: e.target.value })} placeholder="+33…" />
                     </div>
                 </div>
                 <div>
-                    <label className={labelClass}>Nouveau mot de passe <span className="text-slate-400 normal-case font-normal">(laisser vide pour conserver)</span></label>
-                    <input className={fieldClass} type="password" value={formData.password} onChange={(e) => patch({ password: e.target.value })} placeholder="••••••••" />
+                    <label htmlFor="user-access-password" className={labelClass}>Nouveau mot de passe <span className="text-slate-400 normal-case font-normal">(laisser vide pour conserver)</span></label>
+                    <input id="user-access-password" className={fieldClass} type="password" value={formData.password} onChange={(e) => patch({ password: e.target.value })} placeholder="••••••••" />
                 </div>
 
                 {formData.role === "CLIENT" && (
                     <div>
-                        <label className={labelClass}>Client associé</label>
-                        <select className={fieldClass} value={formData.clientId} onChange={(e) => patch({ clientId: e.target.value })}>
+                        <label htmlFor="user-access-client" className={labelClass}>Client associé</label>
+                        <select id="user-access-client" className={fieldClass} value={formData.clientId} onChange={(e) => patch({ clientId: e.target.value })}>
                             <option value="">Aucun</option>
                             {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
@@ -966,8 +966,8 @@ function AccesTab({ user, onUserUpdate }: { user: UserDetail; onUserUpdate: (u: 
                         <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Configuration Feedback SDR</p>
                         <div className="grid grid-cols-2 gap-3 items-end">
                             <div>
-                                <label className={labelClass}>Heure d'affichage</label>
-                                <input type="time" className={fieldClass} value={formData.sdrFeedbackPromptTime} onChange={(e) => patch({ sdrFeedbackPromptTime: e.target.value })} />
+                                <label htmlFor="user-access-feedback-time" className={labelClass}>Heure d'affichage</label>
+                                <input id="user-access-feedback-time" type="time" className={fieldClass} value={formData.sdrFeedbackPromptTime} onChange={(e) => patch({ sdrFeedbackPromptTime: e.target.value })} />
                             </div>
                             <label className="flex items-center gap-2 text-sm text-slate-700 pb-2.5 cursor-pointer">
                                 <input type="checkbox" checked={formData.sdrFeedbackRequiredDaily} onChange={(e) => patch({ sdrFeedbackRequiredDaily: e.target.checked })} className="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />

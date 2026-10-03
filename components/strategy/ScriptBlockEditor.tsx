@@ -241,6 +241,7 @@ export function ScriptBlockEditor({
                     <button
                         type="button"
                         onClick={() => setMode("blocks")}
+                        aria-pressed={mode === "blocks"}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                             mode === "blocks"
                                 ? "bg-white text-primary-700 shadow-sm border border-slate-200"
@@ -253,6 +254,7 @@ export function ScriptBlockEditor({
                     <button
                         type="button"
                         onClick={() => setMode("continuous")}
+                        aria-pressed={mode === "continuous"}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                             mode === "continuous"
                                 ? "bg-white text-primary-700 shadow-sm border border-slate-200"
@@ -285,6 +287,7 @@ export function ScriptBlockEditor({
                     <button
                         type="button"
                         onClick={() => setShowPreview(!showPreview)}
+                        aria-pressed={showPreview}
                         className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                             showPreview
                                 ? "bg-primary-50 border-primary-200 text-primary-700"
@@ -292,7 +295,7 @@ export function ScriptBlockEditor({
                         }`}
                         title="Aperçu du script formaté"
                     >
-                        {showPreview ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        {showPreview ? <EyeOff className="w-3.5 h-3.5" aria-hidden /> : <Eye className="w-3.5 h-3.5" aria-hidden />}
                         <span className="hidden sm:inline">{showPreview ? "Masquer" : "Aperçu"}</span>
                     </button>
                 </div>
@@ -372,11 +375,12 @@ export function ScriptBlockEditor({
                                             onClick={() => handleCopySection(sec.key, sections[sec.key])}
                                             className="p-1.5 text-slate-400 hover:text-slate-700 rounded transition-colors"
                                             title="Copier cette section"
+                                            aria-label="Copier cette section"
                                         >
                                             {copiedKey === sec.key ? (
-                                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                                <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden />
                                             ) : (
-                                                <Copy className="w-3.5 h-3.5" />
+                                                <Copy className="w-3.5 h-3.5" aria-hidden />
                                             )}
                                         </button>
                                     )}
@@ -388,6 +392,7 @@ export function ScriptBlockEditor({
                                 value={sections[sec.key]}
                                 onChange={(e) => handleSectionChange(sec.key, e.target.value)}
                                 placeholder={sec.placeholder}
+                                aria-label={sec.label}
                                 rows={sec.key === "intro" ? 3 : 4}
                                 className="w-full px-3.5 py-2.5 bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-primary-500 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/15 transition-all resize-y font-sans leading-relaxed whitespace-pre-wrap"
                             />
@@ -403,6 +408,7 @@ export function ScriptBlockEditor({
                         value={continuousText}
                         onChange={(e) => handleContinuousChange(e.target.value)}
                         placeholder="Rédigez le script d'appel complet..."
+                        aria-label="Script d'appel complet"
                         rows={12}
                         className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-primary-500 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/15 transition-all resize-y font-mono leading-relaxed whitespace-pre-wrap"
                     />

@@ -320,7 +320,7 @@ export function ReglagesTab() {
             const json = await res.json();
 
             if (!json.success) {
-                alert(json.error);
+                showError("Erreur", json.error || "Impossible de supprimer l'utilisateur");
                 return;
             }
 
@@ -328,7 +328,7 @@ export function ReglagesTab() {
             setSelectedUser(null);
             fetchUsers();
         } catch (err) {
-            alert("Erreur lors de la suppression");
+            showError("Erreur lors de la suppression");
         } finally {
             setFormLoading(false);
         }
@@ -347,7 +347,7 @@ export function ReglagesTab() {
             const json = await res.json();
 
             if (!json.success) {
-                alert(json.error);
+                showError("Erreur", json.error || "Impossible de changer le statut");
                 return;
             }
 
@@ -355,7 +355,7 @@ export function ReglagesTab() {
             setSelectedUser(null);
             fetchUsers();
         } catch (err) {
-            alert("Erreur lors du changement de statut");
+            showError("Erreur lors du changement de statut");
         } finally {
             setFormLoading(false);
         }
@@ -534,6 +534,7 @@ export function ReglagesTab() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                         type="text"
+                        aria-label="Rechercher par nom ou email"
                         placeholder="Rechercher par nom ou email..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -541,6 +542,7 @@ export function ReglagesTab() {
                     />
                 </div>
                 <select
+                    aria-label="Filtrer par rôle"
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
                     className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500"
@@ -553,6 +555,7 @@ export function ReglagesTab() {
                     <option value="CLIENT">Client</option>
                 </select>
                 <select
+                    aria-label="Filtrer par statut"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500"
@@ -703,15 +706,17 @@ export function ReglagesTab() {
                                                     onClick={() => openPermissionsModal(user)}
                                                     className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                                                     title="Gérer les permissions"
+                                                    aria-label="Gérer les permissions"
                                                 >
-                                                    <Key className="w-4 h-4" />
+                                                    <Key className="w-4 h-4" aria-hidden />
                                                 </button>
                                                 <button
                                                     onClick={() => openEditModal(user)}
                                                     className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                                     title="Modifier"
+                                                    aria-label="Modifier"
                                                 >
-                                                    <Pencil className="w-4 h-4" />
+                                                    <Pencil className="w-4 h-4" aria-hidden />
                                                 </button>
                                                 <button
                                                     onClick={() => {
@@ -725,8 +730,9 @@ export function ReglagesTab() {
                                                             : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
                                                     )}
                                                     title={user.isActive ? "Désactiver" : "Activer"}
+                                                    aria-label={user.isActive ? "Désactiver" : "Activer"}
                                                 >
-                                                    {user.isActive ? <Ban className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                                                    {user.isActive ? <Ban className="w-4 h-4" aria-hidden /> : <Check className="w-4 h-4" aria-hidden />}
                                                 </button>
                                                 <button
                                                     onClick={() => {
@@ -735,8 +741,9 @@ export function ReglagesTab() {
                                                     }}
                                                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Supprimer"
+                                                    aria-label="Supprimer"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-4 h-4" aria-hidden />
                                                 </button>
                                             </div>
                                         </td>
@@ -764,8 +771,9 @@ export function ReglagesTab() {
                         </div>
                     )}
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">Nom</label>
+                        <label htmlFor="user-create-name" className="block text-sm font-medium text-slate-700">Nom</label>
                         <input
+                            id="user-create-name"
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -775,8 +783,9 @@ export function ReglagesTab() {
                         {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">Email</label>
+                        <label htmlFor="user-create-email" className="block text-sm font-medium text-slate-700">Email</label>
                         <input
+                            id="user-create-email"
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -786,10 +795,11 @@ export function ReglagesTab() {
                         {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">
+                        <label htmlFor="user-create-allo" className="block text-sm font-medium text-slate-700">
                             Numéro Allo <span className="text-slate-400 font-normal">(optionnel)</span>
                         </label>
                         <input
+                            id="user-create-allo"
                             type="text"
                             value={formData.alloPhoneNumber}
                             onChange={(e) => setFormData({ ...formData, alloPhoneNumber: e.target.value })}
@@ -798,10 +808,11 @@ export function ReglagesTab() {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">
+                        <label htmlFor="user-create-password" className="block text-sm font-medium text-slate-700">
                             Mot de passe <span className="text-slate-400 font-normal">(optionnel)</span>
                         </label>
                         <input
+                            id="user-create-password"
                             type="password"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -810,8 +821,9 @@ export function ReglagesTab() {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">Rôle</label>
+                        <label htmlFor="user-create-role" className="block text-sm font-medium text-slate-700">Rôle</label>
                         <select
+                            id="user-create-role"
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value, clientId: e.target.value === "CLIENT" ? formData.clientId : "" })}
                             className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
@@ -825,8 +837,9 @@ export function ReglagesTab() {
                     </div>
                     {formData.role === "CLIENT" && (
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-medium text-slate-700">Client <span className="text-red-500">*</span></label>
+                            <label htmlFor="user-create-client" className="block text-sm font-medium text-slate-700">Client <span className="text-red-500">*</span></label>
                             <select
+                                id="user-create-client"
                                 value={formData.clientId}
                                 onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
                                 className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
@@ -975,8 +988,9 @@ export function ReglagesTab() {
                         </div>
                     )}
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">Nom</label>
+                        <label htmlFor="user-edit-name" className="block text-sm font-medium text-slate-700">Nom</label>
                         <input
+                            id="user-edit-name"
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -984,8 +998,9 @@ export function ReglagesTab() {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">Email</label>
+                        <label htmlFor="user-edit-email" className="block text-sm font-medium text-slate-700">Email</label>
                         <input
+                            id="user-edit-email"
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -993,10 +1008,11 @@ export function ReglagesTab() {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">
+                        <label htmlFor="user-edit-allo" className="block text-sm font-medium text-slate-700">
                             Numéro Allo <span className="text-slate-400 font-normal">(optionnel)</span>
                         </label>
                         <input
+                            id="user-edit-allo"
                             type="text"
                             value={formData.alloPhoneNumber}
                             onChange={(e) => setFormData({ ...formData, alloPhoneNumber: e.target.value })}
@@ -1005,10 +1021,11 @@ export function ReglagesTab() {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">
+                        <label htmlFor="user-edit-password" className="block text-sm font-medium text-slate-700">
                             Nouveau mot de passe <span className="text-slate-400 font-normal">(laisser vide pour conserver)</span>
                         </label>
                         <input
+                            id="user-edit-password"
                             type="password"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -1017,8 +1034,9 @@ export function ReglagesTab() {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-slate-700">Rôle</label>
+                        <label htmlFor="user-edit-role" className="block text-sm font-medium text-slate-700">Rôle</label>
                         <select
+                            id="user-edit-role"
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value, clientId: e.target.value === "CLIENT" ? formData.clientId : "" })}
                             className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
@@ -1032,8 +1050,9 @@ export function ReglagesTab() {
                     </div>
                     {formData.role === "CLIENT" && (
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-medium text-slate-700">Client</label>
+                            <label htmlFor="user-edit-client" className="block text-sm font-medium text-slate-700">Client</label>
                             <select
+                                id="user-edit-client"
                                 value={formData.clientId}
                                 onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
                                 className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm transition-all duration-200 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
@@ -1051,10 +1070,11 @@ export function ReglagesTab() {
                             <p className="text-sm font-semibold text-slate-800">Feedback SDR quotidien</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
-                                    <label className="block text-sm font-medium text-slate-700">
+                                    <label htmlFor="user-edit-feedback-time" className="block text-sm font-medium text-slate-700">
                                         Heure d'affichage
                                     </label>
                                     <input
+                                        id="user-edit-feedback-time"
                                         type="time"
                                         value={formData.sdrFeedbackPromptTime}
                                         onChange={(e) =>

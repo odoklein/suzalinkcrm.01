@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -18,6 +18,8 @@ import {
     AlertCircle,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { LoadingState } from "@/components/ui";
+import { pressable } from "@/lib/a11y";
 
 // ============================================
 // TYPES
@@ -70,27 +72,31 @@ function StepEditor({
     isFirst: boolean;
     isLast: boolean;
 }) {
+    const fieldId = useId();
     return (
         <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
             {/* Step Header */}
             <div
-                className="flex items-center gap-3 px-4 py-3 bg-slate-50 cursor-pointer"
-                onClick={() => onChange({ isExpanded: !step.isExpanded })}
+                className="flex items-center gap-3 px-4 py-3 bg-slate-50 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+                {...pressable(() => onChange({ isExpanded: !step.isExpanded }))}
+                aria-expanded={step.isExpanded}
             >
                 <div className="flex items-center gap-1 text-slate-400">
                     <button
                         onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
                         disabled={isFirst}
                         className="p-1 hover:bg-slate-200 rounded disabled:opacity-30"
+                        aria-label="Monter l'étape"
                     >
-                        <ChevronUp className="w-4 h-4" />
+                        <ChevronUp className="w-4 h-4" aria-hidden />
                     </button>
                     <button
                         onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
                         disabled={isLast}
                         className="p-1 hover:bg-slate-200 rounded disabled:opacity-30"
+                        aria-label="Descendre l'étape"
                     >
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4" aria-hidden />
                     </button>
                 </div>
                 
@@ -110,8 +116,9 @@ function StepEditor({
                 <button
                     onClick={(e) => { e.stopPropagation(); onDelete(); }}
                     className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    aria-label="Supprimer l'étape"
                 >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4" aria-hidden />
                 </button>
                 
                 {step.isExpanded ? (
@@ -134,6 +141,7 @@ function StepEditor({
                                 min="0"
                                 value={step.delayDays}
                                 onChange={(e) => onChange({ delayDays: parseInt(e.target.value) || 0 })}
+                                aria-label="Délai en jours"
                                 className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center"
                             />
                             <span className="text-sm text-slate-600">jours</span>
@@ -143,6 +151,7 @@ function StepEditor({
                                 max="23"
                                 value={step.delayHours}
                                 onChange={(e) => onChange({ delayHours: parseInt(e.target.value) || 0 })}
+                                aria-label="Délai en heures"
                                 className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center"
                             />
                             <span className="text-sm text-slate-600">heures</span>
@@ -151,10 +160,11 @@ function StepEditor({
 
                     {/* Subject */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label htmlFor={`${fieldId}-subject`} className="block text-sm font-medium text-slate-700 mb-1.5">
                             Sujet
                         </label>
                         <input
+                            id={`${fieldId}-subject`}
                             type="text"
                             value={step.subject}
                             onChange={(e) => onChange({ subject: e.target.value })}
@@ -168,10 +178,11 @@ function StepEditor({
 
                     {/* Body */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        <label htmlFor={`${fieldId}-body`} className="block text-sm font-medium text-slate-700 mb-1.5">
                             Contenu de l'email
                         </label>
                         <textarea
+                            id={`${fieldId}-body`}
                             value={step.bodyHtml}
                             onChange={(e) => onChange({ bodyHtml: e.target.value })}
                             placeholder="Bonjour {{firstName}},&#10;&#10;Je me permets de vous relancer concernant..."
@@ -222,6 +233,7 @@ function StepEditor({
 
 export default function NewSequencePage() {
     const router = useRouter();
+    const fieldId = useId();
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -393,11 +405,7 @@ export default function NewSequencePage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-96">
-                <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
-            </div>
-        );
+        return <LoadingState />;
     }
 
     return (
@@ -408,8 +416,9 @@ export default function NewSequencePage() {
                     <button
                         onClick={() => router.back()}
                         className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        aria-label="Retour"
                     >
-                        <ArrowLeft className="w-5 h-5 text-slate-600" />
+                        <ArrowLeft className="w-5 h-5 text-slate-600" aria-hidden />
                     </button>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">Nouvelle séquence</h1>
@@ -447,10 +456,11 @@ export default function NewSequencePage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                <label htmlFor={`${fieldId}-name`} className="block text-sm font-medium text-slate-700 mb-1.5">
                                     Nom de la séquence *
                                 </label>
                                 <input
+                                    id={`${fieldId}-name`}
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
@@ -460,10 +470,11 @@ export default function NewSequencePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                <label htmlFor={`${fieldId}-description`} className="block text-sm font-medium text-slate-700 mb-1.5">
                                     Description
                                 </label>
                                 <textarea
+                                    id={`${fieldId}-description`}
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Décrivez l'objectif de cette séquence..."
@@ -473,10 +484,11 @@ export default function NewSequencePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                <label htmlFor={`${fieldId}-mailbox`} className="block text-sm font-medium text-slate-700 mb-1.5">
                                     Boîte mail d'envoi *
                                 </label>
                                 <select
+                                    id={`${fieldId}-mailbox`}
                                     value={mailboxId}
                                     onChange={(e) => setMailboxId(e.target.value)}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
@@ -491,10 +503,11 @@ export default function NewSequencePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                                <label htmlFor={`${fieldId}-campaign`} className="block text-sm font-medium text-slate-700 mb-1.5">
                                     Campagne associée
                                 </label>
                                 <select
+                                    id={`${fieldId}-campaign`}
                                     value={campaignId}
                                     onChange={(e) => setCampaignId(e.target.value)}
                                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
@@ -543,10 +556,11 @@ export default function NewSequencePage() {
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                                    <label htmlFor={`${fieldId}-start`} className="block text-xs font-medium text-slate-600 mb-1">
                                         Début
                                     </label>
                                     <input
+                                        id={`${fieldId}-start`}
                                         type="time"
                                         value={sendWindowStart}
                                         onChange={(e) => setSendWindowStart(e.target.value)}
@@ -554,10 +568,11 @@ export default function NewSequencePage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                                    <label htmlFor={`${fieldId}-end`} className="block text-xs font-medium text-slate-600 mb-1">
                                         Fin
                                     </label>
                                     <input
+                                        id={`${fieldId}-end`}
                                         type="time"
                                         value={sendWindowEnd}
                                         onChange={(e) => setSendWindowEnd(e.target.value)}

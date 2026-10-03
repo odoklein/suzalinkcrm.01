@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { pressable } from "@/lib/a11y";
+import { FOCUS_RING } from "@/components/ui/recipes";
 import { Calendar, MessageSquare, GitBranch, Clock } from "lucide-react";
 
 interface TaskCardProps {
@@ -55,10 +57,11 @@ export function TaskCard({ task, onClick, isDragging }: TaskCardProps) {
 
     return (
         <div
-            onClick={onClick}
+            {...(onClick ? pressable(onClick) : {})}
             className={cn(
                 "group bg-white border border-slate-200 rounded-lg p-3 cursor-pointer transition-all duration-150",
                 "hover:border-primary-300 hover:shadow-md",
+                FOCUS_RING,
                 isDragging && "shadow-lg border-primary-400 rotate-2 opacity-90"
             )}
         >

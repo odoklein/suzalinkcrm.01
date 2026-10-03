@@ -386,8 +386,9 @@ export default function EnricherPage() {
                             <div className="text-xs font-mono uppercase tracking-wider text-[#666680] mb-4">01 — Map des colonnes</div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-xs font-mono text-[#666680] mb-1">Company *</label>
+                                    <label htmlFor="enricher-col-company" className="block text-xs font-mono text-[#666680] mb-1">Company *</label>
                                     <select
+                                        id="enricher-col-company"
                                         className="w-full bg-[#0a0a0f] border border-[#2a2a3a] text-white px-3 py-2 rounded text-sm font-mono"
                                         value={columnMapping.company}
                                         onChange={(e) => setColumnMapping((m) => ({ ...m, company: e.target.value }))}
@@ -399,8 +400,9 @@ export default function EnricherPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-mono text-[#666680] mb-1">Website</label>
+                                    <label htmlFor="enricher-col-website" className="block text-xs font-mono text-[#666680] mb-1">Website</label>
                                     <select
+                                        id="enricher-col-website"
                                         className="w-full bg-[#0a0a0f] border border-[#2a2a3a] text-white px-3 py-2 rounded text-sm font-mono"
                                         value={columnMapping.website}
                                         onChange={(e) => setColumnMapping((m) => ({ ...m, website: e.target.value }))}
@@ -412,8 +414,9 @@ export default function EnricherPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-mono text-[#666680] mb-1">Address</label>
+                                    <label htmlFor="enricher-col-address" className="block text-xs font-mono text-[#666680] mb-1">Address</label>
                                     <select
+                                        id="enricher-col-address"
                                         className="w-full bg-[#0a0a0f] border border-[#2a2a3a] text-white px-3 py-2 rounded text-sm font-mono"
                                         value={columnMapping.address}
                                         onChange={(e) => setColumnMapping((m) => ({ ...m, address: e.target.value }))}

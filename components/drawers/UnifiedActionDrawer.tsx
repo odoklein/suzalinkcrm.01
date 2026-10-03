@@ -54,7 +54,9 @@ import { ContactDrawer } from "./ContactDrawer";
 import { GooglePhoneSuggestion } from "@/components/enrichment/GooglePhoneSuggestion";
 import { CompanyAiEnrichment } from "@/components/enrichment/CompanyAiEnrichment";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { FOCUS_RING } from "@/components/ui/recipes";
 import { cn } from "@/lib/utils";
+import { pressable } from "@/lib/a11y";
 import { getGoogleMapsUrl } from "@/lib/google-maps";
 
 interface ExclusionDetail {
@@ -2000,6 +2002,7 @@ export function UnifiedActionDrawer({
                                                                     value={editActionNote}
                                                                     onChange={(e) => setEditActionNote(e.target.value)}
                                                                     placeholder="Note (optionnel)"
+                                                                    aria-label="Note de l'action"
                                                                     rows={2}
                                                                     className="w-full min-h-[56px] px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400/30 focus:border-primary-400"
                                                                 />
@@ -3277,7 +3280,7 @@ export function UnifiedActionDrawer({
 
                                             {/* Mailbox selector */}
                                             <div>
-                                                <label className="block text-xs font-semibold text-slate-600 mb-1">Boîte d&apos;envoi <span className="text-red-500">*</span></label>
+                                                <label htmlFor="uad-email-mailbox" className="block text-xs font-semibold text-slate-600 mb-1">Boîte d&apos;envoi <span className="text-red-500">*</span></label>
                                                 {emailMailboxesLoading ? (
                                                     <div className="flex items-center gap-2 text-xs text-slate-500 py-2"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Chargement...</div>
                                                 ) : emailMailboxes.length === 0 ? (
@@ -3287,6 +3290,7 @@ export function UnifiedActionDrawer({
                                                     </div>
                                                 ) : (
                                                     <select
+                                                        id="uad-email-mailbox"
                                                         value={emailSelectedMailboxId}
                                                         onChange={e => setEmailSelectedMailboxId(e.target.value)}
                                                         className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-400"
@@ -3325,15 +3329,14 @@ export function UnifiedActionDrawer({
                                                             return (
                                                                 <div key={mt.id}>
                                                                     <div
-                                                                        role="button"
-                                                                        tabIndex={0}
-                                                                        onClick={() => {
+                                                                        {...pressable(() => {
                                                                             setEmailSelectedTemplateId(mt.templateId);
                                                                             setEmailPreviewTemplateId("");
-                                                                        }}
-                                                                        onKeyDown={e => e.key === "Enter" && setEmailSelectedTemplateId(mt.templateId)}
+                                                                        })}
+                                                                        aria-pressed={isSelected}
                                                                         className={cn(
                                                                             "flex items-start gap-2.5 px-3 py-2.5 rounded-lg border cursor-pointer transition-all",
+                                                                            FOCUS_RING,
                                                                             isSelected
                                                                                 ? "border-blue-400 bg-blue-50 ring-1 ring-blue-300"
                                                                                 : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40"
@@ -3356,8 +3359,10 @@ export function UnifiedActionDrawer({
                                                                             onClick={e => { e.stopPropagation(); setEmailPreviewTemplateId(isPreviewing ? "" : mt.templateId); }}
                                                                             className="shrink-0 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                                                                             title={isPreviewing ? "Masquer l'aperçu" : "Voir l'aperçu"}
+                                                                            aria-label={isPreviewing ? "Masquer l'aperçu" : "Voir l'aperçu"}
+                                                                            aria-expanded={isPreviewing}
                                                                         >
-                                                                            {isPreviewing ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                                            {isPreviewing ? <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" /> : <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />}
                                                                         </button>
                                                                     </div>
                                                                     {isPreviewing && (
@@ -3472,6 +3477,7 @@ export function UnifiedActionDrawer({
                                                         setNewInterlocutorContact((prev) => ({ ...prev, firstName: e.target.value }));
                                                     }}
                                                     placeholder="Prénom"
+                                                    aria-label="Prénom du bon contact"
                                                     className="w-full px-3 py-2 text-sm border border-rose-200 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400/30 focus:border-rose-400"
                                                 />
                                                 <input
@@ -3481,6 +3487,7 @@ export function UnifiedActionDrawer({
                                                         setNewInterlocutorContact((prev) => ({ ...prev, lastName: e.target.value }));
                                                     }}
                                                     placeholder="Nom"
+                                                    aria-label="Nom du bon contact"
                                                     className="w-full px-3 py-2 text-sm border border-rose-200 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400/30 focus:border-rose-400"
                                                 />
                                                 <input
@@ -3490,6 +3497,7 @@ export function UnifiedActionDrawer({
                                                         setNewInterlocutorContact((prev) => ({ ...prev, phone: e.target.value }));
                                                     }}
                                                     placeholder="Téléphone"
+                                                    aria-label="Téléphone du bon contact"
                                                     className="w-full px-3 py-2 text-sm border border-rose-200 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400/30 focus:border-rose-400"
                                                 />
                                                 <input
@@ -3500,6 +3508,7 @@ export function UnifiedActionDrawer({
                                                         setNewInterlocutorContact((prev) => ({ ...prev, email: e.target.value }));
                                                     }}
                                                     placeholder="Email"
+                                                    aria-label="Email du bon contact"
                                                     className="w-full px-3 py-2 text-sm border border-rose-200 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-400/30 focus:border-rose-400"
                                                 />
                                             </div>

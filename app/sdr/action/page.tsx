@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, useId } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -39,8 +39,11 @@ import {
     ThumbsUp,
     Briefcase,
     FileText,
+    X,
 } from "lucide-react";
-import { Card, Badge, Button, LoadingState, EmptyState, Tabs, Drawer, DataTable, Select, useToast, TableSkeleton, CardSkeleton, Modal, DateTimePicker } from "@/components/ui";
+import { Card, Badge, Button, LoadingState, EmptyState, Tabs, Drawer, DataTable, Select, useToast, useConfirm, useOverlay, TableSkeleton, CardSkeleton, Modal, DateTimePicker } from "@/components/ui";
+import { FOCUS_RING, ROW_FOCUS } from "@/components/ui/recipes";
+import { pressable, rowKeyDown } from "@/lib/a11y";
 import type { Column } from "@/components/ui/DataTable";
 import dynamic from "next/dynamic";
 import { CompanyDrawer, ContactDrawer } from "@/components/drawers";
@@ -398,11 +401,7 @@ function ActionStatsModalBody({
     }, [items]);
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-            </div>
-        );
+        return <LoadingState message="Chargement des statistiques…" className="py-12" />;
     }
     return (
         <div className="space-y-5">
@@ -451,8 +450,11 @@ function ActionStatsModalBody({
                                         <tr
                                             key={queueRowKey(row)}
                                             onClick={() => onRowClick(row)}
+                                            tabIndex={0}
+                                            onKeyDown={rowKeyDown(() => onRowClick(row))}
                                             className={cn(
                                                 "border-b last:border-0 cursor-pointer transition-colors",
+                                                ROW_FOCUS,
                                                 isAbsent
                                                     ? "bg-red-50 border-red-100 hover:bg-red-100/80"
                                                     : "border-slate-100 hover:bg-primary-50/80"
@@ -493,6 +495,7 @@ export default function SDRActionPage() {
     const { setCollapsed } = useSidebar();
     const { data: session } = useSession();
     const { success, error: showError } = useToast();
+    const askConfirm = useConfirm();
     const [currentAction, setCurrentAction] = useState<NextActionData | null>(null);
     const [selectedResult, setSelectedResult] = useState<ActionResult | null>(null);
     const [note, setNote] = useState("");
@@ -633,6 +636,11 @@ export default function SDRActionPage() {
     const [drawerContactId, setDrawerContactId] = useState<string | null>(null);
     const [drawerCompanyId, setDrawerCompanyId] = useState<string | null>(null);
     const [companyBlockedModalOpen, setCompanyBlockedModalOpen] = useState(false);
+    const companyBlockedTitleId = useId();
+    const companyBlockedPanelRef = useOverlay<HTMLDivElement>({
+        open: companyBlockedModalOpen,
+        onClose: () => setCompanyBlockedModalOpen(false),
+    });
     const { data: drawerContact = null, isFetching: drawerContactLoading } = useQuery({
         queryKey: sdrDrawerContactKey(drawerContactId),
         queryFn: async () => {
@@ -1591,7 +1599,11 @@ export default function SDRActionPage() {
 
     const handleBulkDisqualify = async () => {
         if (tableSelectedIds.size === 0) return;
-        if (!confirm(`Marquer ${tableSelectedIds.size} élément(s) comme disqualifié(s) ?`)) return;
+        if (!(await askConfirm({
+            title: `Marquer ${tableSelectedIds.size} élément(s) comme disqualifié(s) ?`,
+            variant: "danger",
+            confirmText: "Disqualifier",
+        }))) return;
 
         const keysToRemove = new Set(tableSelectedIds);
         const rowsToProcess = filteredQueueItems.filter((r) => keysToRemove.has(queueRowKey(r)));
@@ -1858,7 +1870,7 @@ export default function SDRActionPage() {
 
     // Any overlay open? Keyboard shortcuts must not fire underneath modals/drawers.
     const overlayOpen = alloDialogOpen || showBookingDrawer || showStatsModal || showQuickEmailModal
-        || showMailToSendChoiceModal || unifiedDrawerOpen || !!drawerContactId || !!drawerCompanyId;
+        || showMailToSendChoiceModal || unifiedDrawerOpen || !!drawerContactId || !!drawerCompanyId || companyBlockedModalOpen;
 
     // Keyboard shortcuts (card view):
     //   1-9        → pick a result (auto-focuses the note when required)
@@ -2063,12 +2075,13 @@ export default function SDRActionPage() {
                                 <span className="font-mono tracking-tight">{phone}</span>
                             </a>
                             <button
+                                aria-label="Copier le numéro"
                                 type="button"
                                 onClick={() => copyToClipboard(phone, callContext)}
                                 title="Copier le numéro"
                                 className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-accent-600 hover:bg-accent-50 transition-colors"
                             >
-                                <Copy className="w-3.5 h-3.5" />
+                                <Copy aria-hidden className="w-3.5 h-3.5" />
                             </button>
                         </div>
                     );
@@ -2231,6 +2244,7 @@ export default function SDRActionPage() {
                                 };
                                 return (
                                     <button
+                                        aria-label={opt.label}
                                         key={opt.value}
                                         type="button"
                                         onClick={(e) => {
@@ -2253,6 +2267,7 @@ export default function SDRActionPage() {
                             })}
                             {/* Open drawer for full control */}
                             <button
+                                aria-label="Voir la fiche complète"
                                 type="button"
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -2261,7 +2276,7 @@ export default function SDRActionPage() {
                                 title="Voir la fiche complète"
                                 className="w-8 h-8 rounded-lg border border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600 transition-all duration-150 active:scale-95"
                             >
-                                <Eye className="w-4 h-4" />
+                                <Eye aria-hidden className="w-4 h-4" />
                             </button>
                         </div>
                     );
@@ -2287,10 +2302,10 @@ export default function SDRActionPage() {
 
                         <div className="flex items-center gap-2 flex-wrap">
                             <div className="flex rounded-xl border border-white/10 p-0.5 bg-white/5">
-                                <button type="button" onClick={() => setViewMode("card")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "card" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
+                                <button type="button" aria-pressed={viewMode === "card"} onClick={() => setViewMode("card")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "card" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
                                     <User className="w-3.5 h-3.5" /> Carte
                                 </button>
-                                <button type="button" onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "table" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
+                                <button type="button" aria-pressed={viewMode === "table"} onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "table" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
                                     <Building2 className="w-3.5 h-3.5" /> Tableau
                                 </button>
                             </div>
@@ -2340,28 +2355,28 @@ export default function SDRActionPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3">
                             {/* Mission */}
                             <div className="space-y-1 xl:col-span-2">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Mission</label>
-                                <select value={selectedMissionId || ""} onChange={handleMissionChange} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
+                                <label htmlFor="sdr-action-filter-mission" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Mission</label>
+                                <select id="sdr-action-filter-mission" value={selectedMissionId || ""} onChange={handleMissionChange} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
                                     {selectableMissions.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                                 </select>
                             </div>
                             {/* Liste */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Liste</label>
-                                <select value={selectedListId || "all"} onChange={handleListChange} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
+                                <label htmlFor="sdr-action-filter-liste" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Liste</label>
+                                <select id="sdr-action-filter-liste" value={selectedListId || "all"} onChange={handleListChange} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
                                     <option value="all">Toutes</option>
                                     {filteredLists.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
                                 </select>
                             </div>
                             {/* Search */}
                             <div className="space-y-1 sm:col-span-2 xl:col-span-2">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Rechercher</label>
-                                <input type="text" value={tableSearchInput} onChange={(e) => setTableSearchInput(e.target.value)} placeholder="Contact, société ou numéro…" className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow" />
+                                <label htmlFor="sdr-action-filter-rechercher" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Rechercher</label>
+                                <input id="sdr-action-filter-rechercher" type="text" value={tableSearchInput} onChange={(e) => setTableSearchInput(e.target.value)} placeholder="Contact, société ou numéro…" className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow" />
                             </div>
                             {/* Statut */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Statut</label>
-                                <select value={tableFilterResult} onChange={(e) => setTableFilterResult(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
+                                <label htmlFor="sdr-action-filter-statut" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Statut</label>
+                                <select id="sdr-action-filter-statut" value={tableFilterResult} onChange={(e) => setTableFilterResult(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
                                     <option value="">Tous</option>
                                     <option value="NONE">Jamais contacté</option>
                                     {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -2369,24 +2384,24 @@ export default function SDRActionPage() {
                             </div>
                             {/* Priorité */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Priorité</label>
-                                <select value={tableFilterPriority} onChange={(e) => setTableFilterPriority(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
+                                <label htmlFor="sdr-action-filter-priorite" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Priorité</label>
+                                <select id="sdr-action-filter-priorite" value={tableFilterPriority} onChange={(e) => setTableFilterPriority(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
                                     <option value="">Toutes</option>
                                     {Object.entries(PRIORITY_LABELS).map(([value, { label }]) => <option key={value} value={value}>{label}</option>)}
                                 </select>
                             </div>
                             {/* Canal */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Canal</label>
-                                <select value={tableFilterChannel} onChange={(e) => setTableFilterChannel(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
+                                <label htmlFor="sdr-action-filter-canal" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Canal</label>
+                                <select id="sdr-action-filter-canal" value={tableFilterChannel} onChange={(e) => setTableFilterChannel(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
                                     <option value="">Tous</option>
                                     {(Object.entries(CHANNEL_LABELS) as [Channel, string][]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                                 </select>
                             </div>
                             {/* Type */}
                             <div className="space-y-1">
-                                <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Type</label>
-                                <select value={tableFilterType} onChange={(e) => setTableFilterType(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
+                                <label htmlFor="sdr-action-filter-type" className="text-[11px] font-medium text-slate-400 uppercase tracking-wide block">Type</label>
+                                <select id="sdr-action-filter-type" value={tableFilterType} onChange={(e) => setTableFilterType(e.target.value)} className="w-full h-9 px-3 text-[13px] border border-neutral-200 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 transition-shadow cursor-pointer">
                                     <option value="">Tous</option>
                                     <option value="contact">Contact</option>
                                     <option value="company">Société</option>
@@ -2609,8 +2624,8 @@ export default function SDRActionPage() {
                     <div className="space-y-4">
                         <p className="text-sm text-slate-600">Enregistrer une note (Mail à envoyer) ou envoyer un email maintenant (Mail envoyé).</p>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Note *</label>
-                            <textarea
+                            <label htmlFor="sdr-action-mail-note" className="block text-sm font-medium text-slate-700 mb-1">Note *</label>
+                            <textarea id="sdr-action-mail-note"
                                 value={mailToSendChoiceNote}
                                 onChange={(e) => setMailToSendChoiceNote(e.target.value)}
                                 placeholder="Ex: Mail à envoyer après validation du devis..."
@@ -2715,10 +2730,10 @@ export default function SDRActionPage() {
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
                             <div className="flex rounded-xl border border-white/10 p-0.5 bg-white/5">
-                                <button type="button" onClick={() => setViewMode("card")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "card" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
+                                <button type="button" aria-pressed={viewMode === "card"} onClick={() => setViewMode("card")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "card" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
                                     <User className="w-3.5 h-3.5" /> Carte
                                 </button>
-                                <button type="button" onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "table" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
+                                <button type="button" aria-pressed={viewMode === "table"} onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "table" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
                                     <Building2 className="w-3.5 h-3.5" /> Tableau
                                 </button>
                             </div>
@@ -2795,10 +2810,10 @@ export default function SDRActionPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                             {/* View Toggle */}
                             <div className="flex rounded-xl border border-white/10 p-0.5 bg-white/5">
-                                <button type="button" onClick={() => setViewMode("card")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "card" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
+                                <button type="button" aria-pressed={viewMode === "card"} onClick={() => setViewMode("card")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "card" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
                                     <User className="w-3.5 h-3.5" /> Carte
                                 </button>
-                                <button type="button" onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "table" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
+                                <button type="button" aria-pressed={viewMode === "table"} onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-[13px] font-medium rounded-lg transition-all flex items-center gap-1.5", viewMode === "table" ? "bg-white text-slate-900 shadow-md" : "text-white/60 hover:text-white hover:bg-white/10")}>
                                     <Building2 className="w-3.5 h-3.5" /> Tableau
                                 </button>
                             </div>
@@ -2828,8 +2843,8 @@ export default function SDRActionPage() {
                 <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                     <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
                     <p className="text-[13px] text-red-700 flex-1">{error}</p>
-                    <button onClick={() => setError(null)} className="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-100 transition-colors flex-shrink-0">
-                        <XCircle className="w-4 h-4" />
+                    <button onClick={() => setError(null)} aria-label="Fermer le message d'erreur" className="w-6 h-6 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-100 transition-colors flex-shrink-0">
+                        <XCircle className="w-4 h-4" aria-hidden />
                     </button>
                 </div>
             )}
@@ -2852,8 +2867,8 @@ export default function SDRActionPage() {
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
                                             <h2
-                                                onClick={() => setCompanyBlockedModalOpen(true)}
-                                                className="text-[18px] font-medium text-neutral-900 truncate leading-tight hover:text-primary-700 cursor-pointer transition-colors"
+                                                {...pressable(() => setCompanyBlockedModalOpen(true))}
+                                                className={cn("text-[18px] font-medium text-neutral-900 truncate leading-tight hover:text-primary-700 cursor-pointer transition-colors rounded-md", FOCUS_RING)}
                                                 title="Fiche entreprise"
                                             >
                                                 {currentAction.company?.name}
@@ -2872,8 +2887,8 @@ export default function SDRActionPage() {
                                             </div>
                                         </div>
                                         {currentAction.company?.id && (
-                                            <Button variant="ghost" size="sm" onClick={() => setCompanyBlockedModalOpen(true)} className="shrink-0 h-7 w-7 p-0 text-slate-400 hover:text-primary-700 hover:bg-primary-50 rounded-lg" title="Modifier l'entreprise">
-                                                <PenLine className="w-3.5 h-3.5" />
+                                            <Button aria-label="Modifier l'entreprise" variant="ghost" size="sm" onClick={() => setCompanyBlockedModalOpen(true)} className="shrink-0 h-7 w-7 p-0 text-slate-400 hover:text-primary-700 hover:bg-primary-50 rounded-lg" title="Modifier l'entreprise">
+                                                <PenLine aria-hidden className="w-3.5 h-3.5" />
                                             </Button>
                                         )}
                                     </div>
@@ -2920,8 +2935,8 @@ export default function SDRActionPage() {
                                         )}
                                     </div>
                                     {currentAction.contact.id && (
-                                        <Button variant="ghost" size="sm" onClick={() => setDrawerContactId(currentAction.contact!.id)} className="shrink-0 h-7 w-7 p-0 text-slate-400 hover:text-primary-700 hover:bg-primary-50 rounded-lg" title="Modifier le contact">
-                                            <PenLine className="w-3.5 h-3.5" />
+                                        <Button aria-label="Modifier le contact" variant="ghost" size="sm" onClick={() => setDrawerContactId(currentAction.contact!.id)} className="shrink-0 h-7 w-7 p-0 text-slate-400 hover:text-primary-700 hover:bg-primary-50 rounded-lg" title="Modifier le contact">
+                                            <PenLine aria-hidden className="w-3.5 h-3.5" />
                                         </Button>
                                     )}
                                 </div>
@@ -2968,12 +2983,13 @@ export default function SDRActionPage() {
                                                         <span className="font-mono tracking-wide">{phone}</span>
                                                     </a>
                                                     <button
+                                                        aria-label="Copier le numéro"
                                                         type="button"
                                                         onClick={() => copyToClipboard(phone, callContext)}
                                                         title="Copier le numéro"
                                                         className="w-12 h-12 rounded-xl border border-neutral-200 bg-white text-slate-400 hover:text-accent-600 hover:border-accent-200 hover:bg-accent-50 flex items-center justify-center transition-colors active:scale-[0.97] flex-shrink-0"
                                                     >
-                                                        <Copy className="w-4 h-4" />
+                                                        <Copy aria-hidden className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -3096,16 +3112,16 @@ export default function SDRActionPage() {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p
-                                            onClick={() => setCompanyBlockedModalOpen(true)}
-                                            className="text-[18px] font-medium text-neutral-900 leading-tight hover:text-primary-700 cursor-pointer transition-colors"
+                                            {...pressable(() => setCompanyBlockedModalOpen(true))}
+                                            className={cn("text-[18px] font-medium text-neutral-900 leading-tight hover:text-primary-700 cursor-pointer transition-colors rounded-md", FOCUS_RING)}
                                         >
                                             {currentAction.company.name}
                                         </p>
                                         <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500 bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded-md mt-1 inline-block">Entreprise</span>
                                     </div>
                                     {currentAction.company.id && (
-                                        <Button variant="ghost" size="sm" onClick={() => setCompanyBlockedModalOpen(true)} className="shrink-0 h-7 w-7 p-0 text-slate-400 hover:text-primary-700 hover:bg-primary-50 rounded-lg" title="Modifier l'entreprise">
-                                            <PenLine className="w-3.5 h-3.5" />
+                                        <Button aria-label="Modifier l'entreprise" variant="ghost" size="sm" onClick={() => setCompanyBlockedModalOpen(true)} className="shrink-0 h-7 w-7 p-0 text-slate-400 hover:text-primary-700 hover:bg-primary-50 rounded-lg" title="Modifier l'entreprise">
+                                            <PenLine aria-hidden className="w-3.5 h-3.5" />
                                         </Button>
                                     )}
                                 </div>
@@ -3148,12 +3164,13 @@ export default function SDRActionPage() {
                                                             {currentAction.company.phone}
                                                         </a>
                                                         <button
+                                                            aria-label="Copier le numéro"
                                                             type="button"
                                                             onClick={() => copyToClipboard(currentAction.company!.phone!, callContext)}
                                                             title="Copier le numéro"
                                                             className="w-11 h-11 rounded-xl border border-neutral-200 bg-white text-slate-400 hover:text-accent-600 hover:border-accent-200 hover:bg-accent-50 flex items-center justify-center transition-colors active:scale-[0.97] flex-shrink-0"
                                                         >
-                                                            <Copy className="w-4 h-4" />
+                                                            <Copy aria-hidden className="w-4 h-4" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -3382,6 +3399,7 @@ export default function SDRActionPage() {
                         ref={noteInputRef}
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
+                        aria-label="Note sur l'échange"
                         placeholder="Note sur l'échange...  (Ctrl+Entrée pour valider)"
                         rows={3}
                         maxLength={500}
@@ -3410,12 +3428,13 @@ export default function SDRActionPage() {
                                 )}
                             </div>
                             <button
+                                aria-label="Retirer le lien"
                                 type="button"
                                 onClick={() => setLinkedAlloCall(null)}
                                 className="w-5 h-5 rounded flex items-center justify-center text-emerald-400 hover:text-emerald-600 transition-colors flex-shrink-0"
                                 title="Retirer le lien"
                             >
-                                <XCircle className="w-4 h-4" />
+                                <XCircle aria-hidden className="w-4 h-4" />
                             </button>
                         </div>
                     )}
@@ -3752,12 +3771,20 @@ export default function SDRActionPage() {
             {/* Mini Coming Soon Pop-up for Company Action */}
             {companyBlockedModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
-                    <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95 duration-200">
+                    <div
+                        ref={companyBlockedPanelRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby={companyBlockedTitleId}
+                        tabIndex={-1}
+                        className="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95 duration-200"
+                    >
                         <button
                             onClick={() => setCompanyBlockedModalOpen(false)}
+                            aria-label="Fermer"
                             className="absolute top-4 right-4 p-1 rounded-full text-zinc-400 hover:text-zinc-700 hover:bg-slate-100 transition-colors"
                         >
-                            <X className="w-4 h-4" />
+                            <X className="w-4 h-4" aria-hidden />
                         </button>
                         <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto shadow-sm">
                             <Clock className="w-6 h-6 text-amber-500" />
@@ -3766,7 +3793,7 @@ export default function SDRActionPage() {
                             <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 uppercase tracking-wider">
                                 Bientôt disponible
                             </span>
-                            <h3 className="text-base font-extrabold text-zinc-900 pt-1">
+                            <h3 id={companyBlockedTitleId} className="text-base font-extrabold text-zinc-900 pt-1">
                                 Fiche Entreprise en Action Unifiée
                             </h3>
                             <p className="text-xs text-zinc-600 leading-relaxed font-medium">

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
+import { LoadingState, useConfirm } from "@/components/ui";
 import { ArrowLeft, Save, RotateCcw, Shield, KeyRound } from "lucide-react";
 import {
   PASSWORD_OTP_TEMPLATE_VARIABLES,
@@ -26,6 +27,8 @@ const TEMPLATE_OPTIONS: Array<{ key: TemplateKey; label: string }> = [
 ];
 
 export default function SecurityEmailSettingsPage() {
+  const confirm = useConfirm();
+  const fieldId = useId();
   const [selectedKey, setSelectedKey] = useState<TemplateKey>("password_recovery");
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [subject, setSubject] = useState("");
@@ -96,7 +99,7 @@ export default function SecurityEmailSettingsPage() {
   }
 
   async function handleReset() {
-    if (!window.confirm("Restaurer le template par defaut ?")) return;
+    if (!(await confirm({ title: "Restaurer le template par défaut ?", message: "Vos modifications seront perdues.", variant: "danger", confirmText: "Restaurer" }))) return;
     setSaving(true);
     setMsg(null);
     setErr(null);
@@ -126,7 +129,7 @@ export default function SecurityEmailSettingsPage() {
   }
 
   if (loading) {
-    return <div className="max-w-5xl mx-auto px-6 py-10 text-slate-500">Chargement...</div>;
+    return <LoadingState message="Chargement du template…" />;
   }
 
   return (
@@ -152,10 +155,11 @@ export default function SecurityEmailSettingsPage() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
-        <label className="text-xs uppercase tracking-wider font-semibold text-slate-500">
+        <label htmlFor={`${fieldId}-template`} className="text-xs uppercase tracking-wider font-semibold text-slate-500">
           Template
         </label>
         <select
+          id={`${fieldId}-template`}
           value={selectedKey}
           onChange={(e) => setSelectedKey(e.target.value as TemplateKey)}
           className="w-full max-w-md border border-slate-200 rounded-xl px-3 py-2 text-sm"
@@ -181,10 +185,11 @@ export default function SecurityEmailSettingsPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs uppercase tracking-wider font-semibold text-slate-500">
+          <label htmlFor={`${fieldId}-subject`} className="text-xs uppercase tracking-wider font-semibold text-slate-500">
             Sujet
           </label>
           <input
+            id={`${fieldId}-subject`}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono"
@@ -192,10 +197,11 @@ export default function SecurityEmailSettingsPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs uppercase tracking-wider font-semibold text-slate-500">
+          <label htmlFor={`${fieldId}-body`} className="text-xs uppercase tracking-wider font-semibold text-slate-500">
             HTML
           </label>
           <textarea
+            id={`${fieldId}-body`}
             value={bodyHtml}
             onChange={(e) => setBodyHtml(e.target.value)}
             rows={18}

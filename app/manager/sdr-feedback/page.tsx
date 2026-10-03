@@ -153,8 +153,9 @@ export default function ManagerSdrFeedbackPage() {
                 </div>
                 <div className="flex items-end gap-2">
                     <div>
-                        <label className="block text-[11px] text-ink-3 mb-1">Du</label>
+                        <label htmlFor="sdr-feedback-from" className="block text-[11px] text-ink-3 mb-1">Du</label>
                         <input
+                            id="sdr-feedback-from"
                             type="date"
                             value={from}
                             onChange={(e) => setFrom(e.target.value)}
@@ -162,8 +163,9 @@ export default function ManagerSdrFeedbackPage() {
                         />
                     </div>
                     <div>
-                        <label className="block text-[11px] text-ink-3 mb-1">Au</label>
+                        <label htmlFor="sdr-feedback-to" className="block text-[11px] text-ink-3 mb-1">Au</label>
                         <input
+                            id="sdr-feedback-to"
                             type="date"
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
@@ -384,8 +386,9 @@ export default function ManagerSdrFeedbackPage() {
                 {!loading && !error && items.length > 0 ? (
                     <div className="px-4 py-3 border-t border-line bg-white flex flex-wrap items-center gap-2">
                         <div className="flex items-center gap-2">
-                            <label className="text-[12px] text-ink-3">Lignes / page</label>
+                            <label htmlFor="sdr-feedback-page-size" className="text-[12px] text-ink-3">Lignes / page</label>
                             <select
+                                id="sdr-feedback-page-size"
                                 value={pageSize}
                                 onChange={(e) => {
                                     setPageSize(Number(e.target.value));

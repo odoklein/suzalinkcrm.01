@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, X, Clock, Loader2, Banknote, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
-import { useToast } from "@/components/ui";
+import { useToast, useConfirm } from "@/components/ui";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -33,6 +33,7 @@ export function PaymentSection({
     onPaymentUpdate,
 }: PaymentSectionProps) {
     const { success, error: showError } = useToast();
+    const confirm = useConfirm();
     const [processing, setProcessing] = useState<string | null>(null);
 
     const formatCurrency = (amount: number) =>
@@ -57,7 +58,7 @@ export function PaymentSection({
     };
 
     const handleReject = async (paymentId: string) => {
-        if (!confirm("Êtes-vous sûr de vouloir rejeter ce paiement ?")) return;
+        if (!(await confirm({ title: "Rejeter ce paiement ?", message: "Êtes-vous sûr de vouloir rejeter ce paiement ?", variant: "danger", confirmText: "Rejeter" }))) return;
         setProcessing(paymentId);
         try {
             const res = await fetch(`/api/billing/payments/${paymentId}/reject`, { method: "POST" });
@@ -175,8 +176,9 @@ export function PaymentSection({
                                     size="sm"
                                     onClick={() => handleReject(payment.id)}
                                     disabled={processing === payment.id}
+                                    aria-label="Rejeter le paiement"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X className="w-4 h-4" aria-hidden="true" />
                                 </Button>
                             </div>
                         </div>

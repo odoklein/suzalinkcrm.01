@@ -42,6 +42,8 @@ import Link from "next/link";
 import { formatCallbackDateTime } from "@/lib/utils/parseDateFromNote";
 import { ACTION_RESULT_LABELS, type ActionResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { ROW_FOCUS } from "@/components/ui/recipes";
+import { rowKeyDown } from "@/lib/a11y";
 
 // ============================================
 // TYPES
@@ -201,7 +203,9 @@ function CallbacksStatsModalBody({
                                         <tr
                                             key={cb.id}
                                             onClick={() => onRowClick(cb)}
-                                            className="border-b border-slate-100 last:border-0 hover:bg-amber-50/80 cursor-pointer transition-colors"
+                                            tabIndex={0}
+                                            onKeyDown={rowKeyDown(() => onRowClick(cb))}
+                                            className={cn("border-b border-slate-100 last:border-0 hover:bg-amber-50/80 cursor-pointer transition-colors", ROW_FOCUS)}
                                         >
                                             <td className="py-2.5 px-3">
                                                 <span className="font-medium text-slate-900">{name}</span>
@@ -646,48 +650,53 @@ export default function SDRCallbacksPage() {
                     <div className="flex items-center gap-1">
                         {submitting && <Loader2 className="w-4 h-4 animate-spin text-primary-500" />}
                         <button
+                            aria-label="RDV pris"
                             type="button"
                             onClick={(e) => { e.stopPropagation(); openOutcome(cb, "MEETING_BOOKED"); }}
                             disabled={submitting}
                             title="RDV pris"
                             className="w-9 h-9 rounded-xl border-2 border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
                         >
-                            <Calendar className="w-4 h-4" />
+                            <Calendar aria-hidden className="w-4 h-4" />
                         </button>
                         <button
+                            aria-label="Intéressé"
                             type="button"
                             onClick={(e) => { e.stopPropagation(); openOutcome(cb, "INTERESTED"); }}
                             disabled={submitting}
                             title="Intéressé"
                             className="w-9 h-9 rounded-xl border-2 border-slate-200 flex items-center justify-center text-slate-400 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
                         >
-                            <ThumbsUp className="w-4 h-4" />
+                            <ThumbsUp aria-hidden className="w-4 h-4" />
                         </button>
                         <button
+                            aria-label="Pas de réponse"
                             type="button"
                             onClick={(e) => { e.stopPropagation(); handleQuickOutcome(cb, "NO_RESPONSE"); }}
                             disabled={submitting}
                             title="Pas de réponse"
                             className="w-9 h-9 rounded-xl border-2 border-slate-200 flex items-center justify-center text-slate-400 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-all duration-200"
                         >
-                            <XCircle className="w-4 h-4" />
+                            <XCircle aria-hidden className="w-4 h-4" />
                         </button>
                         <button
+                            aria-label="Reprogrammer"
                             type="button"
                             onClick={(e) => { e.stopPropagation(); openReschedule(cb); }}
                             disabled={submitting}
                             title="Reprogrammer"
                             className="w-9 h-9 rounded-xl border-2 border-slate-200 flex items-center justify-center text-slate-400 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
                         >
-                            <TimerReset className="w-4 h-4" />
+                            <TimerReset aria-hidden className="w-4 h-4" />
                         </button>
                         <button
+                            aria-label="Voir la fiche"
                             type="button"
                             onClick={(e) => { e.stopPropagation(); openDrawerForCallback(cb); }}
                             title="Voir la fiche"
                             className="w-9 h-9 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200"
                         >
-                            <Eye className="w-4 h-4" />
+                            <Eye aria-hidden className="w-4 h-4" />
                         </button>
                     </div>
                 );
@@ -735,6 +744,7 @@ export default function SDRCallbacksPage() {
                             <div className="flex rounded-xl border border-white/10 p-1 bg-white/5">
                                 <button
                                     type="button"
+                                    aria-pressed={viewMode === "card"}
                                     onClick={() => setViewMode("card")}
                                     className={cn(
                                         "px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-2",
@@ -748,6 +758,7 @@ export default function SDRCallbacksPage() {
                                 </button>
                                 <button
                                     type="button"
+                                    aria-pressed={viewMode === "table"}
                                     onClick={() => setViewMode("table")}
                                     className={cn(
                                         "px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-2",
@@ -832,8 +843,8 @@ export default function SDRCallbacksPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                         {/* Date From */}
                         <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Du</label>
-                            <input
+                            <label htmlFor="sdr-callbacks-filter-du" className="text-xs font-medium text-slate-500 uppercase tracking-wider">Du</label>
+                            <input id="sdr-callbacks-filter-du"
                                 type="date"
                                 value={dateFrom}
                                 onChange={(e) => setDateFrom(e.target.value)}
@@ -842,8 +853,8 @@ export default function SDRCallbacksPage() {
                         </div>
                         {/* Date To */}
                         <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Au</label>
-                            <input
+                            <label htmlFor="sdr-callbacks-filter-au" className="text-xs font-medium text-slate-500 uppercase tracking-wider">Au</label>
+                            <input id="sdr-callbacks-filter-au"
                                 type="date"
                                 value={dateTo}
                                 onChange={(e) => setDateTo(e.target.value)}
@@ -896,8 +907,8 @@ export default function SDRCallbacksPage() {
                         </div>
                         {/* Sort */}
                         <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Trier par</label>
-                            <select
+                            <label htmlFor="sdr-callbacks-filter-trier-par" className="text-xs font-medium text-slate-500 uppercase tracking-wider">Trier par</label>
+                            <select id="sdr-callbacks-filter-trier-par"
                                 value={sortKey}
                                 onChange={(e) => setSortKey(e.target.value as SortKey)}
                                 className="w-full h-10 px-3 text-sm border border-slate-200 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-400 transition-shadow cursor-pointer"
@@ -1225,10 +1236,10 @@ export default function SDRCallbacksPage() {
                             </p>
                         )}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor="sdr-callbacks-outcome-note" className="block text-sm font-medium text-slate-700 mb-2">
                                 {(outcomeResult === "INTERESTED" || outcomeResult === "CALLBACK_REQUESTED" || outcomeResult === "ENVOIE_MAIL") ? "Note *" : "Note (optionnel)"}
                             </label>
-                            <textarea
+                            <textarea id="sdr-callbacks-outcome-note"
                                 value={outcomeNote}
                                 onChange={(e) => setOutcomeNote(e.target.value)}
                                 placeholder="Ex: RDV confirmé jeudi 14h, Intéressé par la démo..."

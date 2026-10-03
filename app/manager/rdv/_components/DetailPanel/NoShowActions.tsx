@@ -290,10 +290,11 @@ export function NoShowActions({ meeting, onUpdated }: NoShowActionsProps) {
                     </div>
 
                     <div>
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                        <label htmlFor="noshow-note" className="mb-1.5 block text-sm font-medium text-slate-700">
                             Précision (optionnel)
                         </label>
                         <textarea
+                            id="noshow-note"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             rows={3}
@@ -304,10 +305,11 @@ export function NoShowActions({ meeting, onUpdated }: NoShowActionsProps) {
                     </div>
 
                     <div>
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                        <label htmlFor="noshow-assignee" className="mb-1.5 block text-sm font-medium text-slate-700">
                             Qui reprend ce contact ?
                         </label>
                         <select
+                            id="noshow-assignee"
                             value={sdrId}
                             onChange={(e) => setSdrId(e.target.value)}
                             className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"

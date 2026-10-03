@@ -291,13 +291,13 @@ function UserFormFields({
             )}
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className={labelClass}>Nom</label>
-                    <input className={cn(fieldClass, errors.name && "border-red-300")} value={data.name} onChange={(e) => onChange({ name: e.target.value })} placeholder="Jean Dupont" />
+                    <label htmlFor="user-form-name" className={labelClass}>Nom</label>
+                    <input id="user-form-name" className={cn(fieldClass, errors.name && "border-red-300")} value={data.name} onChange={(e) => onChange({ name: e.target.value })} placeholder="Jean Dupont" />
                     {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                    <label className={labelClass}>Rôle</label>
-                    <select className={fieldClass} value={data.role} onChange={(e) => onChange({ role: e.target.value, clientId: e.target.value === "CLIENT" ? data.clientId : "" })}>
+                    <label htmlFor="user-form-role" className={labelClass}>Rôle</label>
+                    <select id="user-form-role" className={fieldClass} value={data.role} onChange={(e) => onChange({ role: e.target.value, clientId: e.target.value === "CLIENT" ? data.clientId : "" })}>
                         <option value="SDR">SDR</option>
                         <option value="BOOKER">Booker</option>
                         <option value="BUSINESS_DEVELOPER">Business Dev</option>
@@ -309,24 +309,24 @@ function UserFormFields({
                 </div>
             </div>
             <div>
-                <label className={labelClass}>Email</label>
-                <input className={cn(fieldClass, errors.email && "border-red-300")} type="email" value={data.email} onChange={(e) => onChange({ email: e.target.value })} placeholder="jean@example.com" />
+                <label htmlFor="user-form-email" className={labelClass}>Email</label>
+                <input id="user-form-email" className={cn(fieldClass, errors.email && "border-red-300")} type="email" value={data.email} onChange={(e) => onChange({ email: e.target.value })} placeholder="jean@example.com" />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className={labelClass}>Mot de passe <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
-                    <input className={fieldClass} type="password" value={data.password} onChange={(e) => onChange({ password: e.target.value })} placeholder="Généré auto" />
+                    <label htmlFor="user-form-password" className={labelClass}>Mot de passe <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
+                    <input id="user-form-password" className={fieldClass} type="password" value={data.password} onChange={(e) => onChange({ password: e.target.value })} placeholder="Généré auto" />
                 </div>
                 <div>
-                    <label className={labelClass}>Numéro Allo <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
-                    <input className={fieldClass} value={data.alloPhoneNumber} onChange={(e) => onChange({ alloPhoneNumber: e.target.value })} placeholder="+33612345678" />
+                    <label htmlFor="user-form-allo" className={labelClass}>Numéro Allo <span className="text-slate-400 normal-case font-normal">(optionnel)</span></label>
+                    <input id="user-form-allo" className={fieldClass} value={data.alloPhoneNumber} onChange={(e) => onChange({ alloPhoneNumber: e.target.value })} placeholder="+33612345678" />
                 </div>
             </div>
             {data.role === "CLIENT" && (
                 <div>
-                    <label className={labelClass}>Client <span className="text-red-500">*</span></label>
-                    <select className={cn(fieldClass, errors.clientId && "border-red-300")} value={data.clientId} onChange={(e) => onChange({ clientId: e.target.value })}>
+                    <label htmlFor="user-form-client" className={labelClass}>Client <span className="text-red-500">*</span></label>
+                    <select id="user-form-client" className={cn(fieldClass, errors.clientId && "border-red-300")} value={data.clientId} onChange={(e) => onChange({ clientId: e.target.value })}>
                         <option value="">Sélectionner un client</option>
                         {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
@@ -338,8 +338,8 @@ function UserFormFields({
                     <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Feedback SDR</p>
                     <div className="grid grid-cols-2 gap-3 items-end">
                         <div>
-                            <label className={labelClass}>Heure d'affichage</label>
-                            <input type="time" className={fieldClass} value={data.sdrFeedbackPromptTime} onChange={(e) => onChange({ sdrFeedbackPromptTime: e.target.value })} />
+                            <label htmlFor="user-form-feedback-time" className={labelClass}>Heure d'affichage</label>
+                            <input id="user-form-feedback-time" type="time" className={fieldClass} value={data.sdrFeedbackPromptTime} onChange={(e) => onChange({ sdrFeedbackPromptTime: e.target.value })} />
                         </div>
                         <label className="flex items-center gap-2 text-sm text-slate-700 pb-2.5 cursor-pointer">
                             <input type="checkbox" checked={data.sdrFeedbackRequiredDaily} onChange={(e) => onChange({ sdrFeedbackRequiredDaily: e.target.checked })} className="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />

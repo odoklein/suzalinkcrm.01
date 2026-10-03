@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { AlertTriangle, Ban, Building2, User } from "lucide-react";
 import { Button, Modal, ModalFooter } from "@/components/ui";
 import {
@@ -58,6 +58,7 @@ export function ExcludeDialog({
     const [scope, setScope] = useState<ExclusionScopeChoice>(defaultScope);
     const [reason, setReason] = useState("");
     const [duration, setDuration] = useState("permanent");
+    const reasonId = useId();
 
     // Reopening on a different prospect must not inherit the previous answers —
     // a stale reason on a new company is how wrong rules get created. Adjusted
@@ -119,6 +120,7 @@ export function ExcludeDialog({
                                     type="button"
                                     disabled={option.disabled}
                                     onClick={() => setTarget(option.value)}
+                                    aria-pressed={active}
                                     className={cn(
                                         "flex items-start gap-3 rounded-xl border p-3 text-left transition-all",
                                         active
@@ -157,6 +159,7 @@ export function ExcludeDialog({
                                         key={value}
                                         type="button"
                                         onClick={() => setScope(value)}
+                                        aria-pressed={active}
                                         className={cn(
                                             "rounded-xl border p-3 text-left transition-all",
                                             active
@@ -179,7 +182,7 @@ export function ExcludeDialog({
 
                 {/* Reason */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-800 mb-2">
+                    <label htmlFor={reasonId} className="block text-sm font-semibold text-slate-800 mb-2">
                         Motif <span className="text-red-500">*</span>
                     </label>
                     <div className="flex flex-wrap gap-1.5 mb-2">
@@ -195,6 +198,7 @@ export function ExcludeDialog({
                         ))}
                     </div>
                     <textarea
+                        id={reasonId}
                         value={reason}
                         onChange={(e) => setReason(e.target.value.slice(0, MAX_EXCLUSION_REASON_LENGTH))}
                         rows={3}
@@ -215,6 +219,7 @@ export function ExcludeDialog({
                                 key={option.value}
                                 type="button"
                                 onClick={() => setDuration(option.value)}
+                                aria-pressed={duration === option.value}
                                 className={cn(
                                     "rounded-lg border px-3 py-1.5 text-sm transition-all",
                                     duration === option.value

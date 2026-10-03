@@ -422,8 +422,8 @@ export default function ManagerSentEmailsPage() {
                 {showFilters && (
                     <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100">
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Statut</label>
-                            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[140px]">
+                            <label htmlFor="sent-filter-status" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Statut</label>
+                            <select id="sent-filter-status" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[140px]">
                                 <option value="">Tous</option>
                                 <option value="SENT">Envoyé</option>
                                 <option value="DELIVERED">Délivré</option>
@@ -435,28 +435,28 @@ export default function ManagerSentEmailsPage() {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Ouverture</label>
-                            <select value={hasOpenedFilter} onChange={(e) => { setHasOpenedFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[130px]">
+                            <label htmlFor="sent-filter-open" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Ouverture</label>
+                            <select id="sent-filter-open" value={hasOpenedFilter} onChange={(e) => { setHasOpenedFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[130px]">
                                 <option value="">Tous</option>
                                 <option value="true">Ouverts</option>
                                 <option value="false">Non ouverts</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Clic</label>
-                            <select value={hasClickedFilter} onChange={(e) => { setHasClickedFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[130px]">
+                            <label htmlFor="sent-filter-click" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Clic</label>
+                            <select id="sent-filter-click" value={hasClickedFilter} onChange={(e) => { setHasClickedFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[130px]">
                                 <option value="">Tous</option>
                                 <option value="true">Avec clics</option>
                                 <option value="false">Sans clic</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Du</label>
-                            <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                            <label htmlFor="sent-filter-from" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Du</label>
+                            <input id="sent-filter-from" type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                         </div>
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Au</label>
-                            <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                            <label htmlFor="sent-filter-to" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Au</label>
+                            <input id="sent-filter-to" type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }} className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                         </div>
                     </div>
                 )}

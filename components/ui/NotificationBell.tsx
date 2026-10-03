@@ -3,12 +3,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
     Bell, Check, Info, AlertTriangle, XCircle, CheckCircle2,
-    ChevronRight, Settings, CheckCheck, Clock,
+    ChevronRight, Settings, CheckCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { pressable } from "@/lib/a11y";
+import { FOCUS_RING } from "./recipes";
+import { useOverlay } from "./useOverlay";
 
 // Poll less often and only when tab is visible to reduce /api/notifications load
 const POLL_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes (was 1 min)
@@ -26,31 +29,31 @@ interface Notification {
 const TYPE_CONFIG = {
     success: {
         icon: CheckCircle2,
-        bg: "bg-emerald-50",
-        iconColor: "text-emerald-500",
-        dot: "bg-emerald-400",
-        border: "border-emerald-100",
+        bg: "bg-success-soft",
+        iconColor: "text-success",
+        dot: "bg-success",
+        border: "border-success-line",
     },
     warning: {
         icon: AlertTriangle,
-        bg: "bg-amber-50",
-        iconColor: "text-amber-500",
-        dot: "bg-amber-400",
-        border: "border-amber-100",
+        bg: "bg-warning-soft",
+        iconColor: "text-warning",
+        dot: "bg-warning",
+        border: "border-warning-line",
     },
     error: {
         icon: XCircle,
-        bg: "bg-red-50",
-        iconColor: "text-red-500",
-        dot: "bg-red-400",
-        border: "border-red-100",
+        bg: "bg-danger-soft",
+        iconColor: "text-danger",
+        dot: "bg-danger",
+        border: "border-danger-line",
     },
     info: {
         icon: Info,
-        bg: "bg-sky-50",
-        iconColor: "text-sky-500",
-        dot: "bg-sky-400",
-        border: "border-sky-100",
+        bg: "bg-info-soft",
+        iconColor: "text-info",
+        dot: "bg-info",
+        border: "border-info-line",
     },
 };
 
@@ -63,15 +66,18 @@ export function NotificationBell() {
     const [justMarkedAll, setJustMarkedAll] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    useOverlay({ open: isOpen, onClose: () => setIsOpen(false), lockScroll: false, trapFocus: false });
 
-    const getNotificationsPageUrl = () => {
+    // Only these roles have a notifications page; the others (developer,
+    // commercial) were sent to a 404 or bounced to /unauthorized.
+    const getNotificationsPageUrl = (): string | null => {
         const role = session?.user?.role;
         if (role === "CLIENT") return "/client/portal/notifications";
-        if (role === "SDR" || role === "BUSINESS_DEVELOPER") return "/sdr/notifications";
+        if (role === "SDR" || role === "BUSINESS_DEVELOPER" || role === "BOOKER") return "/sdr/notifications";
         if (role === "MANAGER") return "/manager/notifications";
-        if (role === "DEVELOPER") return "/developer/notifications";
-        return "/sdr/notifications";
+        return null;
     };
+    const notificationsPageUrl = getNotificationsPageUrl();
 
     const loadNotifications = useCallback(async () => {
         try {
@@ -201,6 +207,9 @@ export function NotificationBell() {
                 {/* ── Bell Button ── */}
                 <button
                     id="notification-bell-btn"
+                    type="button"
+                    aria-haspopup="dialog"
+                    aria-expanded={isOpen}
                     onClick={() => {
                         const next = !isOpen;
                         setIsOpen(next);
@@ -208,22 +217,23 @@ export function NotificationBell() {
                     }}
                     className={cn(
                         "relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
-                        "border focus:outline-none",
+                        "border",
+                        FOCUS_RING,
                         isOpen
                             ? "bg-accent-100 border-accent-200 text-accent-600 shadow-sm"
                             : "bg-surface border-line text-ink-3 hover:border-accent-200 hover:text-accent-600 hover:bg-accent-50 hover:shadow-sm"
                     )}
-                    aria-label="Notifications"
+                    aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}` : "Notifications"}
                 >
-                    <Bell className={cn("w-4 h-4 transition-transform duration-200", isOpen && "scale-90")} />
+                    <Bell className={cn("w-4 h-4 transition-transform duration-200", isOpen && "scale-90")} aria-hidden />
 
                     {/* Unread badge */}
                     {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] font-black text-white leading-none"
+                        <span aria-hidden className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-3xs font-black text-white leading-none tabular-nums"
                             style={{
                                 background: "var(--ds-danger)",
                                 animation: "badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-                                boxShadow: "0 0 0 2px white",
+                                boxShadow: "0 0 0 2px var(--ds-surface)",
                             }}>
                             {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
@@ -233,12 +243,11 @@ export function NotificationBell() {
                 {/* ── Dropdown Panel ── */}
                 {isOpen && (
                     <div
-                        className="absolute right-0 mt-2.5 w-[380px] max-w-[calc(100vw-1.5rem)] z-50 overflow-hidden"
+                        role="dialog"
+                        aria-label="Notifications"
+                        className="absolute right-0 mt-2.5 w-[380px] max-w-[calc(100vw-1.5rem)] z-50 overflow-hidden rounded-[20px] border border-line bg-surface shadow-overlay"
                         style={{
                             animation: "notifDrop 0.22s cubic-bezier(0.22,1,0.36,1)",
-                            borderRadius: "20px",
-                            background: "white",
-                            boxShadow: "0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(15,23,42,0.06), 0 0 0 1px rgba(226,232,240,0.8)",
                         }}
                     >
                         {/* ── Header ── */}
@@ -246,7 +255,7 @@ export function NotificationBell() {
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <div className="w-7 h-7 rounded-lg bg-accent-100 flex items-center justify-center">
-                                        <Bell className="w-3.5 h-3.5 text-accent-600" />
+                                        <Bell className="w-3.5 h-3.5 text-accent-600" aria-hidden />
                                     </div>
                                     <span className="font-bold text-[15px] text-ink">Notifications</span>
                                     {unreadCount > 0 && (
@@ -257,40 +266,47 @@ export function NotificationBell() {
                                 </div>
                                 <div className="flex items-center gap-1">
                                     {unreadCount > 0 && (
-                                        <button onClick={markAllAsRead}
+                                        <button type="button" onClick={markAllAsRead}
                                             className={cn(
                                                 "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200",
+                                                FOCUS_RING,
                                                 justMarkedAll
-                                                    ? "bg-emerald-100 text-emerald-600"
+                                                    ? "bg-success-soft text-success-ink"
                                                     : "text-accent-600 hover:bg-accent-50"
                                             )}>
-                                            {justMarkedAll ? <Check className="w-3 h-3" /> : <CheckCheck className="w-3 h-3" />}
+                                            {justMarkedAll ? <Check className="w-3 h-3" aria-hidden /> : <CheckCheck className="w-3 h-3" aria-hidden />}
                                             {justMarkedAll ? "Fait" : "Tout lire"}
                                         </button>
                                     )}
-                                    <Link href="/manager/notifications"
-                                        onClick={() => setIsOpen(false)}
-                                        className="w-7 h-7 rounded-lg text-ink-4 hover:text-ink-2 hover:bg-surface-3 flex items-center justify-center transition-colors duration-150">
-                                        <Settings className="w-3.5 h-3.5" />
-                                    </Link>
+                                    {notificationsPageUrl && (
+                                        <Link href={notificationsPageUrl}
+                                            onClick={() => setIsOpen(false)}
+                                            aria-label="Gérer les notifications"
+                                            title="Gérer les notifications"
+                                            className={cn("w-7 h-7 rounded-lg text-ink-3 hover:text-ink hover:bg-surface-3 flex items-center justify-center transition-colors duration-150", FOCUS_RING)}>
+                                            <Settings className="w-3.5 h-3.5" aria-hidden />
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex gap-1 p-1 bg-surface-3 rounded-xl">
+                            <div role="tablist" aria-label="Filtrer les notifications" className="flex gap-1 p-1 bg-surface-3 rounded-xl">
                                 {(["all", "unread"] as const).map((tab) => (
-                                    <button key={tab} onClick={() => setActiveTab(tab)}
+                                    <button key={tab} type="button" role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)}
                                         className={cn(
                                             "flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-150",
+                                            FOCUS_RING,
+                                            "focus-visible:ring-offset-surface-3",
                                             activeTab === tab
                                                 ? "bg-surface text-ink shadow-sm"
-                                                : "text-ink-4 hover:text-ink-2"
+                                                : "text-ink-3 hover:text-ink"
                                         )}>
                                         {tab === "all" ? "Toutes" : (
                                             <span className="flex items-center justify-center gap-1">
                                                 Non lues
                                                 {unreadCount > 0 && (
-                                                    <span className="w-4 h-4 rounded-full bg-red-400 text-white text-[9px] flex items-center justify-center font-black">
+                                                    <span className="w-4 h-4 rounded-full bg-danger text-white text-3xs flex items-center justify-center font-black tabular-nums">
                                                         {unreadCount > 9 ? "9+" : unreadCount}
                                                     </span>
                                                 )}
@@ -307,12 +323,12 @@ export function NotificationBell() {
                             {displayed.length === 0 ? (
                                 <div className="py-10 px-6 text-center">
                                     <div className="w-16 h-16 rounded-2xl bg-surface-2 border border-line-subtle flex items-center justify-center mx-auto mb-3">
-                                        <Bell className="w-7 h-7 text-slate-200" />
+                                        <Bell className="w-7 h-7 text-ink-4" aria-hidden />
                                     </div>
                                     <p className="text-[13px] font-semibold text-ink-2 mb-1">
                                         {activeTab === "unread" ? "Tout est lu" : "Aucune notification"}
                                     </p>
-                                    <p className="text-[11px] text-ink-4">
+                                    <p className="text-[11px] text-ink-3">
                                         {activeTab === "unread"
                                             ? "Vous avez lu toutes vos notifications."
                                             : "Les nouvelles notifications apparaîtront ici."}
@@ -326,9 +342,9 @@ export function NotificationBell() {
                                         return (
                                             <div
                                                 key={n.id}
-                                                onClick={() => markAsRead(n.id, n.link)}
+                                                {...pressable(() => markAsRead(n.id, n.link))}
                                                 className={cn(
-                                                    "relative flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-all duration-150 group border-b border-slate-50 last:border-0",
+                                                    "relative flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-all duration-150 group border-b border-line-subtle last:border-0 outline-none focus-visible:bg-accent-50 focus-visible:shadow-[inset_3px_0_0_var(--ds-accent)]",
                                                     !n.isRead
                                                         ? "bg-accent-50/40 hover:bg-accent-50/70"
                                                         : "hover:bg-surface-2/80"
@@ -339,7 +355,7 @@ export function NotificationBell() {
                                             >
                                                 {/* Unread stripe */}
                                                 {!n.isRead && (
-                                                    <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full bg-accent-500" />
+                                                    <div aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full bg-accent-500" />
                                                 )}
 
                                                 {/* Icon */}
@@ -347,7 +363,7 @@ export function NotificationBell() {
                                                     "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 border",
                                                     cfg.bg, cfg.border
                                                 )}>
-                                                    <Icon className={cn("w-4 h-4", cfg.iconColor)} />
+                                                    <Icon className={cn("w-4 h-4", cfg.iconColor)} aria-hidden />
                                                 </div>
 
                                                 {/* Content */}
@@ -361,25 +377,22 @@ export function NotificationBell() {
                                                         </p>
                                                         <div className="flex items-center gap-1.5 flex-shrink-0">
                                                             {!n.isRead && (
-                                                                <div className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot)} />
+                                                                <>
+                                                                    <div aria-hidden className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot)} />
+                                                                    <span className="sr-only">Non lue,</span>
+                                                                </>
                                                             )}
-                                                            <span className="text-[10px] text-ink-4 whitespace-nowrap">{formatDate(n.createdAt)}</span>
+                                                            <span className="text-3xs text-ink-3 whitespace-nowrap">{formatDate(n.createdAt)}</span>
                                                         </div>
                                                     </div>
-                                                    <p className="text-[11px] text-ink-4 mt-0.5 line-clamp-2 leading-relaxed">
+                                                    <p className="text-[11px] text-ink-3 mt-0.5 line-clamp-2 leading-relaxed">
                                                         {n.message}
                                                     </p>
-                                                    {!n.isRead && (
-                                                        <div className="flex items-center gap-1 mt-1.5">
-                                                            <Clock className="w-2.5 h-2.5 text-ink-4" />
-                                                            <span className="text-[10px] text-ink-4">{formatDate(n.createdAt)}</span>
-                                                        </div>
-                                                    )}
                                                 </div>
 
                                                 {/* Arrow */}
                                                 {n.link && (
-                                                    <ChevronRight className="w-3.5 h-3.5 text-slate-200 group-hover:text-accent-400 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0 mt-1" />
+                                                    <ChevronRight aria-hidden className="w-3.5 h-3.5 text-ink-4 group-hover:text-accent-500 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0 mt-1" />
                                                 )}
                                             </div>
                                         );
@@ -389,16 +402,18 @@ export function NotificationBell() {
                         </div>
 
                         {/* ── Footer ── */}
+                        {notificationsPageUrl && (
                         <div className="px-4 py-3 border-t border-line-subtle bg-surface-2">
                             <Link
-                                href={getNotificationsPageUrl()}
+                                href={notificationsPageUrl}
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-[12px] font-bold text-accent-600 hover:text-accent-800 hover:bg-accent-50 transition-all duration-150 group"
+                                className={cn("flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-[12px] font-bold text-accent-600 hover:text-accent-800 hover:bg-accent-50 transition-all duration-150 group", FOCUS_RING, "focus-visible:ring-offset-surface-2")}
                             >
                                 <span>Voir toutes les notifications</span>
-                                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-150" />
+                                <ChevronRight aria-hidden className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-150" />
                             </Link>
                         </div>
+                        )}
                     </div>
                 )}
             </div>

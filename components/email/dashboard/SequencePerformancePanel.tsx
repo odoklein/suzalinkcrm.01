@@ -2,6 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import { pressable } from "@/lib/a11y";
 import { Workflow, Pause, Play, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -127,8 +128,8 @@ export function SequencePerformancePanel({
                     {data.map((seq) => (
                         <div
                             key={seq.id}
-                            className="px-5 py-3 flex items-center gap-4 hover:bg-slate-50/50 transition-colors cursor-pointer group"
-                            onClick={() => onNavigate(seq.id)}
+                            className="px-5 py-3 flex items-center gap-4 hover:bg-slate-50/50 transition-colors cursor-pointer group outline-none focus-visible:bg-surface-2"
+                            {...pressable(() => onNavigate(seq.id))}
                         >
                             {/* Status + Name */}
                             <div className="flex-1 min-w-0">
@@ -183,16 +184,18 @@ export function SequencePerformancePanel({
                                         onClick={() => onToggleStatus(seq.id, "PAUSED")}
                                         className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                                         title="Mettre en pause"
+                                        aria-label="Mettre en pause"
                                     >
-                                        <Pause className="w-3.5 h-3.5" />
+                                        <Pause className="w-3.5 h-3.5" aria-hidden />
                                     </button>
                                 ) : (
                                     <button
                                         onClick={() => onToggleStatus(seq.id, "ACTIVE")}
                                         className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                                         title="Activer"
+                                        aria-label="Activer"
                                     >
-                                        <Play className="w-3.5 h-3.5" />
+                                        <Play className="w-3.5 h-3.5" aria-hidden />
                                     </button>
                                 )}
                                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />

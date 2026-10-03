@@ -321,8 +321,9 @@ export default function PlaybookImportPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-slate-500 mb-2">Ou coller le contenu</label>
+                  <label htmlFor="playbook-paste" className="block text-xs uppercase tracking-wider text-slate-500 mb-2">Ou coller le contenu</label>
                   <textarea
+                    id="playbook-paste"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Collez ici le contenu du playbook (export Notion, markdown...)"
@@ -590,8 +591,9 @@ export default function PlaybookImportPage() {
                       </div>
                       {scriptTab === "intro" && (
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-slate-500 mb-1">Intro / Premier contact</label>
+                          <label htmlFor="playbook-script-intro" className="block text-xs uppercase tracking-wider text-slate-500 mb-1">Intro / Premier contact</label>
                           <textarea
+                            id="playbook-script-intro"
                             value={edited.script?.intro ?? edited.script?.fullScript ?? ""}
                             onChange={(e) => updateScript({ intro: e.target.value || null })}
                             rows={4}
@@ -601,8 +603,9 @@ export default function PlaybookImportPage() {
                       )}
                       {scriptTab === "objections" && (
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-slate-500 mb-1">Objections</label>
+                          <label htmlFor="playbook-script-objections" className="block text-xs uppercase tracking-wider text-slate-500 mb-1">Objections</label>
                           <textarea
+                            id="playbook-script-objections"
                             value={edited.script?.objection ?? (edited.script?.objections ?? []).join("\n\n")}
                             onChange={(e) => updateScript({ objection: e.target.value || null })}
                             rows={4}

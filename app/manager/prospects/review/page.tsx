@@ -213,8 +213,9 @@ export default function ExceptionInboxPage() {
                         setSelectedProfile(profile);
                         setShowReviewModal(true);
                     }}
+                    aria-label="Réviser le prospect"
                 >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-4 h-4" aria-hidden />
                 </Button>
             ),
         },
@@ -259,6 +260,7 @@ export default function ExceptionInboxPage() {
                     <input
                         type="text"
                         placeholder="Rechercher..."
+                        aria-label="Rechercher un prospect"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -396,8 +398,9 @@ function ReviewModal({ profile, isOpen, onClose, onApprove, onReject, isProcessi
 
                 {/* Reject Reason Input */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Raison du rejet (optionnel)</label>
+                    <label htmlFor="review-reject-reason" className="text-sm font-medium text-slate-700">Raison du rejet (optionnel)</label>
                     <textarea
+                        id="review-reject-reason"
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                         placeholder="Expliquez pourquoi ce prospect est rejeté..."

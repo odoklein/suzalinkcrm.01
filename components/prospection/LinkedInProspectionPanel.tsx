@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Card, Button, useToast } from "@/components/ui";
-import { Linkedin, User, Building2, Loader2, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback, useId } from "react";
+import { Card, Button, useToast, LoadingState } from "@/components/ui";
+import { Linkedin, User, Building2, ChevronRight } from "lucide-react";
 import { ACTION_RESULT_LABELS } from "@/lib/types";
 import { LINKEDIN_RESULT_CODES } from "@/lib/constants/actionStatusPresets";
 import type { ProspectionActionData } from "./ProspectionChannelWorkspace";
@@ -18,6 +18,7 @@ export function LinkedInProspectionPanel({ missionId, listId }: LinkedInProspect
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [note, setNote] = useState("");
+    const noteId = useId();
 
     const fetchNext = useCallback(async () => {
         setIsLoading(true);
@@ -89,12 +90,7 @@ export function LinkedInProspectionPanel({ missionId, listId }: LinkedInProspect
     }, [currentAction, note, fetchNext, success, showError]);
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-24">
-                <Loader2 className="w-10 h-10 text-sky-500 animate-spin mb-4" />
-                <p className="text-slate-500 font-medium">Chargement du prochain contact...</p>
-            </div>
-        );
+        return <LoadingState message="Chargement du prochain contact…" />;
     }
 
     if (!currentAction) {
@@ -164,8 +160,9 @@ export function LinkedInProspectionPanel({ missionId, listId }: LinkedInProspect
                 </div>
 
                 <div className="mt-4">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Note (optionnel)</label>
+                    <label htmlFor={noteId} className="block text-sm font-medium text-slate-700 mb-1">Note (optionnel)</label>
                     <textarea
+                        id={noteId}
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder="Ajouter une note..."

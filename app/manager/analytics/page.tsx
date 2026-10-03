@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { AiMark } from "@/components/ui/AiMark";
 import { ACTION_RESULT_LABELS } from "@/lib/types";
 import { DataTable } from "@/components/ui/DataTable";
-import { Modal } from "@/components/ui";
+import { Modal, useToast, LoadingState } from "@/components/ui";
 
 const SDR_COLORS: Record<string, string> = {
     'Mathieu Deville': 'var(--brand-primary-600)', // brand primary
@@ -54,6 +54,7 @@ function toLocalISODate(date: Date): string {
 }
 
 export default function AnalyticsPage() {
+    const toast = useToast();
     // Filters State
     const [dateRange, setDateRange] = useState(() => {
         const today = toLocalISODate(new Date());
@@ -350,11 +351,11 @@ export default function AnalyticsPage() {
         } catch (err) {
             previewWindow?.close();
             console.error("Report generation failed:", err);
-            alert(err instanceof Error ? err.message : "Erreur lors de la génération du rapport");
+            toast.error(err instanceof Error ? err.message : "Erreur lors de la génération du rapport");
         } finally {
             setIsGeneratingReport(false);
         }
-    }, [reportType, reportDate, reportDateFrom, reportDateTo, selectedMissions, selectedSdrs, selectedClients, selectedLists]);
+    }, [reportType, reportDate, reportDateFrom, reportDateTo, selectedMissions, selectedSdrs, selectedClients, selectedLists, toast]);
 
     // Data Formatting
     const dailyData = useMemo(() => {
@@ -539,14 +540,7 @@ export default function AnalyticsPage() {
     }, [stats?.statusBreakdown, statusLabelMap, statusColorMap]);
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-40" style={{ background: "var(--ds-canvas)", minHeight: "100vh" }}>
-                <div className="w-14 h-14 rounded-2xl bg-accent-100 flex items-center justify-center mb-4">
-                    <RefreshCw className="w-7 h-7 text-accent-600 animate-spin" />
-                </div>
-                <p className="text-[13px] text-slate-400 font-medium">Chargement des analytics...</p>
-            </div>
-        );
+        return <LoadingState message="Chargement des analytics..." />;
     }
 
     const { kpis, segments, funnel, sdrPerformance, missionStates } = stats || {};
@@ -578,11 +572,12 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div className="flex items-center gap-2.5 flex-wrap">
-                    <div className="flex items-center gap-2 px-3.5 py-2 text-[12px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-accent-300 transition-all">
+                    <div className="flex items-center gap-2 px-3.5 py-2 text-[12px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-accent-300 transition-all focus-within:ring-2 focus-within:ring-focus">
                         <Calendar className="w-3.5 h-3.5 text-accent-500" />
                         <input
                             type="date"
                             value={dateRange.from}
+                            aria-label="Date de début"
                             onChange={e => setDateRange(prev => ({ ...prev, from: e.target.value }))}
                             className="bg-transparent border-none p-0 outline-none hover:text-accent-600 transition-colors cursor-pointer"
                         />
@@ -590,6 +585,7 @@ export default function AnalyticsPage() {
                         <input
                             type="date"
                             value={dateRange.to}
+                            aria-label="Date de fin"
                             onChange={e => setDateRange(prev => ({ ...prev, to: e.target.value }))}
                             className="bg-transparent border-none p-0 outline-none hover:text-accent-600 transition-colors cursor-pointer"
                         />
@@ -601,18 +597,19 @@ export default function AnalyticsPage() {
                     >
                         <Download className="w-3.5 h-3.5 text-slate-400" /> Exporter les stats
                     </button>
-                    <button onClick={fetchStats} className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-accent-600 hover:border-accent-300 hover:shadow-sm transition-all shadow-sm">
-                        <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+                    <button onClick={fetchStats} aria-label="Actualiser" className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-accent-600 hover:border-accent-300 hover:shadow-sm transition-all shadow-sm">
+                        <RefreshCw aria-hidden className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
                     </button>
                 </div>
             </div>
 
             {/* Filters */}
             <div className="flex flex-wrap gap-3 mb-6">
-                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm">
+                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm focus-within:ring-2 focus-within:ring-focus">
                     <div className="flex-1">
                         <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Mission</span>
                         <select
+                            aria-label="Mission"
                             className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-700 outline-none p-0 cursor-pointer"
                             value={selectedMissions[0] || "all"}
                             onChange={(e) => {
@@ -629,10 +626,10 @@ export default function AnalyticsPage() {
                     <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center shrink-0"><Target className="w-4 h-4 text-primary-500" /></div>
                 </div>
 
-                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm">
+                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm focus-within:ring-2 focus-within:ring-focus">
                     <div className="flex-1">
                         <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SDR</span>
-                        <select className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-700 outline-none p-0 cursor-pointer" onChange={e => {
+                        <select aria-label="SDR" className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-700 outline-none p-0 cursor-pointer" onChange={e => {
                             if (e.target.value === "all") setSelectedSdrs([]);
                             else if (!selectedSdrs.includes(e.target.value)) setSelectedSdrs([e.target.value]);
                         }}>
@@ -643,10 +640,10 @@ export default function AnalyticsPage() {
                     <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><User className="w-4 h-4 text-emerald-500" /></div>
                 </div>
 
-                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm">
+                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm focus-within:ring-2 focus-within:ring-focus">
                     <div className="flex-1">
                         <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Client</span>
-                        <select className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-700 outline-none p-0 cursor-pointer" onChange={e => {
+                        <select aria-label="Client" className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-700 outline-none p-0 cursor-pointer" onChange={e => {
                             if (e.target.value === "all") setSelectedClients([]);
                             else if (!selectedClients.includes(e.target.value)) setSelectedClients([e.target.value]);
                         }}>
@@ -657,10 +654,11 @@ export default function AnalyticsPage() {
                     <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0"><Briefcase className="w-4 h-4 text-amber-500" /></div>
                 </div>
 
-                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm">
+                <div className="flex-1 min-w-[200px] flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-accent-300 shadow-sm focus-within:ring-2 focus-within:ring-focus">
                     <div className="flex-1">
                         <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Liste</span>
                         <select
+                            aria-label="Liste"
                             className="w-full bg-transparent border-none text-[13px] font-semibold text-slate-700 outline-none p-0 cursor-pointer"
                             value={selectedLists[0] || "all"}
                             onChange={(e) => {
@@ -1064,7 +1062,7 @@ export default function AnalyticsPage() {
                                             <div className="text-[14px] font-bold text-slate-800 truncate group-hover:text-accent-600 transition-colors">{m.missionName}</div>
                                         </div>
                                         <div className="text-[11.5px] text-slate-400 truncate flex items-center gap-1">
-                                            <span className={cn("px-1.5 py-0.5 rounded text-[9px] font-bold", m.isActive ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
+                                            <span className={cn("px-1.5 py-0.5 rounded text-3xs font-bold", m.isActive ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
                                                 {m.isActive ? "ACTIF" : "PAUSE"}
                                             </span>
                                             · {m.clientName}
@@ -1151,7 +1149,7 @@ export default function AnalyticsPage() {
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <span className="text-[15px] font-black text-slate-800">{totalCalls}</span>
-                                <span className="text-[8px] font-bold text-slate-400 uppercase">appels</span>
+                                <span className="text-3xs font-bold text-slate-400 uppercase">appels</span>
                             </div>
                         </div>
 
@@ -1364,6 +1362,7 @@ export default function AnalyticsPage() {
                     <div className="flex flex-wrap items-center gap-3">
                         <select
                             value={compareMode}
+                            aria-label="Mode de comparaison"
                             onChange={(e) => setCompareMode(e.target.value as 'none' | 'lists' | 'missions')}
                             className="text-[12px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl px-3 py-2 hover:border-accent-300 focus:outline-none focus:ring-2 focus:ring-accent-500/20"
                         >
@@ -1373,12 +1372,12 @@ export default function AnalyticsPage() {
                         </select>
                         {compareMode === 'lists' && selectedMissions.length === 1 && (
                             <>
-                                <select value={compareListA} onChange={(e) => setCompareListA(e.target.value)} className="text-[12px] font-medium border border-slate-200 rounded-xl px-3 py-2 min-w-[140px]">
+                                <select aria-label="Liste A" value={compareListA} onChange={(e) => setCompareListA(e.target.value)} className="text-[12px] font-medium border border-slate-200 rounded-xl px-3 py-2 min-w-[140px]">
                                     <option value="">Liste A</option>
                                     {lists.map((l: any) => <option key={l.id} value={l.id}>{l.name}</option>)}
                                 </select>
                                 <span className="text-slate-400">vs</span>
-                                <select value={compareListB} onChange={(e) => setCompareListB(e.target.value)} className="text-[12px] font-medium border border-slate-200 rounded-xl px-3 py-2 min-w-[140px]">
+                                <select aria-label="Liste B" value={compareListB} onChange={(e) => setCompareListB(e.target.value)} className="text-[12px] font-medium border border-slate-200 rounded-xl px-3 py-2 min-w-[140px]">
                                     <option value="">Liste B</option>
                                     {lists.map((l: any) => <option key={l.id} value={l.id}>{l.name}</option>)}
                                 </select>
@@ -1388,6 +1387,7 @@ export default function AnalyticsPage() {
                             <>
                                 <select
                                     value={compareMissionA[0] || ''}
+                                    aria-label="Mission A"
                                     onChange={(e) => setCompareMissionA(e.target.value ? [e.target.value] : [])}
                                     className="text-[12px] font-medium border border-slate-200 rounded-xl px-3 py-2 min-w-[160px]"
                                 >
@@ -1397,6 +1397,7 @@ export default function AnalyticsPage() {
                                 <span className="text-slate-400">vs</span>
                                 <select
                                     value={compareMissionB[0] || ''}
+                                    aria-label="Mission B"
                                     onChange={(e) => setCompareMissionB(e.target.value ? [e.target.value] : [])}
                                     className="text-[12px] font-medium border border-slate-200 rounded-xl px-3 py-2 min-w-[160px]"
                                 >
@@ -1414,6 +1415,7 @@ export default function AnalyticsPage() {
                             <button
                                 key={dim}
                                 onClick={() => setPersonaDimension(dim)}
+                                aria-pressed={personaDimension === dim}
                                 className={cn(
                                     "px-3 py-1.5 text-[11px] font-bold rounded-xl transition-all",
                                     personaDimension === dim
@@ -1436,6 +1438,7 @@ export default function AnalyticsPage() {
                             <button
                                 key={m}
                                 onClick={() => setPersonaMetric(m)}
+                                aria-pressed={personaMetric === m}
                                 className={cn(
                                     "px-3 py-1.5 text-[11px] font-bold rounded-xl transition-all",
                                     personaMetric === m
@@ -1545,26 +1548,26 @@ export default function AnalyticsPage() {
 
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0">
-                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl", journalFilter === 'all' ? "bg-slate-800 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('all')}>
-                            Tous <span className={cn("ml-1.5 px-1.5 py-0.5 rounded text-[9px]", journalFilter === 'all' ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500")}>{actions.length}</span>
+                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl", journalFilter === 'all' ? "bg-slate-800 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('all')} aria-pressed={journalFilter === 'all'}>
+                            Tous <span className={cn("ml-1.5 px-1.5 py-0.5 rounded text-3xs", journalFilter === 'all' ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500")}>{actions.length}</span>
                         </button>
-                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'meetings' ? "bg-emerald-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('meetings')}>
+                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'meetings' ? "bg-emerald-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('meetings')} aria-pressed={journalFilter === 'meetings'}>
                             <div className={cn("w-1.5 h-1.5 rounded-full", journalFilter === 'meetings' ? "bg-white" : "bg-emerald-500")} /> Meetings
                         </button>
-                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'callbacks' ? "bg-amber-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('callbacks')}>
+                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'callbacks' ? "bg-amber-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('callbacks')} aria-pressed={journalFilter === 'callbacks'}>
                             <div className={cn("w-1.5 h-1.5 rounded-full", journalFilter === 'callbacks' ? "bg-white" : "bg-amber-500")} /> Intéressés
                         </button>
-                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'disqualified' ? "bg-red-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('disqualified')}>
+                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'disqualified' ? "bg-red-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('disqualified')} aria-pressed={journalFilter === 'disqualified'}>
                             <div className={cn("w-1.5 h-1.5 rounded-full", journalFilter === 'disqualified' ? "bg-white" : "bg-red-500")} /> Disqualifiés
                         </button>
-                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'no_response' ? "bg-blue-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('no_response')}>
+                        <button className={cn("px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap rounded-xl flex items-center gap-1.5", journalFilter === 'no_response' ? "bg-blue-500 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200")} onClick={() => setJournalFilter('no_response')} aria-pressed={journalFilter === 'no_response'}>
                             <div className={cn("w-1.5 h-1.5 rounded-full", journalFilter === 'no_response' ? "bg-white" : "bg-blue-500")} /> Sans réponse
                         </button>
                     </div>
 
                     <div className="relative shrink-0 w-full md:w-auto">
                         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input className="w-full md:w-56 pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-[12px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500/50 transition-all placeholder:text-slate-400 shadow-sm" type="text" placeholder="Rechercher..." disabled />
+                        <input className="w-full md:w-56 pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-[12px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500/50 transition-all placeholder:text-slate-400 shadow-sm" type="text" placeholder="Rechercher..." aria-label="Rechercher dans le journal" disabled />
                     </div>
                 </div>
 
@@ -1573,7 +1576,7 @@ export default function AnalyticsPage() {
                         data={filteredActions}
                         columns={[
                             { key: "createdAt", header: "Date", sortable: true, render: (val: string) => <div className="text-[12px] text-slate-500 font-bold font-mono bg-slate-50 px-2 py-1 rounded w-max">{new Date(val).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div> },
-                            { key: "sdrName", header: "SDR", sortable: true, render: (val: string) => <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black text-white shrink-0 shadow-sm" style={{ background: getSdrColor(val) }}>{val.substring(0, 2).toUpperCase()}</div><span className="font-bold text-slate-700">{val}</span></div> },
+                            { key: "sdrName", header: "SDR", sortable: true, render: (val: string) => <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg flex items-center justify-center text-3xs font-black text-white shrink-0 shadow-sm" style={{ background: getSdrColor(val) }}>{val.substring(0, 2).toUpperCase()}</div><span className="font-bold text-slate-700">{val}</span></div> },
                             { key: "missionName", header: "Mission", sortable: true, render: (val: string) => <span className="text-[12px] font-bold text-accent-600 bg-accent-50 px-2 py-1 rounded-md">{val}</span> },
                             { key: "contactName", header: "Contact", sortable: true, render: (val: string, row: any) => <div><div className="font-black text-slate-800 tracking-tight">{val}</div><div className="text-[11.5px] font-medium text-slate-400">{row.companyName}</div></div> },
                             {
@@ -1613,6 +1616,7 @@ export default function AnalyticsPage() {
                                     key={t}
                                     type="button"
                                     onClick={() => setReportType(t)}
+                                    aria-pressed={reportType === t}
                                     className={cn(
                                         "flex-1 px-3 py-2.5 rounded-xl text-[13px] font-semibold border transition-all",
                                         reportType === t
@@ -1628,8 +1632,9 @@ export default function AnalyticsPage() {
 
                     {reportType === "daily" && (
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date</label>
+                            <label htmlFor="report-date-daily" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date</label>
                             <input
+                                id="report-date-daily"
                                 type="date"
                                 value={reportDate}
                                 onChange={(e) => setReportDate(e.target.value)}
@@ -1640,8 +1645,9 @@ export default function AnalyticsPage() {
 
                     {reportType === "weekly" && (
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date (dans la semaine)</label>
+                            <label htmlFor="report-date-weekly" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date (dans la semaine)</label>
                             <input
+                                id="report-date-weekly"
                                 type="date"
                                 value={reportDate}
                                 onChange={(e) => setReportDate(e.target.value)}
@@ -1654,8 +1660,9 @@ export default function AnalyticsPage() {
                     {reportType === "custom" && (
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Du</label>
+                                <label htmlFor="report-date-from" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Du</label>
                                 <input
+                                    id="report-date-from"
                                     type="date"
                                     value={reportDateFrom}
                                     onChange={(e) => setReportDateFrom(e.target.value)}
@@ -1663,8 +1670,9 @@ export default function AnalyticsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Au</label>
+                                <label htmlFor="report-date-to" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Au</label>
                                 <input
+                                    id="report-date-to"
                                     type="date"
                                     value={reportDateTo}
                                     onChange={(e) => setReportDateTo(e.target.value)}

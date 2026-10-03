@@ -318,6 +318,7 @@ export function StrategyEditorDrawer({
                     <Step number={1} icon={<Target style={{ width: 18, height: 18, color: C.indigo }} />} title="Nom de la stratégie">
                         <input
                             type="text"
+                            aria-label="Nom de la stratégie"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="ex: SaaS SMB France"
@@ -405,6 +406,7 @@ export function StrategyEditorDrawer({
                     {/* Step 3: ICP */}
                     <Step number={3} icon={<Target style={{ width: 18, height: 18, color: C.indigo }} />} title="Profil cible (ICP)">
                         <textarea
+                            aria-label="Profil cible (ICP)"
                             value={icp}
                             onChange={(e) => setIcp(e.target.value)}
                             rows={4}

@@ -358,7 +358,7 @@ function InlineCallPicker({
                                 </span>
                               )}
                               {call.sources.length > 0 && (
-                                <span className="text-[9px] font-bold uppercase tracking-wide px-1 py-0.5 rounded bg-accent-100 text-accent-700">
+                                <span className="text-3xs font-bold uppercase tracking-wide px-1 py-0.5 rounded bg-accent-100 text-accent-700">
                                   {call.sources.join(" · ")}
                                 </span>
                               )}
@@ -886,7 +886,7 @@ export function AudioTab({ meeting, updateMeeting, setSelectedMeeting, ficheStat
                     >
                       <Copy className="w-2.5 h-2.5" />
                     </button>
-                    <span className="text-[9px] text-slate-400">({s.callCount} appels)</span>
+                    <span className="text-3xs text-slate-400">({s.callCount} appels)</span>
                   </div>
                 ))}
               </div>

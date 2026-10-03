@@ -237,10 +237,11 @@ export default function EditMissionPage({ params }: { params: Promise<{ id: stri
 
                     {/* Mission Name */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="mission-edit-name" className="block text-sm font-medium text-slate-700 mb-2">
                             Nom de la mission *
                         </label>
                         <input
+                            id="mission-edit-name"
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -255,10 +256,11 @@ export default function EditMissionPage({ params }: { params: Promise<{ id: stri
 
                     {/* Objective */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="mission-edit-objective" className="block text-sm font-medium text-slate-700 mb-2">
                             Objectif
                         </label>
                         <textarea
+                            id="mission-edit-objective"
                             value={formData.objective}
                             onChange={(e) => setFormData(prev => ({ ...prev, objective: e.target.value }))}
                             placeholder="Ex: Générer 50 meetings qualifiés"
@@ -317,10 +319,11 @@ export default function EditMissionPage({ params }: { params: Promise<{ id: stri
                     {/* Dates */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor="mission-edit-start" className="block text-sm font-medium text-slate-700 mb-2">
                                 Date de début
                             </label>
                             <input
+                                id="mission-edit-start"
                                 type="date"
                                 value={formData.startDate}
                                 onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
@@ -328,10 +331,11 @@ export default function EditMissionPage({ params }: { params: Promise<{ id: stri
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label htmlFor="mission-edit-end" className="block text-sm font-medium text-slate-700 mb-2">
                                 Date de fin
                             </label>
                             <input
+                                id="mission-edit-end"
                                 type="date"
                                 value={formData.endDate}
                                 onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}

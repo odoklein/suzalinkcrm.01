@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { cn } from "@/lib/utils";
 import {
     Mail,
@@ -16,6 +16,7 @@ import {
     X,
 } from "lucide-react";
 import { brand } from "@/lib/brand";
+import { useOverlay, useConfirm } from "@/components/ui";
 
 // ============================================
 // TYPES
@@ -53,6 +54,7 @@ interface AddMailboxViewProps {
 }
 
 function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewProps) {
+    const fieldId = useId();
     const [step, setStep] = useState<'select' | 'imap' | 'reachinbox'>('select');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -193,8 +195,9 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                     <button
                         onClick={() => setStep('select')}
                         className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                        aria-label="Retour"
                     >
-                        <ArrowRight className="w-4 h-4 rotate-180 text-slate-500" />
+                        <ArrowRight className="w-4 h-4 rotate-180 text-slate-500" aria-hidden />
                     </button>
                 )}
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -254,10 +257,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-ri-email`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Adresse email *
                             </label>
                             <input
+                                id={`${fieldId}-ri-email`}
                                 type="email"
                                 required
                                 value={reachInboxForm.email}
@@ -268,10 +272,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-ri-name`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Nom d&apos;affichage
                             </label>
                             <input
+                                id={`${fieldId}-ri-name`}
                                 type="text"
                                 value={reachInboxForm.displayName}
                                 onChange={(e) => setReachInboxForm({ ...reachInboxForm, displayName: e.target.value })}
@@ -281,10 +286,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-ri-key`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Cle API ReachInbox *
                             </label>
                             <input
+                                id={`${fieldId}-ri-key`}
                                 type="password"
                                 required
                                 value={reachInboxForm.apiKey}
@@ -331,10 +337,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-imap-email`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Adresse email *
                             </label>
                             <input
+                                id={`${fieldId}-imap-email`}
                                 type="email"
                                 required
                                 value={imapForm.email}
@@ -345,10 +352,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-imap-name`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Nom d&apos;affichage
                             </label>
                             <input
+                                id={`${fieldId}-imap-name`}
                                 type="text"
                                 value={imapForm.displayName}
                                 onChange={(e) => setImapForm({ ...imapForm, displayName: e.target.value })}
@@ -358,10 +366,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-imap-password`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Mot de passe / App Password *
                             </label>
                             <input
+                                id={`${fieldId}-imap-password`}
                                 type="password"
                                 required
                                 value={imapForm.password}
@@ -372,10 +381,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-imap-host`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Serveur IMAP *
                             </label>
                             <input
+                                id={`${fieldId}-imap-host`}
                                 type="text"
                                 required
                                 value={imapForm.imapHost}
@@ -386,10 +396,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-imap-port`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Port IMAP *
                             </label>
                             <input
+                                id={`${fieldId}-imap-port`}
                                 type="text"
                                 required
                                 value={imapForm.imapPort}
@@ -400,10 +411,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-smtp-host`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Serveur SMTP *
                             </label>
                             <input
+                                id={`${fieldId}-smtp-host`}
                                 type="text"
                                 required
                                 value={imapForm.smtpHost}
@@ -414,10 +426,11 @@ function AddMailboxView({ onCancel, onSuccess, onMailboxAdded }: AddMailboxViewP
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor={`${fieldId}-smtp-port`} className="block text-sm font-medium text-slate-700 mb-1">
                                 Port SMTP *
                             </label>
                             <input
+                                id={`${fieldId}-smtp-port`}
                                 type="text"
                                 required
                                 value={imapForm.smtpPort}
@@ -473,6 +486,9 @@ export function MailboxManagerDialog({ isOpen, onClose, onMailboxAdded }: Mailbo
     const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [syncingMailboxes, setSyncingMailboxes] = useState<Set<string>>(new Set());
+    const confirm = useConfirm();
+    const panelRef = useOverlay<HTMLDivElement>({ open: isOpen, onClose });
+    const titleId = useId();
 
     const fetchMailboxes = async () => {
         setIsLoading(true);
@@ -522,7 +538,12 @@ export function MailboxManagerDialog({ isOpen, onClose, onMailboxAdded }: Mailbo
     };
 
     const handleDelete = async (mailboxId: string) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer cette boîte mail ?")) return;
+        if (!(await confirm({
+            title: "Supprimer cette boîte mail ?",
+            message: "Êtes-vous sûr de vouloir supprimer cette boîte mail ?",
+            variant: "danger",
+            confirmText: "Supprimer",
+        }))) return;
 
         try {
             await fetch(`/api/email/mailboxes/${mailboxId}`, { method: "DELETE" });
@@ -581,13 +602,20 @@ export function MailboxManagerDialog({ isOpen, onClose, onMailboxAdded }: Mailbo
             <div className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" onClick={onClose} />
 
             {/* Dialog */}
-            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-4xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-4xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl"
+            >
                 <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 id={titleId} className="text-xl font-bold text-slate-900">
                         Gestion des boîtes mails
                     </h2>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                        <X className="w-5 h-5 text-slate-500" />
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Fermer">
+                        <X className="w-5 h-5 text-slate-500" aria-hidden />
                     </button>
                 </div>
 
@@ -695,9 +723,10 @@ export function MailboxManagerDialog({ isOpen, onClose, onMailboxAdded }: Mailbo
                                                                 e.stopPropagation();
                                                                 handleDelete(mailbox.id);
                                                             }}
-                                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all"
+                                                            aria-label="Supprimer la boîte mail"
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            <Trash2 className="w-4 h-4" aria-hidden />
                                                         </button>
                                                     </div>
                                                 </div>

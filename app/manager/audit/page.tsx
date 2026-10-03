@@ -226,12 +226,12 @@ export default function AuditPage() {
                     <Select options={actionOptions} value={filters.action} onChange={(v) => setFilter({ action: v })} label="Action" />
                     <Select options={entityOptions} value={filters.entityType} onChange={(v) => setFilter({ entityType: v })} label="Type d'objet" />
                     <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Du</label>
-                        <input type="date" className={cn(dateClass, "w-full")} value={filters.from} max={filters.to || undefined} onChange={(e) => setFilter({ from: e.target.value })} />
+                        <label htmlFor="audit-from" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Du</label>
+                        <input id="audit-from" type="date" className={cn(dateClass, "w-full")} value={filters.from} max={filters.to || undefined} onChange={(e) => setFilter({ from: e.target.value })} />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Au</label>
-                        <input type="date" className={cn(dateClass, "w-full")} value={filters.to} min={filters.from || undefined} onChange={(e) => setFilter({ to: e.target.value })} />
+                        <label htmlFor="audit-to" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Au</label>
+                        <input id="audit-to" type="date" className={cn(dateClass, "w-full")} value={filters.to} min={filters.from || undefined} onChange={(e) => setFilter({ to: e.target.value })} />
                     </div>
                 </div>
                 {hasFilters && (

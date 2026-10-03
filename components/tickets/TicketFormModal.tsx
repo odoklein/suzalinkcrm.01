@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Modal, ModalFooter, Button, Input, Select, MultiSelect, useToast } from "@/components/ui";
 import {
     TICKET_AFFECTED_ROLE_OPTIONS,
@@ -39,6 +39,7 @@ export function TicketFormModal({ isOpen, onClose, onSaved, ticket, developers, 
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const descriptionId = useId();
     const [category, setCategory] = useState("BUG");
     const [scope, setScope] = useState("INTERNAL");
     const [priority, setPriority] = useState("MEDIUM");
@@ -143,8 +144,9 @@ export function TicketFormModal({ isOpen, onClose, onSaved, ticket, developers, 
                 />
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+                    <label htmlFor={descriptionId} className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
                     <textarea
+                        id={descriptionId}
                         value={description}
                         onChange={(event) => setDescription(event.target.value)}
                         rows={5}

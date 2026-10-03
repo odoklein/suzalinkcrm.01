@@ -235,16 +235,18 @@ export default function SandboxPage() {
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
+                                <label htmlFor="sandbox-firstName" className="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
                                 <Input
+                                    id="sandbox-firstName"
                                     value={testLead.firstName || ""}
                                     onChange={(e) => handleFieldChange("firstName", e.target.value)}
                                     placeholder="Jean"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Nom</label>
+                                <label htmlFor="sandbox-lastName" className="block text-sm font-medium text-slate-700 mb-1">Nom</label>
                                 <Input
+                                    id="sandbox-lastName"
                                     value={testLead.lastName || ""}
                                     onChange={(e) => handleFieldChange("lastName", e.target.value)}
                                     placeholder="Dupont"
@@ -252,8 +254,9 @@ export default function SandboxPage() {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                            <label htmlFor="sandbox-email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                             <Input
+                                id="sandbox-email"
                                 type="email"
                                 value={testLead.email || ""}
                                 onChange={(e) => handleFieldChange("email", e.target.value)}
@@ -261,40 +264,45 @@ export default function SandboxPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Téléphone</label>
+                            <label htmlFor="sandbox-phone" className="block text-sm font-medium text-slate-700 mb-1">Téléphone</label>
                             <Input
+                                id="sandbox-phone"
                                 value={testLead.phone || ""}
                                 onChange={(e) => handleFieldChange("phone", e.target.value)}
                                 placeholder="+33612345678"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Titre</label>
+                            <label htmlFor="sandbox-title" className="block text-sm font-medium text-slate-700 mb-1">Titre</label>
                             <Input
+                                id="sandbox-title"
                                 value={testLead.title || ""}
                                 onChange={(e) => handleFieldChange("title", e.target.value)}
                                 placeholder="CEO"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Entreprise</label>
+                            <label htmlFor="sandbox-company" className="block text-sm font-medium text-slate-700 mb-1">Entreprise</label>
                             <Input
+                                id="sandbox-company"
                                 value={testLead.company || ""}
                                 onChange={(e) => handleFieldChange("company", e.target.value)}
                                 placeholder="Acme Corp"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Site web</label>
+                            <label htmlFor="sandbox-companyWebsite" className="block text-sm font-medium text-slate-700 mb-1">Site web</label>
                             <Input
+                                id="sandbox-companyWebsite"
                                 value={testLead.companyWebsite || ""}
                                 onChange={(e) => handleFieldChange("companyWebsite", e.target.value)}
                                 placeholder="https://example.com"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Industrie</label>
+                            <label htmlFor="sandbox-companyIndustry" className="block text-sm font-medium text-slate-700 mb-1">Industrie</label>
                             <Input
+                                id="sandbox-companyIndustry"
                                 value={testLead.companyIndustry || ""}
                                 onChange={(e) => handleFieldChange("companyIndustry", e.target.value)}
                                 placeholder="SaaS"

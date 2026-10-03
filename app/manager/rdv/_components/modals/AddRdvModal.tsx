@@ -381,8 +381,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
     >
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Mission *</label>
+            <label htmlFor="add-rdv-mission" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Mission *</label>
             <select
+              id="add-rdv-mission"
               className="rdv-input"
               style={{ width: "100%" }}
               value={missionId}
@@ -396,8 +397,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Liste *</label>
+            <label htmlFor="add-rdv-list" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Liste *</label>
             <select
+              id="add-rdv-list"
               className="rdv-input"
               style={{ width: "100%" }}
               value={listId}
@@ -616,10 +618,11 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
               </p>
               {clientInterlocuteurs.filter(i => i.isActive && i.bookingLinks?.length > 0).length > 1 && (
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>
+                  <label htmlFor="add-rdv-recipient" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>
                     Commercial client destinataire
                   </label>
                   <select
+                    id="add-rdv-recipient"
                     className="rdv-input"
                     style={{ width: "100%" }}
                     value={selectedInterlocuteurId}
@@ -660,8 +663,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
 
           {meetingType === "VISIO" && (
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Lien de connexion</label>
+              <label htmlFor="add-rdv-join-url" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Lien de connexion</label>
               <input
+                id="add-rdv-join-url"
                 type="url"
                 className="rdv-input"
                 style={{ width: "100%" }}
@@ -673,8 +677,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
           )}
           {meetingType === "PHYSIQUE" && (
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Adresse *</label>
+              <label htmlFor="add-rdv-address" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Adresse *</label>
               <input
+                id="add-rdv-address"
                 type="text"
                 className="rdv-input"
                 style={{ width: "100%" }}
@@ -686,8 +691,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
           )}
           {meetingType === "TELEPHONIQUE" && (
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Numéro à appeler</label>
+              <label htmlFor="add-rdv-phone" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Numéro à appeler</label>
               <input
+                id="add-rdv-phone"
                 type="tel"
                 className="rdv-input"
                 style={{ width: "100%" }}
@@ -725,8 +731,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Catégorie</label>
+            <label htmlFor="add-rdv-category" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Catégorie</label>
             <select
+              id="add-rdv-category"
               className="rdv-input"
               style={{ width: "100%" }}
               value={meetingCategory}
@@ -739,8 +746,9 @@ export function AddRdvModal({ isOpen, onClose, onSuccess }: AddRdvModalProps) {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Notes / Commentaire</label>
+            <label htmlFor="add-rdv-notes" style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--ink3)", marginBottom: 6 }}>Notes / Commentaire</label>
             <textarea
+              id="add-rdv-notes"
               className="rdv-input"
               style={{ width: "100%", minHeight: 88, resize: "vertical" }}
               placeholder="Décrivez le RDV, contexte, sujets à aborder…"

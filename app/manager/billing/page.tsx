@@ -14,7 +14,6 @@ import {
     Euro,
     ArrowUpRight,
     ArrowDownRight,
-    Loader2,
     Plus,
     Download,
     FileX2,
@@ -26,7 +25,7 @@ import {
     Tag,
     CalendarDays,
 } from "lucide-react";
-import { Button, Card } from "@/components/ui";
+import { Button, Card, LoadingState } from "@/components/ui";
 import Link from "next/link";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -181,14 +180,7 @@ export default function BillingDashboardPage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary-400 mb-3" />
-                    <p className="text-sm text-slate-500">Chargement du tableau de bord...</p>
-                </div>
-            </div>
-        );
+        return <LoadingState message="Chargement du tableau de bord..." />;
     }
 
     const growth = getGrowthPercentage();

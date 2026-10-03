@@ -373,8 +373,9 @@ function CreateExclusionModal({
                 </div>
 
                 <div>
-                    <label className="block text-sm font-semibold text-slate-800 mb-1.5">Périmètre</label>
+                    <label htmlFor="exclusion-scope" className="block text-sm font-semibold text-slate-800 mb-1.5">Périmètre</label>
                     <select
+                        id="exclusion-scope"
                         value={scopeId}
                         onChange={(e) => setScopeId(e.target.value)}
                         className="w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-primary-300"
@@ -389,7 +390,7 @@ function CreateExclusionModal({
                 </div>
 
                 <div>
-                    <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                    <label htmlFor="exclusion-reason" className="block text-sm font-semibold text-slate-800 mb-1.5">
                         Motif <span className="text-red-500">*</span>
                     </label>
                     <div className="flex flex-wrap gap-1.5 mb-2">
@@ -405,6 +406,7 @@ function CreateExclusionModal({
                         ))}
                     </div>
                     <textarea
+                        id="exclusion-reason"
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
                         rows={3}
@@ -510,10 +512,11 @@ function LiftExclusionModal({
             size="md"
         >
             <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                <label htmlFor="exclusion-lift-reason" className="block text-sm font-semibold text-slate-800 mb-1.5">
                     Motif de la levée <span className="text-red-500">*</span>
                 </label>
                 <textarea
+                    id="exclusion-lift-reason"
                     value={liftReason}
                     onChange={(e) => setLiftReason(e.target.value)}
                     rows={3}

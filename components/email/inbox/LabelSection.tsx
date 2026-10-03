@@ -44,8 +44,9 @@ export function LabelSection({ labels, onAddLabel, onRemoveLabel }: LabelSection
                 <button
                     onClick={() => setIsAdding(true)}
                     className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-50 transition-colors"
+                    aria-label="Ajouter un label"
                 >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-3 h-3" aria-hidden />
                 </button>
             </div>
 
@@ -60,8 +61,9 @@ export function LabelSection({ labels, onAddLabel, onRemoveLabel }: LabelSection
                             <button
                                 onClick={() => onRemoveLabel(label)}
                                 className="p-0.5 hover:bg-primary-100 rounded-full text-primary-400 hover:text-primary-700 transition-colors"
+                                aria-label={`Retirer le label ${label}`}
                             >
-                                <X className="w-3 h-3" />
+                                <X className="w-3 h-3" aria-hidden />
                             </button>
                         </span>
                     ))
@@ -85,6 +87,7 @@ export function LabelSection({ labels, onAddLabel, onRemoveLabel }: LabelSection
                         }}
                         className="px-2 py-0.5 text-xs bg-white border border-primary-300 rounded-full outline-none ring-2 ring-primary-500/20 w-24"
                         placeholder="Nouveau label..."
+                        aria-label="Nouveau label"
                     />
                 )}
             </div>

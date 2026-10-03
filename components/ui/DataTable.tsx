@@ -15,6 +15,8 @@ import {
     CheckSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { rowKeyDown } from "@/lib/a11y";
+import { FOCUS_RING, ROW_FOCUS } from "./recipes";
 
 // ============================================
 // DATA TABLE COMPONENT
@@ -268,9 +270,10 @@ export function DataTable<T extends Record<string, any>>({
             {/* Search */}
             {searchable && (
                 <div className="relative px-5 py-4 border-b border-line-subtle bg-surface-2/30">
-                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-4" />
+                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-4" aria-hidden />
                     <input
-                        type="text"
+                        type="search"
+                        aria-label={searchPlaceholder || "Rechercher"}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={searchPlaceholder}
@@ -278,10 +281,12 @@ export function DataTable<T extends Record<string, any>>({
                     />
                     {searchQuery && (
                         <button
+                            type="button"
                             onClick={() => setSearchQuery("")}
-                            className="absolute right-8 top-1/2 -translate-y-1/2 p-1 text-ink-4 hover:text-ink-2 rounded-md hover:bg-surface-3 transition-colors"
+                            aria-label="Effacer la recherche"
+                            className={cn("absolute right-8 top-1/2 -translate-y-1/2 p-1 text-ink-3 hover:text-ink rounded-md hover:bg-surface-3 transition-colors", FOCUS_RING)}
                         >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="w-3.5 h-3.5" aria-hidden />
                         </button>
                     )}
                 </div>
@@ -386,7 +391,9 @@ export function DataTable<T extends Record<string, any>>({
                                     </button>
                                 </th>
                             )}
-                            {visibleColumns.map((column) => (
+                            {visibleColumns.map((column) => {
+                                const HeaderTag = column.sortable ? "button" : "div";
+                                return (
                                 <th
                                     key={column.key}
                                     className={cn(
@@ -394,9 +401,19 @@ export function DataTable<T extends Record<string, any>>({
                                         column.sortable && "cursor-pointer select-none hover:text-ink-2 transition-colors"
                                     )}
                                     style={{ width: column.width }}
-                                    onClick={() => column.sortable && handleSort(column.key)}
+                                    aria-sort={
+                                        column.sortable && sortKey === column.key
+                                            ? sortDirection === "asc" ? "ascending" : "descending"
+                                            : undefined
+                                    }
                                 >
-                                    <div className="flex items-center gap-1.5">
+                                    <HeaderTag
+                                        {...(column.sortable ? { type: "button" as const, onClick: () => handleSort(column.key) } : {})}
+                                        className={cn(
+                                            "flex items-center gap-1.5",
+                                            column.sortable && cn("-mx-1 rounded px-1 uppercase tracking-wider font-semibold", FOCUS_RING, "focus-visible:ring-offset-0")
+                                        )}
+                                    >
                                         {typeof column.header === "string" ? (
                                             <span>{column.header}</span>
                                         ) : (
@@ -405,6 +422,7 @@ export function DataTable<T extends Record<string, any>>({
                                         {column.sortable && (
                                             <span className="flex flex-col shrink-0">
                                                 <ChevronUp
+                                                    aria-hidden
                                                     className={cn(
                                                         "w-3 h-3 -mb-1 transition-colors",
                                                         sortKey === column.key && sortDirection === "asc"
@@ -413,6 +431,7 @@ export function DataTable<T extends Record<string, any>>({
                                                     )}
                                                 />
                                                 <ChevronDown
+                                                    aria-hidden
                                                     className={cn(
                                                         "w-3 h-3 -mt-1 transition-colors",
                                                         sortKey === column.key && sortDirection === "desc"
@@ -422,9 +441,10 @@ export function DataTable<T extends Record<string, any>>({
                                                 />
                                             </span>
                                         )}
-                                    </div>
+                                    </HeaderTag>
                                 </th>
-                            ))}
+                                );
+                            })}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-line-subtle/80">
@@ -462,9 +482,11 @@ export function DataTable<T extends Record<string, any>>({
                                 <tr
                                     key={rowKey}
                                     onClick={() => onRowClick?.(row)}
+                                    tabIndex={onRowClick ? 0 : undefined}
+                                    onKeyDown={onRowClick ? rowKeyDown(() => onRowClick(row)) : undefined}
                                     className={cn(
                                         "group transition-all duration-150",
-                                        onRowClick && "cursor-pointer",
+                                        onRowClick && cn("cursor-pointer", ROW_FOCUS),
                                         index % 2 === 0 ? "bg-surface" : "bg-surface-2/30",
                                         onRowClick && "hover:bg-primary-50/40",
                                         selectable && isSelected && "bg-primary-50/60",
@@ -530,18 +552,22 @@ export function DataTable<T extends Record<string, any>>({
 
                     <div className="flex items-center gap-0.5">
                         <button
+                            type="button"
+                            aria-label="Première page"
                             onClick={() => setCurrentPage(1)}
                             disabled={currentPage === 1}
-                            className="p-1.5 text-ink-4 hover:text-ink-2 hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className={cn("p-1.5 text-ink-3 hover:text-ink hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all", FOCUS_RING)}
                         >
-                            <ChevronsLeft className="w-4 h-4" />
+                            <ChevronsLeft className="w-4 h-4" aria-hidden />
                         </button>
                         <button
+                            type="button"
+                            aria-label="Page précédente"
                             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="p-1.5 text-ink-4 hover:text-ink-2 hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className={cn("p-1.5 text-ink-3 hover:text-ink hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all", FOCUS_RING)}
                         >
-                            <ChevronLeft className="w-4 h-4" />
+                            <ChevronLeft className="w-4 h-4" aria-hidden />
                         </button>
 
                         {/* Page Numbers */}
@@ -561,9 +587,13 @@ export function DataTable<T extends Record<string, any>>({
                                 return (
                                     <button
                                         key={pageNum}
+                                        type="button"
+                                        aria-label={`Page ${pageNum}`}
+                                        aria-current={pageNum === currentPage ? "page" : undefined}
                                         onClick={() => setCurrentPage(pageNum)}
                                         className={cn(
-                                            "min-w-[32px] h-8 rounded-lg text-xs font-semibold transition-all duration-150",
+                                            "min-w-[32px] h-8 rounded-lg text-xs font-semibold transition-all duration-150 tabular-nums",
+                                            FOCUS_RING,
                                             pageNum === currentPage
                                                 ? "bg-primary-600 text-white shadow-sm"
                                                 : "text-ink-3 hover:text-ink hover:bg-surface-3"
@@ -576,18 +606,22 @@ export function DataTable<T extends Record<string, any>>({
                         </div>
 
                         <button
+                            type="button"
+                            aria-label="Page suivante"
                             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="p-1.5 text-ink-4 hover:text-ink-2 hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className={cn("p-1.5 text-ink-3 hover:text-ink hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all", FOCUS_RING)}
                         >
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-4 h-4" aria-hidden />
                         </button>
                         <button
+                            type="button"
+                            aria-label="Dernière page"
                             onClick={() => setCurrentPage(totalPages)}
                             disabled={currentPage === totalPages}
-                            className="p-1.5 text-ink-4 hover:text-ink-2 hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className={cn("p-1.5 text-ink-3 hover:text-ink hover:bg-surface-3 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all", FOCUS_RING)}
                         >
-                            <ChevronsRight className="w-4 h-4" />
+                            <ChevronsRight className="w-4 h-4" aria-hidden />
                         </button>
                     </div>
                 </div>

@@ -26,7 +26,7 @@ import {
     Trash2,
     Unlock,
 } from "lucide-react";
-import { Badge, Button, useToast } from "@/components/ui";
+import { Badge, Button, useConfirm, useToast } from "@/components/ui";
 import { SecretCard, type RevealedSecret } from "./SecretCard";
 
 export interface VaultCredential {
@@ -89,6 +89,7 @@ export default function VaultCredentialList({
     onChanged,
 }: VaultCredentialListProps) {
     const { success, error: toastError } = useToast();
+    const confirm = useConfirm();
     const [busyId, setBusyId] = useState<string | null>(null);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [secrets, setSecrets] = useState<Record<string, RevealedSecret>>({});
@@ -157,9 +158,12 @@ export default function VaultCredentialList({
 
     const remove = useCallback(
         async (credential: VaultCredential) => {
-            const confirmed = window.confirm(
-                `Supprimer « ${credential.label} » du coffre ?\n\nLe mot de passe stocké sera définitivement perdu. Le compte lui-même n'est pas supprimé.`,
-            );
+            const confirmed = await confirm({
+                title: `Supprimer « ${credential.label} » du coffre ?`,
+                message: "Le mot de passe stocké sera définitivement perdu. Le compte lui-même n'est pas supprimé.",
+                variant: "danger",
+                confirmText: "Supprimer",
+            });
             if (!confirmed) return;
 
             setBusyId(credential.id);
@@ -183,7 +187,7 @@ export default function VaultCredentialList({
                 setBusyId(null);
             }
         },
-        [onChanged, success, toastError],
+        [onChanged, success, toastError, confirm],
     );
 
     const clearSecret = useCallback((id: string) => {
@@ -299,7 +303,7 @@ export default function VaultCredentialList({
                                                     className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                                                     aria-label="Autres actions"
                                                 >
-                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                                                 </button>
 
                                                 {openMenuId === credential.id && (

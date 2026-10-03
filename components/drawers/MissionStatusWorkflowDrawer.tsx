@@ -418,12 +418,14 @@ export function MissionStatusWorkflowDrawer({
                                                                 type="color"
                                                                 value={draft.color || "#e2e8f0"}
                                                                 onChange={(e) => updateDraft({ color: e.target.value })}
+                                                                aria-label="Couleur"
                                                                 className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
                                                             />
                                                             <Input
                                                                 value={draft.color ?? ""}
                                                                 onChange={(e) => updateDraft({ color: e.target.value || null })}
                                                                 placeholder="#hex"
+                                                                aria-label="Code couleur hexadécimal"
                                                                 className="flex-1 min-w-[100px]"
                                                             />
                                                             <div className="flex flex-wrap gap-1">
@@ -435,6 +437,7 @@ export function MissionStatusWorkflowDrawer({
                                                                         className="w-6 h-6 rounded-full border-2 border-slate-200 hover:border-primary-400 transition-colors"
                                                                         style={{ backgroundColor: c }}
                                                                         title={c}
+                                                                        aria-label={`Couleur ${c}`}
                                                                     />
                                                                 ))}
                                                             </div>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Modal, ModalFooter, ConfirmModal, ContextMenu, useContextMenu, useToast, Tabs } from "@/components/ui";
+import { useEffect, useId, useRef, useState } from "react";
+import { Modal, ModalFooter, ConfirmModal, ContextMenu, useContextMenu, useToast, Tabs, useOverlay, LoadingState } from "@/components/ui";
 import { MissionStatusWorkflowDrawer } from "@/components/drawers";
 import {
     ArrowLeft,
@@ -505,6 +505,7 @@ function InlineTitle({ value, onSave }: { value: string; onSave: (next: string) 
     return (
         <input
             autoFocus
+            aria-label="Nom de la mission"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commit}
@@ -551,6 +552,7 @@ function PropertyField({
                 type === "select" ? (
                     <select
                         autoFocus
+                        aria-label={label}
                         defaultValue={value}
                         onBlur={(e) => commit(e.target.value)}
                         onChange={(e) => commit(e.target.value)}
@@ -565,6 +567,7 @@ function PropertyField({
                 ) : (
                     <input
                         autoFocus
+                        aria-label={label}
                         type="date"
                         defaultValue={value}
                         onBlur={(e) => commit(e.target.value)}
@@ -1824,19 +1827,34 @@ export function MissionWorkspace({
         ]
         : [];
 
+    // Hand-built template modals: Escape, focus trap, scroll lock, focus restore.
+    const createTemplateTitleId = useId();
+    const editTemplateTitleId = useId();
+    const addTemplateTitleId = useId();
+    const previewTemplateTitleId = useId();
+    const createTemplatePanelRef = useOverlay<HTMLDivElement>({
+        open: showCreateTemplateModal,
+        onClose: () => setShowCreateTemplateModal(false),
+    });
+    const editTemplatePanelRef = useOverlay<HTMLDivElement>({
+        open: showEditTemplateModal && !!editingTemplate,
+        onClose: () => setShowEditTemplateModal(false),
+    });
+    const addTemplatePanelRef = useOverlay<HTMLDivElement>({
+        open: showAddTemplateModal,
+        onClose: () => setShowAddTemplateModal(false),
+    });
+    const previewTemplatePanelRef = useOverlay<HTMLDivElement>({
+        open: showPreviewModal && !!previewTemplate,
+        onClose: () => setShowPreviewModal(false),
+    });
+
     // ============================================
     // LOADING STATE
     // ============================================
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-                    <p className="text-sm text-slate-500">Chargement de la mission...</p>
-                </div>
-            </div>
-        );
+        return <LoadingState message="Chargement de la mission…" />;
     }
 
     if (!mission) {
@@ -2187,6 +2205,7 @@ export function MissionWorkspace({
                                         <dt className="text-slate-500 font-medium">Commercial par défaut</dt>
                                         <dd className="mt-1">
                                             <select
+                                                aria-label="Commercial par défaut"
                                                 className="w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                                 value={mission.defaultInterlocuteur?.id ?? ""}
                                                 onChange={async (e) => {
@@ -2421,8 +2440,9 @@ export function MissionWorkspace({
                                             </div>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <label className="block text-sm font-medium text-slate-700 mb-2">ICP (Profil Client Idéal)</label>
+                                                    <label htmlFor="mission-new-strategy-icp" className="block text-sm font-medium text-slate-700 mb-2">ICP (Profil Client Idéal)</label>
                                                     <textarea
+                                                        id="mission-new-strategy-icp"
                                                         value={strategyForm.icp}
                                                         onChange={(e) => setStrategyForm(prev => ({ ...prev, icp: e.target.value }))}
                                                         rows={3}
@@ -2431,8 +2451,9 @@ export function MissionWorkspace({
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-slate-700 mb-2">Pitch</label>
+                                                    <label htmlFor="mission-new-strategy-pitch" className="block text-sm font-medium text-slate-700 mb-2">Pitch</label>
                                                     <textarea
+                                                        id="mission-new-strategy-pitch"
                                                         value={strategyForm.pitch}
                                                         onChange={(e) => setStrategyForm(prev => ({ ...prev, pitch: e.target.value }))}
                                                         rows={3}
@@ -2455,6 +2476,7 @@ export function MissionWorkspace({
                                                 </div>
                                             </div>
                                             <textarea
+                                                aria-label="Script d'appel"
                                                 value={baseScript}
                                                 onChange={(e) => setBaseScript(e.target.value)}
                                                 rows={8}
@@ -2510,9 +2532,10 @@ export function MissionWorkspace({
                                     </div>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">ICP (Profil Client Idéal)</label>
+                                            <label htmlFor="mission-strategy-icp" className="block text-sm font-medium text-slate-700 mb-2">ICP (Profil Client Idéal)</label>
                                             {isStrategyEditing ? (
                                                 <textarea
+                                                    id="mission-strategy-icp"
                                                     value={strategyForm.icp}
                                                     onChange={(e) => setStrategyForm(prev => ({ ...prev, icp: e.target.value }))}
                                                     rows={3}
@@ -2596,6 +2619,7 @@ export function MissionWorkspace({
                                         <div className="flex flex-wrap items-center gap-3">
                                             <p className="text-sm font-medium text-slate-700">Onglet script par défaut (SDR)</p>
                                             <select
+                                                aria-label="Onglet script par défaut (SDR)"
                                                 value={defaultScriptTab}
                                                 onChange={(e) => handleDefaultScriptTabChange(e.target.value as "base" | "additional" | "ai")}
                                                 disabled={!isStrategyEditing || isSavingDefaultScriptTab}
@@ -2654,6 +2678,7 @@ export function MissionWorkspace({
                                     {isStrategyEditing ? (
                                         <div className="space-y-3">
                                             <textarea
+                                                aria-label="Script additionnel"
                                                 value={additionalScriptDraft}
                                                 onChange={(e) => setAdditionalScriptDraft(e.target.value)}
                                                 rows={9}
@@ -2726,6 +2751,7 @@ export function MissionWorkspace({
                                     {isStrategyEditing ? (
                                         <div className="space-y-3">
                                             <textarea
+                                                aria-label="Script amélioré par IA"
                                                 value={aiEnhancedScriptDraft}
                                                 onChange={(e) => setAiEnhancedScriptDraft(e.target.value)}
                                                 rows={9}
@@ -2829,13 +2855,14 @@ export function MissionWorkspace({
                                                 <p className="font-medium text-slate-900 truncate text-sm">{mt.template.name}</p>
                                                 <p className="text-xs text-slate-500 truncate">{mt.template.subject}</p>
                                             </div>
-                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => { setPreviewTemplate(mt.template); setShowPreviewModal(true); }}
                                                     className="p-1.5 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                                                     title="Prévisualiser"
+                                                    aria-label="Prévisualiser le template"
                                                 >
-                                                    <Eye className="w-4 h-4" />
+                                                    <Eye className="w-4 h-4" aria-hidden="true" />
                                                 </button>
                                                 <button
                                                     onClick={() => {
@@ -2848,24 +2875,27 @@ export function MissionWorkspace({
                                                     }}
                                                     className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
                                                     title="Modifier"
+                                                    aria-label="Modifier le template"
                                                 >
-                                                    <Pencil className="w-4 h-4" />
+                                                    <Pencil className="w-4 h-4" aria-hidden="true" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDuplicateTemplate(mt.template.id)}
                                                     disabled={duplicatingTemplateId === mt.template.id}
                                                     className="p-1.5 text-slate-500 hover:text-accent-600 hover:bg-accent-50 rounded-lg disabled:opacity-50"
                                                     title="Dupliquer"
+                                                    aria-label="Dupliquer le template"
                                                 >
-                                                    {duplicatingTemplateId === mt.template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                                                    {duplicatingTemplateId === mt.template.id ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                                                 </button>
                                                 <button
                                                     onClick={() => handleRemoveTemplate(mt.template.id)}
                                                     disabled={removingTemplateId === mt.template.id}
                                                     className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50"
                                                     title="Retirer"
+                                                    aria-label="Retirer le template"
                                                 >
-                                                    {removingTemplateId === mt.template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+                                                    {removingTemplateId === mt.template.id ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <X className="w-4 h-4" aria-hidden="true" />}
                                                 </button>
                                             </div>
                                         </div>
@@ -3117,18 +3147,20 @@ export function MissionWorkspace({
                                 </div>
                                 <div className="flex items-end gap-2">
                                     <div>
-                                        <label className="block text-[11px] text-slate-500 mb-1">Du</label>
+                                        <label htmlFor="mission-feedback-from" className="block text-[11px] text-slate-500 mb-1">Du</label>
                                         <input
                                             type="date"
+                                            id="mission-feedback-from"
                                             value={feedbackFrom}
                                             onChange={(e) => setFeedbackFrom(e.target.value)}
                                             className="h-9 px-2.5 rounded-lg border border-slate-200 text-xs bg-white"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] text-slate-500 mb-1">Au</label>
+                                        <label htmlFor="mission-feedback-to" className="block text-[11px] text-slate-500 mb-1">Au</label>
                                         <input
                                             type="date"
+                                            id="mission-feedback-to"
                                             value={feedbackTo}
                                             onChange={(e) => setFeedbackTo(e.target.value)}
                                             className="h-9 px-2.5 rounded-lg border border-slate-200 text-xs bg-white"
@@ -3230,6 +3262,7 @@ export function MissionWorkspace({
                                     </p>
                                 </div>
                                 <select
+                                    aria-label="Référent mission"
                                     value={mission.teamLeadSdrId ?? ""}
                                     onChange={(e) =>
                                         saveMissionField(
@@ -3285,6 +3318,7 @@ export function MissionWorkspace({
                                                 <div className="border-b border-slate-100 p-2">
                                                     <input
                                                         autoFocus
+                                                        aria-label="Rechercher un SDR"
                                                         value={assignSearch}
                                                         onChange={(e) => setAssignSearch(e.target.value)}
                                                         placeholder="Rechercher un SDR…"
@@ -3578,7 +3612,7 @@ export function MissionWorkspace({
             {showCreateTemplateModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowCreateTemplateModal(false)} />
-                    <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+                    <div ref={createTemplatePanelRef} role="dialog" aria-modal="true" aria-labelledby={createTemplateTitleId} tabIndex={-1} className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col outline-none">
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-emerald-600 flex-shrink-0">
                             <div className="flex items-center gap-3">
@@ -3586,12 +3620,12 @@ export function MissionWorkspace({
                                     <Plus className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-semibold text-white">Nouveau template</h2>
+                                    <h2 id={createTemplateTitleId} className="text-lg font-semibold text-white">Nouveau template</h2>
                                     <p className="text-xs text-white/70">Créez et assignez un template email à cette mission</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowCreateTemplateModal(false)} className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors">
-                                <X className="w-5 h-5" />
+                            <button onClick={() => setShowCreateTemplateModal(false)} aria-label="Fermer" className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors">
+                                <X className="w-5 h-5" aria-hidden="true" />
                             </button>
                         </div>
 
@@ -3604,6 +3638,7 @@ export function MissionWorkspace({
                                     <button
                                         key={tab}
                                         onClick={() => setTemplateModalTab(tab)}
+                                        aria-pressed={templateModalTab === tab}
                                         className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-all ${templateModalTab === tab ? "text-emerald-700 border-emerald-600 bg-emerald-50/60" : "text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50"}`}
                                     >
                                         <TabIcon className="h-3.5 w-3.5 shrink-0" />
@@ -3620,12 +3655,12 @@ export function MissionWorkspace({
                                 <div className="p-6 space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Nom du template <span className="text-red-500">*</span></label>
-                                            <input type="text" value={templateForm.name} onChange={(e) => setTemplateForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex: Introduction prospect chaud" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                                            <label htmlFor="mission-create-template-name" className="block text-sm font-medium text-slate-700 mb-1">Nom du template <span className="text-red-500">*</span></label>
+                                            <input id="mission-create-template-name" type="text" value={templateForm.name} onChange={(e) => setTemplateForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex: Introduction prospect chaud" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Catégorie</label>
-                                            <select value={templateForm.category} onChange={(e) => setTemplateForm(f => ({ ...f, category: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <label htmlFor="mission-create-template-category" className="block text-sm font-medium text-slate-700 mb-1">Catégorie</label>
+                                            <select id="mission-create-template-category" value={templateForm.category} onChange={(e) => setTemplateForm(f => ({ ...f, category: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                                 <option value="OUTREACH">Outreach</option>
                                                 <option value="FOLLOW_UP">Follow-up</option>
                                                 <option value="NURTURE">Nurture</option>
@@ -3635,12 +3670,12 @@ export function MissionWorkspace({
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Objet de l&apos;email <span className="text-red-500">*</span></label>
-                                        <input type="text" value={templateForm.subject} onChange={(e) => setTemplateForm(f => ({ ...f, subject: e.target.value }))} placeholder="Ex: À propos de {{company}}" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                                        <label htmlFor="mission-create-template-subject" className="block text-sm font-medium text-slate-700 mb-1">Objet de l&apos;email <span className="text-red-500">*</span></label>
+                                        <input id="mission-create-template-subject" type="text" value={templateForm.subject} onChange={(e) => setTemplateForm(f => ({ ...f, subject: e.target.value }))} placeholder="Ex: À propos de {{company}}" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                     </div>
                                     <div>
                                         <div className="flex items-center justify-between mb-1">
-                                            <label className="block text-sm font-medium text-slate-700">Contenu HTML <span className="text-red-500">*</span></label>
+                                            <label htmlFor="mission-create-template-body" className="block text-sm font-medium text-slate-700">Contenu HTML <span className="text-red-500">*</span></label>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-slate-400">Variables : </span>
                                                 {["{{firstName}}", "{{company}}", "{{fullName}}"].map(v => (
@@ -3657,6 +3692,7 @@ export function MissionWorkspace({
                                             </div>
                                         </div>
                                         <textarea
+                                            id="mission-create-template-body"
                                             value={templateForm.bodyHtml}
                                             onChange={(e) => setTemplateForm(f => ({ ...f, bodyHtml: e.target.value }))}
                                             rows={14}
@@ -3745,9 +3781,10 @@ export function MissionWorkspace({
 
                                     {/* Prompt input */}
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Votre instruction <span className="text-red-500">*</span></label>
+                                        <label htmlFor="mission-create-template-ai-prompt" className="block text-sm font-medium text-slate-700 mb-1">Votre instruction <span className="text-red-500">*</span></label>
                                         <div className="flex gap-2">
                                             <textarea
+                                                id="mission-create-template-ai-prompt"
                                                 value={templateAiPrompt}
                                                 onChange={(e) => setTemplateAiPrompt(e.target.value)}
                                                 rows={3}
@@ -3793,8 +3830,9 @@ export function MissionWorkspace({
                                                                 onClick={() => setTemplateModalTab("preview")}
                                                                 className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary-600 px-2 py-1 rounded-lg hover:bg-primary-50 border border-slate-200 transition-colors"
                                                                 title="Prévisualiser dans l'onglet preview"
+                                                                aria-label="Prévisualiser dans l'onglet preview"
                                                             >
-                                                                <Eye className="w-3 h-3" />
+                                                                <Eye className="w-3 h-3" aria-hidden="true" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -3849,7 +3887,7 @@ export function MissionWorkspace({
             {showEditTemplateModal && editingTemplate && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowEditTemplateModal(false)} />
-                    <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+                    <div ref={editTemplatePanelRef} role="dialog" aria-modal="true" aria-labelledby={editTemplateTitleId} tabIndex={-1} className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col outline-none">
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-blue-600 flex-shrink-0">
                             <div className="flex items-center gap-3">
@@ -3857,12 +3895,12 @@ export function MissionWorkspace({
                                     <Pencil className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-semibold text-white">Modifier le template</h2>
+                                    <h2 id={editTemplateTitleId} className="text-lg font-semibold text-white">Modifier le template</h2>
                                     <p className="text-xs text-white/70 truncate max-w-[300px]">{editingTemplate.name}</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowEditTemplateModal(false)} className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors">
-                                <X className="w-5 h-5" />
+                            <button onClick={() => setShowEditTemplateModal(false)} aria-label="Fermer" className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors">
+                                <X className="w-5 h-5" aria-hidden="true" />
                             </button>
                         </div>
 
@@ -3875,6 +3913,7 @@ export function MissionWorkspace({
                                     <button
                                         key={tab}
                                         onClick={() => setTemplateModalTab(tab)}
+                                        aria-pressed={templateModalTab === tab}
                                         className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 -mb-px transition-all ${templateModalTab === tab ? "text-blue-700 border-blue-600 bg-blue-50/60" : "text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50"}`}
                                     >
                                         <TabIcon className="h-3.5 w-3.5 shrink-0" />
@@ -3891,12 +3930,12 @@ export function MissionWorkspace({
                                 <div className="p-6 space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Nom du template</label>
-                                            <input type="text" value={templateForm.name} onChange={(e) => setTemplateForm(f => ({ ...f, name: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <label htmlFor="mission-edit-template-name" className="block text-sm font-medium text-slate-700 mb-1">Nom du template</label>
+                                            <input id="mission-edit-template-name" type="text" value={templateForm.name} onChange={(e) => setTemplateForm(f => ({ ...f, name: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Catégorie</label>
-                                            <select value={templateForm.category} onChange={(e) => setTemplateForm(f => ({ ...f, category: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <label htmlFor="mission-edit-template-category" className="block text-sm font-medium text-slate-700 mb-1">Catégorie</label>
+                                            <select id="mission-edit-template-category" value={templateForm.category} onChange={(e) => setTemplateForm(f => ({ ...f, category: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                                                 <option value="OUTREACH">Outreach</option>
                                                 <option value="FOLLOW_UP">Follow-up</option>
                                                 <option value="NURTURE">Nurture</option>
@@ -3906,12 +3945,12 @@ export function MissionWorkspace({
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Objet de l&apos;email</label>
-                                        <input type="text" value={templateForm.subject} onChange={(e) => setTemplateForm(f => ({ ...f, subject: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        <label htmlFor="mission-edit-template-subject" className="block text-sm font-medium text-slate-700 mb-1">Objet de l&apos;email</label>
+                                        <input id="mission-edit-template-subject" type="text" value={templateForm.subject} onChange={(e) => setTemplateForm(f => ({ ...f, subject: e.target.value }))} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                     </div>
                                     <div>
                                         <div className="flex items-center justify-between mb-1">
-                                            <label className="block text-sm font-medium text-slate-700">Contenu HTML</label>
+                                            <label htmlFor="mission-edit-template-body" className="block text-sm font-medium text-slate-700">Contenu HTML</label>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-slate-400">Variables : </span>
                                                 {["{{firstName}}", "{{company}}", "{{fullName}}"].map(v => (
@@ -3928,6 +3967,7 @@ export function MissionWorkspace({
                                             </div>
                                         </div>
                                         <textarea
+                                            id="mission-edit-template-body"
                                             value={templateForm.bodyHtml}
                                             onChange={(e) => setTemplateForm(f => ({ ...f, bodyHtml: e.target.value }))}
                                             rows={14}
@@ -4015,9 +4055,10 @@ export function MissionWorkspace({
 
                                     {/* Prompt input */}
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Votre instruction <span className="text-red-500">*</span></label>
+                                        <label htmlFor="mission-edit-template-ai-prompt" className="block text-sm font-medium text-slate-700 mb-1">Votre instruction <span className="text-red-500">*</span></label>
                                         <div className="flex gap-2">
                                             <textarea
+                                                id="mission-edit-template-ai-prompt"
                                                 value={templateAiPrompt}
                                                 onChange={(e) => setTemplateAiPrompt(e.target.value)}
                                                 rows={3}
@@ -4121,19 +4162,20 @@ export function MissionWorkspace({
             {showAddTemplateModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowAddTemplateModal(false)} />
-                    <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    <div ref={addTemplatePanelRef} role="dialog" aria-modal="true" aria-labelledby={addTemplateTitleId} tabIndex={-1} className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden outline-none">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-primary-600">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                                     <FileText className="w-5 h-5 text-white" />
                                 </div>
-                                <h2 className="text-lg font-semibold text-white">Ajouter un template</h2>
+                                <h2 id={addTemplateTitleId} className="text-lg font-semibold text-white">Ajouter un template</h2>
                             </div>
                             <button
                                 onClick={() => setShowAddTemplateModal(false)}
+                                aria-label="Fermer"
                                 className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" aria-hidden="true" />
                             </button>
                         </div>
                         <div className="p-6 max-h-[60vh] overflow-y-auto">
@@ -4217,22 +4259,23 @@ export function MissionWorkspace({
             {showPreviewModal && previewTemplate && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowPreviewModal(false)} />
-                    <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+                    <div ref={previewTemplatePanelRef} role="dialog" aria-modal="true" aria-labelledby={previewTemplateTitleId} tabIndex={-1} className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col outline-none">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-primary-600 flex-shrink-0">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                                     <Eye className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-semibold text-white">{previewTemplate.name}</h2>
+                                    <h2 id={previewTemplateTitleId} className="text-lg font-semibold text-white">{previewTemplate.name}</h2>
                                     <p className="text-sm text-white/80">{previewTemplate.category}</p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setShowPreviewModal(false)}
+                                aria-label="Fermer"
                                 className="p-2 rounded-lg hover:bg-white/20 text-white transition-colors"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-5 h-5" aria-hidden="true" />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6">
@@ -4360,11 +4403,12 @@ export function MissionWorkspace({
                     </div>
                 ) : (
                     <div className="space-y-3 py-2">
-                        <label className="block text-sm font-medium text-slate-700">
+                        <label htmlFor="mission-default-mailbox" className="block text-sm font-medium text-slate-700">
                             Sélectionner une boîte mail
                         </label>
                         <select
                             className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700"
+                            id="mission-default-mailbox"
                             value={mission.defaultMailboxId ?? ""}
                             onChange={(e) => {
                                 const value = e.target.value;

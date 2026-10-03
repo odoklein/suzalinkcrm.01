@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui";
+import { useToast, useConfirm, usePrompt } from "@/components/ui";
 import {
     FileCheck,
     Download,
@@ -26,7 +26,7 @@ import {
     ChevronDown,
     ChevronUp,
 } from "lucide-react";
-import { Button, Badge, Card } from "@/components/ui";
+import { Button, Badge, Card, LoadingState } from "@/components/ui";
 import { InvoiceItemsTable, InvoiceItem } from "@/components/billing/InvoiceItemsTable";
 import { PaymentSection } from "@/components/billing/PaymentSection";
 import Link from "next/link";
@@ -142,6 +142,8 @@ const AUDIT_LABELS: Record<string, string> = {
 
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { success, error: showError } = useToast();
+    const confirm = useConfirm();
+    const prompt = usePrompt();
     const router = useRouter();
     const [invoice, setInvoice] = useState<Invoice | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -179,7 +181,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     };
 
     const handleValidate = async () => {
-        if (!confirm("Valider cette facture ? Un numéro sera attribué et un PDF Factur-X sera généré.")) return;
+        if (!(await confirm({ title: "Valider cette facture ?", message: "Un numéro sera attribué et un PDF Factur-X sera généré.", confirmText: "Valider" }))) return;
         setIsValidating(true);
         try {
             const res = await fetch(`/api/billing/invoices/${invoiceId}/validate`, { method: "POST" });
@@ -193,7 +195,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     };
 
     const handleSend = async () => {
-        if (!confirm("Marquer comme envoyée ?")) return;
+        if (!(await confirm({ title: "Marquer comme envoyée ?", confirmText: "Marquer envoyée" }))) return;
         setIsSending(true);
         try {
             const res = await fetch(`/api/billing/invoices/${invoiceId}/send`, { method: "POST" });
@@ -205,7 +207,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     };
 
     const handleCancel = async () => {
-        const reason = prompt("Raison de l'annulation (optionnel):");
+        const reason = await prompt({ title: "Annuler la facture ?", label: "Raison de l'annulation (optionnel)", variant: "danger", confirmText: "Annuler la facture", cancelText: "Retour" });
         if (reason === null) return;
         setIsCancelling(true);
         try {
@@ -222,7 +224,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     };
 
     const handleCreateCreditNote = async () => {
-        if (!confirm("Créer un avoir pour cette facture ?")) return;
+        if (!(await confirm({ title: "Créer un avoir pour cette facture ?", confirmText: "Créer l'avoir" }))) return;
         setIsCreatingCreditNote(true);
         try {
             const res = await fetch(`/api/billing/invoices/${invoiceId}/credit-note`, { method: "POST" });
@@ -237,14 +239,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(amount);
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary-400 mb-3" />
-                    <p className="text-sm text-slate-500">Chargement de la facture...</p>
-                </div>
-            </div>
-        );
+        return <LoadingState message="Chargement de la facture..." />;
     }
 
     if (!invoice) return null;

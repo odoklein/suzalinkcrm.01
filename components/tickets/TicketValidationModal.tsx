@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Modal, ModalFooter, Button, Input, Select, MultiSelect, useToast } from "@/components/ui";
 import {
     TICKET_AFFECTED_ROLE_OPTIONS,
@@ -45,6 +45,7 @@ export function TicketValidationModal({
     const [assigneeId, setAssigneeId] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [rejectionReason, setRejectionReason] = useState("");
+    const rejectionReasonId = useId();
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -152,10 +153,11 @@ export function TicketValidationModal({
                 />
 
                 <div>
-                    <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    <label htmlFor={rejectionReasonId} className="mb-1.5 block text-sm font-medium text-slate-700">
                         Motif de refus <span className="text-slate-400">(requis pour refuser)</span>
                     </label>
                     <textarea
+                        id={rejectionReasonId}
                         value={rejectionReason}
                         onChange={(event) => setRejectionReason(event.target.value)}
                         rows={3}

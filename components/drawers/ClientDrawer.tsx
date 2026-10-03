@@ -843,8 +843,9 @@ export function ClientDrawer({
                                         copyToClipboard(client.email!, "Email");
                                     }}
                                     className="text-slate-300 hover:text-slate-500"
+                                    aria-label="Copier l'email"
                                 >
-                                    <Copy className="w-3 h-3" />
+                                    <Copy className="w-3 h-3" aria-hidden />
                                 </button>
                             ) : null
                         }
@@ -871,8 +872,9 @@ export function ClientDrawer({
                                         rel="noopener noreferrer"
                                         onClick={(e) => e.stopPropagation()}
                                         className="text-slate-300 hover:text-primary-600"
+                                        aria-label="Ouvrir l'URL de réservation"
                                     >
-                                        <ExternalLink className="w-3 h-3" />
+                                        <ExternalLink className="w-3 h-3" aria-hidden />
                                     </a>
                                 ) : null
                             }
@@ -1085,14 +1087,14 @@ export function ClientDrawer({
                                             <p className="text-sm font-semibold text-slate-900 truncate">
                                                 {u.name || u.email}
                                             </p>
-                                            <Badge variant={role.variant} className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0">
+                                            <Badge variant={role.variant} className="text-3xs uppercase tracking-wider font-bold px-1.5 py-0">
                                                 {role.label}
                                             </Badge>
-                                            <Badge variant="primary" className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0">
+                                            <Badge variant="primary" className="text-3xs uppercase tracking-wider font-bold px-1.5 py-0">
                                                 Accès portail client
                                             </Badge>
                                             {!u.isActive && (
-                                                <Badge variant="danger" className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0">
+                                                <Badge variant="danger" className="text-3xs uppercase tracking-wider font-bold px-1.5 py-0">
                                                     Désactivé
                                                 </Badge>
                                             )}
@@ -1206,11 +1208,11 @@ export function ClientDrawer({
                                         {i.firstName} {i.lastName}
                                     </p>
                                     <div className="mt-1 flex flex-wrap items-center gap-1">
-                                        <Badge variant="default" className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0">
+                                        <Badge variant="default" className="text-3xs uppercase tracking-wider font-bold px-1.5 py-0">
                                             Interlocuteur
                                         </Badge>
                                         {i.portalUser && (
-                                            <Badge variant="primary" className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0">
+                                            <Badge variant="primary" className="text-3xs uppercase tracking-wider font-bold px-1.5 py-0">
                                                 Commercial
                                             </Badge>
                                         )}
@@ -1242,7 +1244,7 @@ export function ClientDrawer({
                                         <div className="mt-2.5 pt-2.5 border-t border-slate-100">
                                             <Badge
                                                 variant={i.portalUser.isActive ? "success" : "default"}
-                                                className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0 gap-1"
+                                                className="text-3xs uppercase tracking-wider font-bold px-1.5 py-0 gap-1"
                                             >
                                                 <ShieldCheck className="w-2.5 h-2.5" />
                                                 {i.portalUser.isActive ? "Portail actif" : "Portail désactivé"}
@@ -1631,6 +1633,7 @@ export function ClientDrawer({
                                             <button
                                                 type="button"
                                                 onClick={() => setSessionCrTab("cr")}
+                                                aria-pressed={sessionCrTab === "cr"}
                                                 className={cn(
                                                     "px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors",
                                                     sessionCrTab === "cr"
@@ -1643,6 +1646,7 @@ export function ClientDrawer({
                                             <button
                                                 type="button"
                                                 onClick={() => setSessionCrTab("email")}
+                                                aria-pressed={sessionCrTab === "email"}
                                                 className={cn(
                                                     "px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors",
                                                     sessionCrTab === "email"
@@ -2153,6 +2157,7 @@ function ScriptModal({
                         <textarea
                             value={scriptDraft}
                             onChange={(e) => setScriptDraft(e.target.value)}
+                            aria-label="Script de la mission"
                             className="w-full min-h-[320px] rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-300"
                             placeholder="Ecrivez le script principal de cette mission..."
                         />
@@ -2430,8 +2435,9 @@ function EngagementModal({
             <div className="space-y-4">
                 {mode === "create" && (
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Offre tarifaire</label>
+                        <label htmlFor="engagement-offre-tarif" className="block text-sm font-medium text-slate-700 mb-1.5">Offre tarifaire</label>
                         <select
+                            id="engagement-offre-tarif"
                             value={offreTarifId}
                             onChange={(e) => setOffreTarifId(e.target.value)}
                             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-300"
@@ -2452,8 +2458,9 @@ function EngagementModal({
                         <DatePicker value={debut} onChange={setDebut} />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Durée (mois)</label>
+                        <label htmlFor="engagement-duree-mois" className="block text-sm font-medium text-slate-700 mb-1.5">Durée (mois)</label>
                         <select
+                            id="engagement-duree-mois"
                             value={String(dureeMois)}
                             onChange={(e) => setDureeMois(Number(e.target.value))}
                             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-300"

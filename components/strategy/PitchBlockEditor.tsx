@@ -346,6 +346,7 @@ export function PitchBlockEditor({
                     <button
                         type="button"
                         onClick={() => setMode("blocks")}
+                        aria-pressed={mode === "blocks"}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                             mode === "blocks"
                                 ? "bg-white text-primary-700 shadow-sm border border-slate-200"
@@ -358,6 +359,7 @@ export function PitchBlockEditor({
                     <button
                         type="button"
                         onClick={() => setMode("text")}
+                        aria-pressed={mode === "text"}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                             mode === "text"
                                 ? "bg-white text-primary-700 shadow-sm border border-slate-200"
@@ -386,6 +388,7 @@ export function PitchBlockEditor({
                     <button
                         type="button"
                         onClick={() => setShowPreview(!showPreview)}
+                        aria-pressed={showPreview}
                         className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                             showPreview
                                 ? "bg-primary-50 border-primary-200 text-primary-700"
@@ -393,7 +396,7 @@ export function PitchBlockEditor({
                         }`}
                         title="Aperçu du rendu final"
                     >
-                        {showPreview ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        {showPreview ? <EyeOff className="w-3.5 h-3.5" aria-hidden /> : <Eye className="w-3.5 h-3.5" aria-hidden />}
                         <span className="hidden sm:inline">{showPreview ? "Masquer aperçu" : "Aperçu"}</span>
                     </button>
                 </div>
@@ -446,6 +449,7 @@ export function PitchBlockEditor({
                                                         setBlocks(updated);
                                                         onChange(serializeBlocks(updated));
                                                     }}
+                                                    aria-label="Titre du bloc"
                                                     className="text-xs font-bold text-slate-800 bg-transparent border-b border-dashed border-slate-300 focus:outline-none focus:border-primary-500"
                                                 />
                                             ) : (
@@ -466,8 +470,9 @@ export function PitchBlockEditor({
                                             onClick={() => handleCopyBlock(b.id, b.content)}
                                             className="p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
                                             title="Copier ce bloc"
+                                            aria-label="Copier ce bloc"
                                         >
-                                            {copiedBlockId === b.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                                            {copiedBlockId === b.id ? <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden /> : <Copy className="w-3.5 h-3.5" aria-hidden />}
                                         </button>
                                     )}
                                     {b.key === "custom" && (
@@ -476,8 +481,9 @@ export function PitchBlockEditor({
                                             onClick={() => handleRemoveCustomBlock(b.id)}
                                             className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
                                             title="Supprimer ce bloc"
+                                            aria-label="Supprimer ce bloc"
                                         >
-                                            <Trash2 className="w-3.5 h-3.5" />
+                                            <Trash2 className="w-3.5 h-3.5" aria-hidden />
                                         </button>
                                     )}
                                 </div>
@@ -488,6 +494,7 @@ export function PitchBlockEditor({
                                 value={b.content}
                                 onChange={(e) => handleBlockChange(b.id, e.target.value)}
                                 placeholder={`Rédigez le contenu pour : ${b.title}...`}
+                                aria-label={`Contenu : ${b.title}`}
                                 rows={2}
                                 className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-primary-500 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/15 transition-all resize-y font-sans leading-relaxed whitespace-pre-wrap"
                             />
@@ -514,6 +521,7 @@ export function PitchBlockEditor({
                         value={rawText}
                         onChange={(e) => handleRawTextChange(e.target.value)}
                         placeholder={placeholder}
+                        aria-label="Pitch"
                         rows={10}
                         className={`w-full px-4 py-3 bg-white border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-y font-sans leading-relaxed whitespace-pre-wrap ${
                             error ? "border-red-400" : "border-slate-200"

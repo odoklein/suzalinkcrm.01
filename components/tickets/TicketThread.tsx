@@ -301,10 +301,11 @@ export function TicketThread({ ticket, currentUserId, canComment, onRefresh }: T
                             }}
                             rows={2}
                             placeholder="Ajouter un commentaire… (Ctrl+Entrée pour envoyer)"
+                            aria-label="Ajouter un commentaire"
                             className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-500 resize-none focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
                         />
-                        <Button onClick={handleSend} isLoading={isSending} disabled={!message.trim()} className="!p-3">
-                            <Send className="w-4 h-4" />
+                        <Button onClick={handleSend} isLoading={isSending} disabled={!message.trim()} className="!p-3" aria-label="Envoyer le commentaire">
+                            <Send className="w-4 h-4" aria-hidden="true" />
                         </Button>
                     </div>
                 </div>

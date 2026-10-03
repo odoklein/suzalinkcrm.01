@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useId } from "react";
 import Link from "next/link";
+import { useOverlay } from "@/components/ui";
 import {
   ArrowLeft,
   Send,
@@ -164,23 +165,32 @@ function ConfirmSendDialog({
   onCancel: () => void;
   sending: boolean;
 }) {
+  const panelRef = useOverlay<HTMLDivElement>({ open, onClose: onCancel, closeOnEscape: !sending });
+  const titleId = useId();
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-primary-50 to-white">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-primary-100 flex items-center justify-center">
               <Send className="w-4 h-4 text-primary-600" />
             </div>
-            <span className="font-semibold text-slate-800">Confirmer l&apos;envoi</span>
+            <span id={titleId} className="font-semibold text-slate-800">Confirmer l&apos;envoi</span>
           </div>
           <button
             onClick={onCancel}
             disabled={sending}
             className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-40"
+            aria-label="Fermer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden />
           </button>
         </div>
         <div className="px-6 py-5 space-y-4">
@@ -247,6 +257,7 @@ function HistoryCard({ item }: { item: BroadcastRecord }) {
     <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
       <button
         onClick={() => setExpanded((p) => !p)}
+        aria-expanded={expanded}
         className="w-full flex items-start gap-4 px-5 py-4 text-left hover:bg-slate-50/60 transition-colors"
       >
         <div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center shrink-0 mt-0.5">
@@ -579,6 +590,7 @@ export default function BroadcastEmailPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
+              aria-pressed={tab === t.id}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 tab === t.id ? "tab-active" : "tab-inactive"
               }`}
@@ -677,13 +689,14 @@ export default function BroadcastEmailPage() {
                 {/* Selection picker */}
                 {audienceType === "SELECTION" && (
                   <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white">
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                       <Search className="w-4 h-4 text-slate-400 shrink-0" />
                       <input
                         type="text"
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
                         placeholder="Rechercher par nom ou email…"
+                        aria-label="Rechercher un destinataire"
                         className="flex-1 text-sm bg-transparent focus:outline-none placeholder:text-slate-400"
                       />
                       {selectedIds.size > 0 && (
@@ -717,6 +730,7 @@ export default function BroadcastEmailPage() {
                                     return next;
                                   });
                                 }}
+                                aria-pressed={selected}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                                   selected ? "bg-primary-50" : "hover:bg-white"
                                 }`}
@@ -775,6 +789,7 @@ export default function BroadcastEmailPage() {
                     setSendResult(null);
                   }}
                   placeholder="Ex: Mise à jour importante de votre espace…"
+                  aria-label="Objet de l'email"
                   className="w-full px-4 py-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent bg-slate-50 text-slate-800 placeholder:text-slate-400 transition-all"
                 />
               </div>
@@ -791,6 +806,7 @@ export default function BroadcastEmailPage() {
                     <button
                       key={t.id}
                       onClick={() => setEditorTab(t.id)}
+                      aria-pressed={editorTab === t.id}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
                         editorTab === t.id ? "tab-active" : "tab-inactive"
                       }`}
@@ -826,7 +842,8 @@ export default function BroadcastEmailPage() {
                     rows={22}
                     spellCheck={false}
                     placeholder="<!DOCTYPE html><html>…"
-                    className="code w-full pl-14 pr-4 py-3 text-[12.5px] font-mono text-slate-200 bg-slate-900 focus:outline-none resize-none leading-[1.6rem] placeholder:text-slate-600"
+                    aria-label="Contenu HTML de l'email"
+                    className="code w-full pl-14 pr-4 py-3 text-[12.5px] font-mono text-slate-200 bg-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus resize-none leading-[1.6rem] placeholder:text-slate-600"
                     style={{ minHeight: 380, letterSpacing: "0.01em" }}
                   />
                 </div>

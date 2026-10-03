@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useToast } from "@/components/ui";
 import { ArrowLeft, Save, Loader2, Building2 } from "lucide-react";
-import { Button, Input, Card, PageHeader } from "@/components/ui";
+import { Button, Input, Card, PageHeader, LoadingState } from "@/components/ui";
 import Link from "next/link";
 
 interface BillingClient {
@@ -117,11 +117,7 @@ export default function EditBillingClientPage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="text-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto text-slate-400" />
-            </div>
-        );
+        return <LoadingState message="Chargement du client..." />;
     }
 
     return (
@@ -152,10 +148,11 @@ export default function EditBillingClientPage() {
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="client-legalName" className="block text-sm font-medium text-slate-700 mb-1">
                             Nom légal *
                         </label>
                         <Input
+                            id="client-legalName"
                             value={client.legalName}
                             onChange={(e) => setClient({ ...client, legalName: e.target.value })}
                             placeholder="Nom de l'entreprise"
@@ -163,10 +160,11 @@ export default function EditBillingClientPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="client-address" className="block text-sm font-medium text-slate-700 mb-1">
                             Adresse *
                         </label>
                         <Input
+                            id="client-address"
                             value={client.address}
                             onChange={(e) => setClient({ ...client, address: e.target.value })}
                             placeholder="Adresse complète"
@@ -175,20 +173,22 @@ export default function EditBillingClientPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor="client-postalCode" className="block text-sm font-medium text-slate-700 mb-1">
                                 Code postal *
                             </label>
                             <Input
+                                id="client-postalCode"
                                 value={client.postalCode}
                                 onChange={(e) => setClient({ ...client, postalCode: e.target.value })}
                                 placeholder="75001"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label htmlFor="client-city" className="block text-sm font-medium text-slate-700 mb-1">
                                 Ville *
                             </label>
                             <Input
+                                id="client-city"
                                 value={client.city}
                                 onChange={(e) => setClient({ ...client, city: e.target.value })}
                                 placeholder="Paris"
@@ -197,10 +197,11 @@ export default function EditBillingClientPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="client-country" className="block text-sm font-medium text-slate-700 mb-1">
                             Pays
                         </label>
                         <Input
+                            id="client-country"
                             value={client.country}
                             onChange={(e) => setClient({ ...client, country: e.target.value })}
                             placeholder="France"
@@ -211,20 +212,22 @@ export default function EditBillingClientPage() {
                         <h3 className="font-medium text-slate-900 mb-3">Informations fiscales</h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="client-siret" className="block text-sm font-medium text-slate-700 mb-1">
                                     SIRET
                                 </label>
                                 <Input
+                                    id="client-siret"
                                     value={client.siret}
                                     onChange={(e) => setClient({ ...client, siret: e.target.value })}
                                     placeholder="12345678901234"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="client-vatNumber" className="block text-sm font-medium text-slate-700 mb-1">
                                     Numéro de TVA
                                 </label>
                                 <Input
+                                    id="client-vatNumber"
                                     value={client.vatNumber}
                                     onChange={(e) => setClient({ ...client, vatNumber: e.target.value })}
                                     placeholder="FR12345678901"
@@ -237,10 +240,11 @@ export default function EditBillingClientPage() {
                         <h3 className="font-medium text-slate-900 mb-3">Contact</h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="client-email" className="block text-sm font-medium text-slate-700 mb-1">
                                     Email
                                 </label>
                                 <Input
+                                    id="client-email"
                                     type="email"
                                     value={client.email}
                                     onChange={(e) => setClient({ ...client, email: e.target.value })}
@@ -248,10 +252,11 @@ export default function EditBillingClientPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="client-phone" className="block text-sm font-medium text-slate-700 mb-1">
                                     Téléphone
                                 </label>
                                 <Input
+                                    id="client-phone"
                                     value={client.phone}
                                     onChange={(e) => setClient({ ...client, phone: e.target.value })}
                                     placeholder="+33 1 23 45 67 89"

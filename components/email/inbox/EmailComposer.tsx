@@ -23,6 +23,7 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import { AiMark } from "@/components/ui/AiMark";
+import { useOverlay, usePrompt } from "@/components/ui";
 import { AiEmailDraftDialog } from "@/components/email/AiEmailDraftDialog";
 
 // ============================================
@@ -107,19 +108,28 @@ function DiscardConfirmDialog({
     onDiscard: () => void;
     onCancel: () => void;
 }) {
+    const panelRef = useOverlay<HTMLDivElement>({ open: true, onClose: onCancel });
+    const titleId = useId();
     return (
         <>
             <div
                 className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] animate-in fade-in duration-150"
                 onClick={onCancel}
             />
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[360px] animate-in zoom-in-95 fade-in duration-200">
+            <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-[360px] animate-in zoom-in-95 fade-in duration-200"
+            >
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
-                        <Trash2 className="w-5 h-5 text-amber-500" />
+                        <Trash2 className="w-5 h-5 text-amber-500" aria-hidden />
                     </div>
                     <div>
-                        <h3 className="text-[15px] font-semibold text-slate-900">
+                        <h3 id={titleId} className="text-[15px] font-semibold text-slate-900">
                             Supprimer le brouillon ?
                         </h3>
                         <p className="text-sm text-slate-500">
@@ -156,6 +166,7 @@ export function EmailComposer({
     onClose,
     onSent,
 }: EmailComposerProps) {
+    const askPrompt = usePrompt();
     // State
     const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
     const [selectedMailboxId, setSelectedMailboxId] = useState(mailboxId);
@@ -481,26 +492,29 @@ export function EmailComposer({
                                 onClick={() => setIsMinimized(!isMinimized)}
                                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
                                 title={isMinimized ? "Restaurer" : "Minimiser"}
+                                aria-label={isMinimized ? "Restaurer" : "Minimiser"}
                             >
-                                <Minus className="w-3.5 h-3.5 text-slate-300" />
+                                <Minus className="w-3.5 h-3.5 text-slate-300" aria-hidden />
                             </button>
                             <button
                                 onClick={() => { setIsFullscreen(!isFullscreen); setIsMinimized(false); }}
                                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
                                 title={isFullscreen ? "Réduire" : "Plein écran"}
+                                aria-label={isFullscreen ? "Réduire" : "Plein écran"}
                             >
                                 {isFullscreen ? (
-                                    <Minimize2 className="w-3.5 h-3.5 text-slate-300" />
+                                    <Minimize2 className="w-3.5 h-3.5 text-slate-300" aria-hidden />
                                 ) : (
-                                    <Maximize2 className="w-3.5 h-3.5 text-slate-300" />
+                                    <Maximize2 className="w-3.5 h-3.5 text-slate-300" aria-hidden />
                                 )}
                             </button>
                             <button
                                 onClick={handleClose}
                                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
                                 title="Fermer"
+                                aria-label="Fermer"
                             >
-                                <X className="w-3.5 h-3.5 text-slate-300" />
+                                <X className="w-3.5 h-3.5 text-slate-300" aria-hidden />
                             </button>
                         </div>
                     )}
@@ -510,11 +524,12 @@ export function EmailComposer({
                 {!isMinimized && !sendSuccess && (
                     <>
                         {/* From */}
-                        <div className="px-4 py-2.5 border-b border-slate-100 flex items-center gap-2">
+                        <div className="px-4 py-2.5 border-b border-slate-100 flex items-center gap-2 focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                             <span className="text-[13px] text-slate-400 w-10 flex-shrink-0 font-medium">De</span>
                             <select
                                 value={selectedMailboxId || ""}
                                 onChange={(e) => setSelectedMailboxId(e.target.value)}
+                                aria-label="Expéditeur"
                                 className="flex-1 text-[13px] bg-white text-slate-800 focus:outline-none cursor-pointer font-medium"
                             >
                                 {mailboxes.map((mb) => (
@@ -526,7 +541,7 @@ export function EmailComposer({
                         </div>
 
                         {/* To */}
-                        <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap min-h-[40px]">
+                        <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap min-h-[40px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                             <span className="text-[13px] text-slate-400 w-10 flex-shrink-0 font-medium">À</span>
                             {to.map((email, i) => (
                                 <span
@@ -537,8 +552,9 @@ export function EmailComposer({
                                     <button
                                         onClick={() => setTo(prev => prev.filter((_, idx) => idx !== i))}
                                         className="text-primary-400 hover:text-primary-600 ml-0.5"
+                                        aria-label={`Retirer ${email}`}
                                     >
-                                        <X className="w-3 h-3" />
+                                        <X className="w-3 h-3" aria-hidden />
                                     </button>
                                 </span>
                             ))}
@@ -551,6 +567,7 @@ export function EmailComposer({
                                     onFocus={() => toInput.includes("@") && updateDomainSuggestions("to", toInput)}
                                     onBlur={() => setTimeout(() => setDomainSuggestionsField(null), 150)}
                                     placeholder={to.length === 0 ? "Destinataires" : ""}
+                                    aria-label="Destinataires"
                                     className="w-full text-[13px] bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none"
                                     autoFocus={replyTo?.isForward}
                                 />
@@ -597,7 +614,7 @@ export function EmailComposer({
 
                         {/* Cc */}
                         {showCc && (
-                            <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap min-h-[40px]">
+                            <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap min-h-[40px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                                 <span className="text-[13px] text-slate-400 w-10 flex-shrink-0 font-medium">Cc</span>
                                 {cc.map((email, i) => (
                                     <span
@@ -608,8 +625,9 @@ export function EmailComposer({
                                         <button
                                             onClick={() => setCc(prev => prev.filter((_, idx) => idx !== i))}
                                             className="text-slate-400 hover:text-slate-600 ml-0.5"
+                                            aria-label={`Retirer ${email}`}
                                         >
-                                            <X className="w-3 h-3" />
+                                            <X className="w-3 h-3" aria-hidden />
                                         </button>
                                     </span>
                                 ))}
@@ -622,6 +640,7 @@ export function EmailComposer({
                                         onFocus={() => ccInput.includes("@") && updateDomainSuggestions("cc", ccInput)}
                                         onBlur={() => setTimeout(() => setDomainSuggestionsField(null), 150)}
                                         placeholder="Ajouter en Cc"
+                                        aria-label="Destinataires en copie (Cc)"
                                         className="w-full text-[13px] bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none"
                                     />
                                     {domainSuggestionsField === "cc" && domainSuggestions.length > 0 && (
@@ -651,7 +670,7 @@ export function EmailComposer({
 
                         {/* Bcc */}
                         {showBcc && (
-                            <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap min-h-[40px]">
+                            <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap min-h-[40px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                                 <span className="text-[13px] text-slate-400 w-10 flex-shrink-0 font-medium">Cci</span>
                                 {bcc.map((email, i) => (
                                     <span
@@ -662,8 +681,9 @@ export function EmailComposer({
                                         <button
                                             onClick={() => setBcc(prev => prev.filter((_, idx) => idx !== i))}
                                             className="text-slate-400 hover:text-slate-600 ml-0.5"
+                                            aria-label={`Retirer ${email}`}
                                         >
-                                            <X className="w-3 h-3" />
+                                            <X className="w-3 h-3" aria-hidden />
                                         </button>
                                     </span>
                                 ))}
@@ -676,6 +696,7 @@ export function EmailComposer({
                                         onFocus={() => bccInput.includes("@") && updateDomainSuggestions("bcc", bccInput)}
                                         onBlur={() => setTimeout(() => setDomainSuggestionsField(null), 150)}
                                         placeholder="Ajouter en Cci"
+                                        aria-label="Destinataires en copie cachée (Cci)"
                                         className="w-full text-[13px] bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none"
                                     />
                                     {domainSuggestionsField === "bcc" && domainSuggestions.length > 0 && (
@@ -704,12 +725,13 @@ export function EmailComposer({
                         )}
 
                         {/* Subject */}
-                        <div className="px-4 py-2.5 border-b border-slate-100">
+                        <div className="px-4 py-2.5 border-b border-slate-100 focus-within:ring-2 focus-within:ring-inset focus-within:ring-focus">
                             <input
                                 type="text"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Objet"
+                                aria-label="Objet"
                                 className="w-full text-[14px] bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none font-medium"
                             />
                         </div>
@@ -726,8 +748,9 @@ export function EmailComposer({
                                     onClick={() => execCommand(cmd)}
                                     className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
                                     title={title}
+                                    aria-label={title}
                                 >
-                                    <Icon className="w-4 h-4" />
+                                    <Icon className="w-4 h-4" aria-hidden />
                                 </button>
                             ))}
                             <div className="w-px h-4 bg-slate-200 mx-0.5" />
@@ -735,26 +758,42 @@ export function EmailComposer({
                                 onClick={() => execCommand("insertUnorderedList")}
                                 className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
                                 title="Liste à puces"
+                                aria-label="Liste à puces"
                             >
-                                <List className="w-4 h-4" />
+                                <List className="w-4 h-4" aria-hidden />
                             </button>
                             <button
                                 onClick={() => execCommand("insertOrderedList")}
                                 className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
                                 title="Liste numérotée"
+                                aria-label="Liste numérotée"
                             >
-                                <ListOrdered className="w-4 h-4" />
+                                <ListOrdered className="w-4 h-4" aria-hidden />
                             </button>
                             <div className="w-px h-4 bg-slate-200 mx-0.5" />
                             <button
-                                onClick={() => {
-                                    const url = prompt("URL du lien:");
-                                    if (url) execCommand("createLink", url);
+                                onClick={async () => {
+                                    // The dialog takes focus: keep the editor selection to link it afterwards.
+                                    const sel = window.getSelection();
+                                    const range = sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode)
+                                        ? sel.getRangeAt(0).cloneRange()
+                                        : null;
+                                    const url = await askPrompt({ title: "Insérer un lien", label: "URL du lien", placeholder: "https://" });
+                                    if (url) {
+                                        editorRef.current?.focus();
+                                        if (range) {
+                                            const current = window.getSelection();
+                                            current?.removeAllRanges();
+                                            current?.addRange(range);
+                                        }
+                                        execCommand("createLink", url);
+                                    }
                                 }}
                                 className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
                                 title="Insérer un lien"
+                                aria-label="Insérer un lien"
                             >
-                                <Link2 className="w-4 h-4" />
+                                <Link2 className="w-4 h-4" aria-hidden />
                             </button>
                             <div className="w-px h-4 bg-slate-200 mx-0.5" />
                             <button
@@ -771,8 +810,11 @@ export function EmailComposer({
                         <div
                             ref={editorRef}
                             contentEditable
+                            role="textbox"
+                            aria-multiline="true"
+                            aria-label="Corps du message"
                             data-placeholder="Rédigez votre message..."
-                            className="flex-1 px-4 py-3 text-[14px] text-slate-800 overflow-y-auto focus:outline-none bg-white leading-relaxed email-scrollbar"
+                            className="flex-1 px-4 py-3 text-[14px] text-slate-800 overflow-y-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus bg-white leading-relaxed email-scrollbar"
                             style={{ minHeight: "150px" }}
                             onInput={checkHasContent}
                         />
@@ -787,8 +829,9 @@ export function EmailComposer({
                                 <button
                                     onClick={() => setSendError(null)}
                                     className="text-red-400 hover:text-red-600 flex-shrink-0"
+                                    aria-label="Masquer l'erreur"
                                 >
-                                    <X className="w-3.5 h-3.5" />
+                                    <X className="w-3.5 h-3.5" aria-hidden />
                                 </button>
                             </div>
                         )}
@@ -821,8 +864,9 @@ export function EmailComposer({
                                             <button
                                                 onClick={() => removeAttachment(i)}
                                                 className="text-slate-400 hover:text-red-500 transition-colors"
+                                                aria-label={`Retirer ${file.name}`}
                                             >
-                                                <X className="w-3 h-3" />
+                                                <X className="w-3 h-3" aria-hidden />
                                             </button>
                                         </div>
                                     ))}
@@ -838,31 +882,34 @@ export function EmailComposer({
                                     id={fileInputId}
                                     type="file"
                                     multiple
-                                    className="sr-only"
+                                    className="sr-only peer"
                                     onChange={handleFileSelect}
                                     accept="*/*"
+                                    aria-label="Joindre un fichier"
                                 />
                                 <label
                                     htmlFor={fileInputId}
-                                    className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer inline-flex"
+                                    className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer inline-flex peer-focus-visible:ring-2 peer-focus-visible:ring-focus"
                                     title="Joindre un fichier"
                                 >
-                                    <Paperclip className="w-4 h-4" />
+                                    <Paperclip className="w-4 h-4" aria-hidden />
                                 </label>
                                 <button
                                     onClick={() => setShowSchedule(!showSchedule)}
                                     className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
                                     title="Programmer l'envoi"
+                                    aria-label="Programmer l'envoi"
                                 >
-                                    <Clock className="w-4 h-4" />
+                                    <Clock className="w-4 h-4" aria-hidden />
                                 </button>
                                 <div className="w-px h-4 bg-slate-200 mx-1" />
                                 <button
                                     onClick={handleClose}
                                     className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
                                     title="Supprimer le brouillon"
+                                    aria-label="Supprimer le brouillon"
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-4 h-4" aria-hidden />
                                 </button>
                             </div>
                             <div className="flex items-center gap-2">

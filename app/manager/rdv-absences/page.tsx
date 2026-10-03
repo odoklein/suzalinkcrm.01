@@ -861,10 +861,11 @@ export default function RdvAbsencesPage() {
                     </p>
 
                     <div>
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                        <label htmlFor="out-of-scope-reason" className="mb-1.5 block text-sm font-medium text-slate-700">
                             Motif (optionnel)
                         </label>
                         <textarea
+                            id="out-of-scope-reason"
                             value={outOfScopeReason}
                             onChange={(e) => setOutOfScopeReason(e.target.value)}
                             rows={3}
@@ -927,10 +928,11 @@ export default function RdvAbsencesPage() {
                     </p>
 
                     <div>
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                        <label htmlFor="stand-by-reason" className="mb-1.5 block text-sm font-medium text-slate-700">
                             Motif (optionnel)
                         </label>
                         <textarea
+                            id="stand-by-reason"
                             value={standByReason}
                             onChange={(e) => setStandByReason(e.target.value)}
                             rows={3}
@@ -1042,10 +1044,11 @@ export default function RdvAbsencesPage() {
                     </div>
 
                     <div>
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                        <label htmlFor="report-note" className="mb-1.5 block text-sm font-medium text-slate-700">
                             Précision (optionnel)
                         </label>
                         <textarea
+                            id="report-note"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             rows={3}
@@ -1061,10 +1064,11 @@ export default function RdvAbsencesPage() {
                     </div>
 
                     <div>
-                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                        <label htmlFor="report-assignee" className="mb-1.5 block text-sm font-medium text-slate-700">
                             Assigner / Réaffecter au SDR
                         </label>
                         <select
+                            id="report-assignee"
                             value={selectedSdrId}
                             onChange={(e) => setSelectedSdrId(e.target.value)}
                             className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"

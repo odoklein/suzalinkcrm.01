@@ -140,7 +140,7 @@ function BookerStack({ bookers, emptyLabel }: { bookers: Booker[]; emptyLabel: s
                 </div>
             ))}
             {bookers.length > 4 && (
-                <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 ring-2 ring-white flex items-center justify-center text-[9px] font-bold shrink-0">
+                <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 ring-2 ring-white flex items-center justify-center text-3xs font-bold shrink-0">
                     +{bookers.length - 4}
                 </div>
             )}

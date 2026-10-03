@@ -344,9 +344,11 @@ export function StrategyArtifactViewer({
                         <button
                             type="button"
                             onClick={() => setCollapsed(!collapsed)}
+                            aria-label={collapsed ? "Afficher les blocs" : "Masquer les blocs"}
+                            aria-expanded={!collapsed}
                             className="text-slate-400 hover:text-slate-600 p-1"
                         >
-                            {collapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+                            {collapsed ? <ChevronDown className="w-3.5 h-3.5" aria-hidden /> : <ChevronUp className="w-3.5 h-3.5" aria-hidden />}
                         </button>
                     )}
                 </div>

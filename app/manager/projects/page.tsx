@@ -352,8 +352,9 @@ export default function ManagerProjectsPage() {
             <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Nouveau projet" description="Créez un projet pour organiser les tâches de votre équipe." size="lg">
                 <div className="space-y-5">
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Nom du projet *</label>
+                        <label htmlFor="project-create-name" className="block text-sm font-semibold text-slate-700 mb-1.5">Nom du projet *</label>
                         <input
+                            id="project-create-name"
                             type="text"
                             value={createForm.name}
                             onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
@@ -363,8 +364,9 @@ export default function ManagerProjectsPage() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
+                        <label htmlFor="project-create-description" className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
                         <textarea
+                            id="project-create-description"
                             value={createForm.description}
                             onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
                             rows={3}
@@ -374,8 +376,9 @@ export default function ManagerProjectsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Client</label>
+                            <label htmlFor="project-create-client" className="block text-sm font-semibold text-slate-700 mb-1.5">Client</label>
                             <select
+                                id="project-create-client"
                                 value={createForm.clientId}
                                 onChange={(e) => setCreateForm({ ...createForm, clientId: e.target.value })}
                                 className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 bg-white transition-all"
@@ -404,8 +407,9 @@ export default function ManagerProjectsPage() {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Membres de l&apos;équipe</label>
+                        <label htmlFor="project-create-members" className="block text-sm font-semibold text-slate-700 mb-1.5">Membres de l&apos;équipe</label>
                         <select
+                            id="project-create-members"
                             value=""
                             onChange={(e) => {
                                 const id = e.target.value;
@@ -439,12 +443,12 @@ export default function ManagerProjectsPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Date début</label>
-                            <input type="date" value={createForm.startDate} onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" />
+                            <label htmlFor="project-create-start" className="block text-sm font-semibold text-slate-700 mb-1.5">Date début</label>
+                            <input id="project-create-start" type="date" value={createForm.startDate} onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Date fin</label>
-                            <input type="date" value={createForm.endDate} onChange={(e) => setCreateForm({ ...createForm, endDate: e.target.value })} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" />
+                            <label htmlFor="project-create-end" className="block text-sm font-semibold text-slate-700 mb-1.5">Date fin</label>
+                            <input id="project-create-end" type="date" value={createForm.endDate} onChange={(e) => setCreateForm({ ...createForm, endDate: e.target.value })} className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" />
                         </div>
                     </div>
                 </div>
@@ -661,12 +665,12 @@ function ProjectRow({ project, onDuplicate, onArchive, onDelete }: {
             </div>
             <div className="flex -space-x-1.5">
                 {project.members.slice(0, 3).map((m) => (
-                    <div key={m.user.id} className="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[9px] font-bold border-2 border-white">
+                    <div key={m.user.id} className="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-3xs font-bold border-2 border-white">
                         {m.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
                     </div>
                 ))}
                 {project.members.length > 3 && (
-                    <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-bold border-2 border-white">
+                    <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-3xs font-bold border-2 border-white">
                         +{project.members.length - 3}
                     </div>
                 )}

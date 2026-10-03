@@ -618,16 +618,18 @@ export function CompanyDrawer({
                                             <button
                                                 onClick={() => copyToClipboard(company!.website!, "Site web")}
                                                 className="text-slate-400 hover:text-slate-600"
+                                                aria-label="Copier le site web"
                                             >
-                                                <Copy className="w-3.5 h-3.5" />
+                                                <Copy className="w-3.5 h-3.5" aria-hidden />
                                             </button>
                                             <a
                                                 href={company!.website.startsWith("http") ? company!.website : `https://${company!.website}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-slate-400 hover:text-slate-600"
+                                                aria-label="Ouvrir le site web"
                                             >
-                                                <ExternalLink className="w-3.5 h-3.5" />
+                                                <ExternalLink className="w-3.5 h-3.5" aria-hidden />
                                             </a>
                                         </div>
                                     )
@@ -655,8 +657,9 @@ export function CompanyDrawer({
                                                     <button
                                                         onClick={() => copyToClipboard(phone, index === 0 ? "Téléphone" : "Téléphone suppl.")}
                                                         className="text-slate-400 hover:text-slate-600"
+                                                        aria-label={`Copier le téléphone ${phone}`}
                                                     >
-                                                        <Copy className="w-3.5 h-3.5" />
+                                                        <Copy className="w-3.5 h-3.5" aria-hidden />
                                                     </button>
                                                 </div>
                                             ))}
@@ -835,9 +838,10 @@ export function CompanyDrawer({
                                     <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Clock className="w-5 h-5 text-amber-600" />
-                                            <label className="text-sm font-medium text-slate-900">Date de rappel</label>
+                                            <label htmlFor="company-callback-date" className="text-sm font-medium text-slate-900">Date de rappel</label>
                                         </div>
                                         <input
+                                            id="company-callback-date"
                                             type="datetime-local"
                                             value={newCallbackDateValue}
                                             onChange={(e) => setNewCallbackDateValue(e.target.value)}
@@ -852,8 +856,9 @@ export function CompanyDrawer({
                                 {newActionResult !== "ENVOIE_MAIL" && (
                                     <>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-1">Note</label>
+                                            <label htmlFor="company-action-note" className="block text-sm font-medium text-slate-700 mb-1">Note</label>
                                             <textarea
+                                                id="company-action-note"
                                                 value={newActionNote}
                                                 onChange={(e) => setNewActionNote(e.target.value)}
                                                 placeholder="Ajouter une note (requise pour Intéressé / Rappel demandé)..."

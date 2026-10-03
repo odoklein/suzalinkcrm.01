@@ -274,8 +274,9 @@ export default function NewInvoicePage() {
                             </div>
                             {offres.length > 0 && (
                                 <div className="flex items-center gap-2">
-                                    <label className="text-sm text-slate-500 whitespace-nowrap">Partir d&apos;une offre :</label>
+                                    <label htmlFor="invoice-offre" className="text-sm text-slate-500 whitespace-nowrap">Partir d&apos;une offre :</label>
                                     <select
+                                        id="invoice-offre"
                                         value={selectedOffreId}
                                         onChange={(e) => applyOffre(e.target.value)}
                                         className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-800 min-w-[180px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400"
@@ -302,6 +303,7 @@ export default function NewInvoicePage() {
                             <h2 className="text-base font-semibold text-slate-900">Notes</h2>
                         </div>
                         <textarea
+                            aria-label="Notes"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Notes ou commentaires internes (optionnel)..."
@@ -322,13 +324,14 @@ export default function NewInvoicePage() {
                         </div>
                         <div className="space-y-4">
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Date d&apos;émission</label>
-                                <Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} />
+                                <label htmlFor="invoice-issue-date" className="text-xs font-medium text-slate-500 mb-1.5 block">Date d&apos;émission</label>
+                                <Input id="invoice-issue-date" type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Délai de paiement</label>
+                                <label htmlFor="invoice-payment-terms" className="text-xs font-medium text-slate-500 mb-1.5 block">Délai de paiement</label>
                                 <div className="flex gap-2 items-center">
                                     <Input
+                                        id="invoice-payment-terms"
                                         type="number"
                                         min="0"
                                         max="365"
@@ -339,12 +342,13 @@ export default function NewInvoicePage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Date d&apos;échéance</label>
-                                <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                                <label htmlFor="invoice-due-date" className="text-xs font-medium text-slate-500 mb-1.5 block">Date d&apos;échéance</label>
+                                <Input id="invoice-due-date" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Conditions (texte)</label>
+                                <label htmlFor="invoice-terms-text" className="text-xs font-medium text-slate-500 mb-1.5 block">Conditions (texte)</label>
                                 <Input
+                                    id="invoice-terms-text"
                                     value={paymentTermsText}
                                     onChange={(e) => setPaymentTermsText(e.target.value)}
                                     placeholder={`Paiement à ${paymentTermsDays} jours`}

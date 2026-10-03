@@ -187,9 +187,10 @@ export function KanbanBoard({
                             {onAddTask && (
                                 <button
                                     onClick={() => onAddTask(column.id)}
+                                    aria-label={`Ajouter une tâche dans « ${column.label} »`}
                                     className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
                                 >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             )}
                         </div>

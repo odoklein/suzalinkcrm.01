@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/components/ui";
 import {
     Send,
     Loader2,
@@ -200,6 +201,7 @@ function StatusBadge({ status }: { status?: string }) {
 // ============================================
 
 export default function SDRMissionEmailsSentPage() {
+    const askConfirm = useConfirm();
     const [emails, setEmails] = useState<SentEmail[]>([]);
     const [missions, setMissions] = useState<MissionOption[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -348,7 +350,11 @@ export default function SDRMissionEmailsSentPage() {
     const handleBatchAction = async (action: "delete" | "resend") => {
         if (selected.size === 0) return;
         const label = action === "delete" ? "supprimer" : "renvoyer";
-        if (!confirm(`Voulez-vous ${label} ${selected.size} email(s) sélectionné(s) ?`)) return;
+        if (!(await askConfirm({
+            title: `Voulez-vous ${label} ${selected.size} email(s) sélectionné(s) ?`,
+            variant: action === "delete" ? "danger" : "default",
+            confirmText: action === "delete" ? "Supprimer" : "Renvoyer",
+        }))) return;
 
         setIsBatchLoading(true);
         setBatchMessage(null);
@@ -482,6 +488,7 @@ export default function SDRMissionEmailsSentPage() {
                         <input
                             type="text"
                             placeholder="Rechercher par contact, sujet, société..."
+                            aria-label="Rechercher un email"
                             value={debouncedSearch}
                             onChange={(e) => setDebouncedSearch(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 placeholder:text-slate-400 transition-all"
@@ -491,6 +498,7 @@ export default function SDRMissionEmailsSentPage() {
                     {/* Mission Filter */}
                     <div className="relative">
                         <select
+                            aria-label="Filtrer par mission"
                             value={missionFilter}
                             onChange={(e) => { setMissionFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }}
                             className="appearance-none pl-4 pr-10 py-2.5 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 min-w-[180px] transition-all"
@@ -536,8 +544,8 @@ export default function SDRMissionEmailsSentPage() {
                 {showFilters && (
                     <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100 animate-fade-in">
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Statut</label>
-                            <select
+                            <label htmlFor="sdr-sent-filter-statut" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Statut</label>
+                            <select id="sdr-sent-filter-statut"
                                 value={statusFilter}
                                 onChange={(e) => { setStatusFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }}
                                 className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[140px]"
@@ -554,8 +562,8 @@ export default function SDRMissionEmailsSentPage() {
                         </div>
 
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Ouverture</label>
-                            <select
+                            <label htmlFor="sdr-sent-filter-ouverture" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Ouverture</label>
+                            <select id="sdr-sent-filter-ouverture"
                                 value={hasOpenedFilter}
                                 onChange={(e) => { setHasOpenedFilter(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }}
                                 className="appearance-none px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 min-w-[140px]"
@@ -567,8 +575,8 @@ export default function SDRMissionEmailsSentPage() {
                         </div>
 
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Du</label>
-                            <input
+                            <label htmlFor="sdr-sent-filter-du" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Du</label>
+                            <input id="sdr-sent-filter-du"
                                 type="date"
                                 value={dateFrom}
                                 onChange={(e) => { setDateFrom(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }}
@@ -577,8 +585,8 @@ export default function SDRMissionEmailsSentPage() {
                         </div>
 
                         <div>
-                            <label className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Au</label>
-                            <input
+                            <label htmlFor="sdr-sent-filter-au" className="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Au</label>
+                            <input id="sdr-sent-filter-au"
                                 type="date"
                                 value={dateTo}
                                 onChange={(e) => { setDateTo(e.target.value); setPagination((p) => ({ ...p, page: 1 })); }}
@@ -622,8 +630,8 @@ export default function SDRMissionEmailsSentPage() {
                             {isBatchLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
                             Renvoyer
                         </button>
-                        <button onClick={() => setSelected(new Set())} className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg transition-all">
-                            <X className="w-3.5 h-3.5" />
+                        <button aria-label="Désélectionner tout" onClick={() => setSelected(new Set())} className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg transition-all">
+                            <X aria-hidden className="w-3.5 h-3.5" />
                         </button>
                     </div>
                 </div>
@@ -680,6 +688,7 @@ export default function SDRMissionEmailsSentPage() {
                                         <input
                                             type="checkbox"
                                             checked={selected.size === emails.length && emails.length > 0}
+                                            aria-label="Tout sélectionner"
                                             onChange={toggleSelectAll}
                                             className="rounded-[4px] border-slate-300 text-primary-600 focus:ring-primary-500/20 w-4 h-4"
                                         />
@@ -721,6 +730,7 @@ export default function SDRMissionEmailsSentPage() {
                                                 type="checkbox"
                                                 checked={selected.has(e.id)}
                                                 onChange={() => toggleSelect(e.id)}
+                                                aria-label={`Sélectionner l'email à ${contactName(e)}`}
                                                 className="rounded-[4px] border-slate-300 text-primary-600 focus:ring-primary-500/20 w-4 h-4"
                                             />
                                         </td>
@@ -803,6 +813,7 @@ export default function SDRMissionEmailsSentPage() {
                                 {((pagination.page - 1) * pagination.limit) + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} sur {pagination.total}
                             </span>
                             <select
+                                aria-label="Emails par page"
                                 value={pagination.limit}
                                 onChange={(e) => setPagination((p) => ({ ...p, limit: parseInt(e.target.value), page: 1 }))}
                                 className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
@@ -815,11 +826,12 @@ export default function SDRMissionEmailsSentPage() {
                         </div>
                         <div className="flex items-center gap-1">
                             <button
+                                aria-label="Page précédente"
                                 onClick={() => setPagination((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}
                                 disabled={pagination.page <= 1}
                                 className="p-2 rounded-lg text-slate-500 hover:bg-white hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                             >
-                                <ChevronLeft className="w-4 h-4" />
+                                <ChevronLeft aria-hidden className="w-4 h-4" />
                             </button>
                             {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                                 const start = Math.max(1, Math.min(
@@ -844,11 +856,12 @@ export default function SDRMissionEmailsSentPage() {
                                 );
                             })}
                             <button
+                                aria-label="Page suivante"
                                 onClick={() => setPagination((p) => ({ ...p, page: Math.min(p.totalPages, p.page + 1) }))}
                                 disabled={pagination.page >= pagination.totalPages}
                                 className="p-2 rounded-lg text-slate-500 hover:bg-white hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                             >
-                                <ChevronRight className="w-4 h-4" />
+                                <ChevronRight aria-hidden className="w-4 h-4" />
                             </button>
                         </div>
                     </div>

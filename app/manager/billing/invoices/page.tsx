@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui";
+import { useToast, useOverlay } from "@/components/ui";
 import {
     Plus,
     FileText,
@@ -72,6 +72,8 @@ export default function InvoicesPage() {
     const [offres, setOffres] = useState<{ id: string; nom: string }[]>([]);
     const [generateEngagementId, setGenerateEngagementId] = useState<string>("");
     const [generateOffreId, setGenerateOffreId] = useState<string>("");
+    const generateTitleId = useId();
+    const generateModalRef = useOverlay<HTMLDivElement>({ open: showGenerateModal, onClose: () => setShowGenerateModal(false) });
 
     const fetchInvoices = async () => {
         setIsLoading(true);
@@ -228,6 +230,7 @@ export default function InvoicesPage() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && fetchInvoices()}
+                        aria-label="Rechercher une facture"
                         className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all duration-200"
                     />
                 </div>
@@ -243,6 +246,7 @@ export default function InvoicesPage() {
                         <button
                             key={opt.value}
                             onClick={() => setStatusFilter(opt.value)}
+                            aria-pressed={statusFilter === opt.value}
                             className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
                                 statusFilter === opt.value
                                     ? "bg-white text-slate-900 shadow-sm"
@@ -365,11 +369,11 @@ export default function InvoicesPage() {
             {/* Modal Générer facture */}
             {showGenerateModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+                    <div ref={generateModalRef} role="dialog" aria-modal="true" aria-labelledby={generateTitleId} tabIndex={-1} className="bg-white rounded-2xl shadow-xl w-full max-w-md">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
-                            <h2 className="text-lg font-bold text-slate-900">Générer facture(s)</h2>
-                            <button type="button" onClick={() => setShowGenerateModal(false)} className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
-                                <X className="w-5 h-5" />
+                            <h2 id={generateTitleId} className="text-lg font-bold text-slate-900">Générer facture(s)</h2>
+                            <button type="button" onClick={() => setShowGenerateModal(false)} aria-label="Fermer" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
+                                <X className="w-5 h-5" aria-hidden />
                             </button>
                         </div>
                         <div className="px-6 py-5 space-y-4">
@@ -378,8 +382,9 @@ export default function InvoicesPage() {
                             </p>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Mois</label>
+                                    <label htmlFor="generate-month" className="block text-sm font-semibold text-slate-700 mb-1.5">Mois</label>
                                     <select
+                                        id="generate-month"
                                         value={generatePeriodMonth}
                                         onChange={(e) => setGeneratePeriodMonth(Number(e.target.value))}
                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
@@ -390,8 +395,9 @@ export default function InvoicesPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Année</label>
+                                    <label htmlFor="generate-year" className="block text-sm font-semibold text-slate-700 mb-1.5">Année</label>
                                     <input
+                                        id="generate-year"
                                         type="number"
                                         min={2020}
                                         max={2100}
@@ -403,8 +409,9 @@ export default function InvoicesPage() {
                             </div>
                             {offres.length > 0 && (
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Offre (optionnel)</label>
+                                    <label htmlFor="generate-offre" className="block text-sm font-semibold text-slate-700 mb-1.5">Offre (optionnel)</label>
                                     <select
+                                        id="generate-offre"
                                         value={generateOffreId}
                                         onChange={(e) => {
                                             setGenerateOffreId(e.target.value);
@@ -421,8 +428,9 @@ export default function InvoicesPage() {
                             )}
                             {engagements.length > 0 && (
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Client / engagement (optionnel)</label>
+                                    <label htmlFor="generate-engagement" className="block text-sm font-semibold text-slate-700 mb-1.5">Client / engagement (optionnel)</label>
                                     <select
+                                        id="generate-engagement"
                                         value={generateEngagementId}
                                         onChange={(e) => setGenerateEngagementId(e.target.value)}
                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"

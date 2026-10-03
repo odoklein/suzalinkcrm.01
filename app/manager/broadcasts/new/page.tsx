@@ -24,9 +24,13 @@ import { LivePreviewModal } from "@/components/broadcast/LivePreviewModal";
 import { SendTestEmailModal } from "@/components/broadcast/SendTestEmailModal";
 import { brand } from "@/lib/brand";
 import { brandUrl } from "@/lib/brand";
+import { useToast } from "@/components/ui";
+import { FOCUS_RING } from "@/components/ui/recipes";
+import { pressable } from "@/lib/a11y";
 
 export default function NewBroadcastWizardPage() {
   const router = useRouter();
+  const toast = useToast();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // ── Step 1: Info & Trigger ────────────────────────────────────────────────
@@ -121,10 +125,10 @@ export default function NewBroadcastWizardPage() {
       if (json.success) {
         router.push("/manager/broadcasts");
       } else {
-        alert(json.error || "Erreur lors de la création");
+        toast.error(json.error || "Erreur lors de la création");
       }
     } catch {
-      alert("Erreur de communication avec le serveur.");
+      toast.error("Erreur de communication avec le serveur.");
     } finally {
       setSubmitting(false);
     }
@@ -161,8 +165,8 @@ export default function NewBroadcastWizardPage() {
         ].map((s) => (
           <div
             key={s.num}
-            onClick={() => s.num < step && setStep(s.num as any)}
-            className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
+            {...(s.num < step ? pressable(() => setStep(s.num as any)) : {})}
+            className={`${FOCUS_RING} p-3 rounded-xl border text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer ${
               step === s.num
                 ? "border-primary-600 bg-primary-50/60 text-primary-700 shadow-xs"
                 : step > s.num
@@ -195,10 +199,11 @@ export default function NewBroadcastWizardPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+              <label htmlFor="broadcast-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                 Nom du broadcast *
               </label>
               <input
+                id="broadcast-name"
                 type="text"
                 required
                 value={name}
@@ -210,10 +215,11 @@ export default function NewBroadcastWizardPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                <label htmlFor="broadcast-category" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                   Catégorie
                 </label>
                 <select
+                  id="broadcast-category"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50"
@@ -227,10 +233,11 @@ export default function NewBroadcastWizardPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                <label htmlFor="broadcast-key" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                   Identifiant technique (Clé)
                 </label>
                 <input
+                  id="broadcast-key"
                   type="text"
                   value={key}
                   onChange={(e) => setKey(e.target.value)}
