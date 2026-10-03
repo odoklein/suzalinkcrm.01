@@ -1,11 +1,17 @@
 import { cn } from "@/lib/utils";
 
-/** Inline loading indicator. Inherits the text colour; size follows the font size by default. */
+/**
+ * Inline loading indicator. Inherits the text colour; size follows the font size by default.
+ * Pass label="" when visible text next to it already says what is loading: the
+ * spinner then stays out of the accessibility tree instead of announcing twice.
+ */
 export function Spinner({ className, label = "Chargement" }: { className?: string; label?: string }) {
+    const decorative = label === "";
     return (
         <svg
-            role="status"
-            aria-label={label}
+            role={decorative ? undefined : "status"}
+            aria-label={decorative ? undefined : label}
+            aria-hidden={decorative || undefined}
             className={cn("size-[1.1em] shrink-0 animate-spin", className)}
             viewBox="0 0 24 24"
             fill="none"

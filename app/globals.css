@@ -1322,12 +1322,14 @@ textarea::placeholder {
 /* --- Layout Shell --- */
 .cp-layout {
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: var(--ds-canvas);
 }
 
 .cp-main {
     height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -1364,7 +1366,7 @@ textarea::placeholder {
     padding: 0 1.5rem;
     min-height: 56px;
     height: 56px;
-    background: #fff;
+    background: var(--ds-surface);
     border-bottom: 1px solid var(--ds-line);
 }
 
@@ -1409,6 +1411,7 @@ textarea::placeholder {
     top: 0;
     left: 0;
     height: 100vh;
+    height: 100dvh;
     z-index: 50;
     display: flex;
     flex-direction: column;

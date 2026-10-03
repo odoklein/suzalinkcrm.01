@@ -64,7 +64,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
             )}
             {...props}
         >
-            {isLoading ? <Spinner className={SIZE[size].icon} /> : <Icon className={SIZE[size].icon} aria-hidden />}
+            {isLoading ? <Spinner className={SIZE[size].icon} label="" /> : <Icon className={SIZE[size].icon} aria-hidden />}
         </button>
     ),
 );

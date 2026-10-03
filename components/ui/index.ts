@@ -8,6 +8,8 @@ export type { RadioCardOption } from "./RadioCardGroup";
 
 // New Components
 export { Modal, ModalFooter, ConfirmModal } from "./Modal";
+export { ConfirmDialogProvider, useConfirm, usePrompt } from "./ConfirmDialog";
+export type { ConfirmOptions, PromptOptions } from "./ConfirmDialog";
 export { Drawer, DrawerSection, DrawerField } from "./Drawer";
 export { Select, MultiSelect } from "./Select";
 export type { SelectOption } from "./Select";
@@ -27,6 +29,7 @@ export {
     ListSkeleton,
 } from "./Skeleton";
 export { ContextMenu, useContextMenu } from "./ContextMenu";
+export { useOverlay, isTopOverlay } from "./useOverlay";
 
 // Page Scaffolding Components
 export { PageHeader } from "./PageHeader";

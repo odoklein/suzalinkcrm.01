@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useOverlay } from "./useOverlay";
 
 // ============================================
 // TOOLTIP COMPONENT
@@ -115,18 +116,13 @@ export function Tooltip({
     }
   }, [trigger, isVisible]);
 
-  // Close on escape key
-  useEffect(() => {
-    if (isVisible && trigger === "click") {
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          setIsVisible(false);
-        }
-      };
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isVisible, trigger]);
+  // Escape closes a clicked-open tooltip only, not a modal under it.
+  useOverlay({
+    open: isVisible && trigger === "click",
+    onClose: () => setIsVisible(false),
+    lockScroll: false,
+    trapFocus: false,
+  });
 
   return (
     <>

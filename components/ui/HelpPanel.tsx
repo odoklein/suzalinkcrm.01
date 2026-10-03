@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { X, Search, BookOpen, HelpCircle, ChevronRight, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Button from "./Button";
+import { useOverlay } from "./useOverlay";
 
 // ============================================
 // HELP PANEL COMPONENT
@@ -40,7 +41,7 @@ export function HelpPanel({
   const panelRef = useRef<HTMLDivElement>(null);
 
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
-  const setIsOpen = onClose ? (() => onClose()) : setInternalIsOpen;
+  const close = () => (onClose ? onClose() : setInternalIsOpen(false));
 
   // Filter sections based on search
   const filteredSections = sections.filter((section) => {
@@ -65,31 +66,21 @@ export function HelpPanel({
     });
   };
 
-  // Close on escape key
-  useEffect(() => {
-    if (isOpen) {
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          setIsOpen();
-        }
-      };
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isOpen, setIsOpen]);
+  // Escape closes the panel when it is the top layer.
+  useOverlay({ open: isOpen, onClose: close, lockScroll: false, trapFocus: false });
 
   // Close on outside click
   useEffect(() => {
     if (isOpen) {
       const handleClickOutside = (e: MouseEvent) => {
         if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-          setIsOpen();
+          close();
         }
       };
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [isOpen, setIsOpen]);
+  }, [isOpen, close]);
 
   if (!isOpen) return null;
 
@@ -97,8 +88,8 @@ export function HelpPanel({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/20 z-40 transition-opacity"
-        onClick={() => setIsOpen()}
+        className="fixed inset-0 bg-ink/20 z-40 transition-opacity"
+        onClick={() => close()}
       />
 
       {/* Panel */}
@@ -119,7 +110,7 @@ export function HelpPanel({
             <h2 className="text-lg font-semibold text-ink">Aide & Documentation</h2>
           </div>
           <button
-            onClick={() => setIsOpen()}
+            onClick={() => close()}
             className="p-1 hover:bg-surface-3 rounded-lg transition-colors"
             aria-label="Fermer"
           >
@@ -202,7 +193,7 @@ export function HelpPanel({
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => setIsOpen()}
+            onClick={() => close()}
             className="w-full"
           >
             Fermer

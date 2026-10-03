@@ -91,7 +91,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 disabled={disabled || isLoading}
                 {...props}
             >
-                {isLoading ? <Spinner /> : leftIcon}
+                {isLoading ? <Spinner label="" /> : leftIcon}
                 {children}
                 {!isLoading && rightIcon}
             </button>

@@ -121,7 +121,7 @@ function SidebarNavItem({
     }
 
     return (
-        <Link href={item.href} onClick={onMobileClose} className={cls}>
+        <Link href={item.href} onClick={onMobileClose} className={cls} aria-current={isActive ? "page" : undefined}>
             {content}
         </Link>
     );

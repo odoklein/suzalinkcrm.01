@@ -12,7 +12,8 @@ import { SectionTabs } from "./SectionTabs";
 import { NavSection, getNavByRole, ROLE_CONFIG } from "@/lib/navigation/config";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { IncomingCallPanel } from "@/components/incoming-calls/IncomingCallPanel";
-import { Modal } from "@/components/ui";
+import { Button, IconButton, Modal, Spinner } from "@/components/ui";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { DailyReportModal } from "@/components/sdr/DailyReportModal";
 import { useSdrDailyReport } from "@/components/sdr/useSdrDailyReport";
 import { cn } from "@/lib/utils";
@@ -132,21 +133,16 @@ function InnerLayout({
         };
     }, [isSdrArea]);
 
-    if (status === "loading" || !session) {
+    if (status === "loading" || !session || (userRole && !allowedRoles.includes(userRole))) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-surface-2">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="cp-spinner" />
-                    <p className="text-sm text-slate-400 font-medium">Chargement...</p>
+            <div role="status" aria-live="polite" className="flex min-h-dvh items-center justify-center bg-canvas">
+                <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
+                    <BrandLogo variant="mark" height={40} priority />
+                    <div className="flex items-center gap-2 text-sm font-medium text-ink-3">
+                        <Spinner className="size-4 text-accent" label="" />
+                        Chargement de votre espace…
+                    </div>
                 </div>
-            </div>
-        );
-    }
-
-    if (userRole && !allowedRoles.includes(userRole)) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-surface-2">
-                <div className="cp-spinner" />
             </div>
         );
     }
@@ -202,6 +198,9 @@ function InnerLayout({
 
     return (
         <div className="cp-layout">
+            <a href="#main-content" className="skip-link">
+                Aller au contenu
+            </a>
             <GlobalSearchModal
                 open={searchOpen}
                 onClose={closeSearch}
@@ -233,12 +232,12 @@ function InnerLayout({
                                 type="button"
                                 onClick={dailyReport.open}
                                 className={cn(
-                                    "inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-[12px] font-semibold transition-colors duration-150",
+                                    "inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-xs font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2",
                                     dailyReport.submitted
-                                        ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/80"
+                                        ? "border-success-line bg-success-soft text-success-ink hover:brightness-[0.97]"
                                         : dailyReport.mustFill
-                                          ? "border-amber-300/80 bg-amber-50 text-amber-950 shadow-sm hover:bg-amber-100/90"
-                                          : "border-line bg-white text-ink-2 hover:text-ink hover:border-line-strong hover:bg-surface-2",
+                                          ? "border-warning-line bg-warning-soft text-warning-ink shadow-xs hover:brightness-[0.97]"
+                                          : "border-line bg-surface text-ink-2 hover:text-ink hover:border-line-strong hover:bg-surface-2",
                                 )}
                                 title={
                                     dailyReport.submitted
@@ -247,32 +246,31 @@ function InnerLayout({
                                 }
                             >
                                 {dailyReport.submitted ? (
-                                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" aria-hidden />
+                                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-success" aria-hidden />
                                 ) : dailyReport.mustFill ? (
-                                    <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" aria-hidden />
+                                    <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-warning" aria-hidden />
                                 ) : null}
                                 {dailyReport.submitted ? "Retour du jour envoyé" : "Retour journée"}
                             </button>
                         )}
-                        <button
-                            type="button"
+                        <IconButton
+                            icon={RefreshCw}
+                            label="Rafraîchir la page"
+                            variant="outline"
+                            size="sm"
                             onClick={() => router.refresh()}
-                            className="w-8 h-8 rounded-lg border border-line flex items-center justify-center text-ink-3 hover:text-ink hover:border-line-strong transition-colors duration-150"
-                            title="Rafraîchir"
-                        >
-                            <RefreshCw className="w-3.5 h-3.5" />
-                        </button>
+                        />
                         <NotificationBell />
                     </div>
                 </header>
 
                 {isEmailHub || isRdvPage || isTicketBoard || isPlanningBoard ? (
                     // Email Hub & SAS RDV: fill remaining height, no outer padding wrapper, dedicated inner scroll
-                    <div className="flex-1 overflow-hidden flex flex-col min-h-0" style={{ height: 'calc(100vh - 56px)' }}>
+                    <div id="main-content" tabIndex={-1} className="flex-1 overflow-hidden flex flex-col min-h-0 outline-none" style={{ height: 'calc(100dvh - 56px)' }}>
                         {children}
                     </div>
                 ) : (
-                    <div className="cp-content">
+                    <div id="main-content" tabIndex={-1} className="cp-content outline-none">
                         <div className="max-w-[1440px] mx-auto w-full">
                             {children}
                         </div>
@@ -296,13 +294,13 @@ function InnerLayout({
                 >
                     {callbackAlert && (
                         <div className="space-y-4">
-                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                            <div className="rounded-panel border border-warning-line bg-warning-soft p-4">
                                 <div className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
-                                        <BellRing className="w-5 h-5" />
+                                    <div className="w-10 h-10 rounded-xl bg-warning text-white flex items-center justify-center shrink-0">
+                                        <BellRing className="w-5 h-5" aria-hidden />
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-sm font-bold text-slate-900">
+                                        <p className="text-sm font-bold text-ink">
                                             {[
                                                 callbackAlert.contact?.firstName,
                                                 callbackAlert.contact?.lastName,
@@ -311,7 +309,7 @@ function InnerLayout({
                                                 callbackAlert.company?.name ||
                                                 "Contact à rappeler"}
                                         </p>
-                                        <p className="text-xs text-slate-600 mt-1">
+                                        <p className="text-xs text-ink-2 mt-1">
                                             {callbackAlert.contact?.company?.name ||
                                                 callbackAlert.company?.name ||
                                                 callbackAlert.mission?.client?.name ||
@@ -320,7 +318,7 @@ function InnerLayout({
                                                 ? ` · ${callbackAlert.mission.name}`
                                                 : ""}
                                         </p>
-                                        <p className="text-xs font-semibold text-amber-800 mt-2">
+                                        <p className="text-xs font-semibold text-warning-ink mt-2">
                                             Prévu à{" "}
                                             {new Date(callbackAlert.callbackDate).toLocaleTimeString("fr-FR", {
                                                 hour: "2-digit",
@@ -330,30 +328,26 @@ function InnerLayout({
                                     </div>
                                 </div>
                                 {callbackAlert.note && (
-                                    <p className="mt-3 pt-3 border-t border-amber-200 text-xs text-amber-950">
+                                    <p className="mt-3 pt-3 border-t border-warning-line text-xs text-ink-2">
                                         {callbackAlert.note}
                                     </p>
                                 )}
                             </div>
                             <div className="flex items-center justify-end gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setCallbackAlert(null)}
-                                    className="h-9 px-4 rounded-lg border border-slate-200 bg-white text-[13px] font-semibold text-slate-600 hover:bg-slate-50"
-                                >
+                                <Button type="button" variant="ghost" size="sm" onClick={() => setCallbackAlert(null)}>
                                     Fermer
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="button"
+                                    size="sm"
+                                    leftIcon={<PhoneCall className="w-4 h-4" aria-hidden />}
                                     onClick={() => {
                                         setCallbackAlert(null);
                                         router.push("/sdr/callbacks");
                                     }}
-                                    className="h-9 px-4 rounded-lg bg-amber-500 text-white text-[13px] font-semibold hover:bg-amber-600 inline-flex items-center gap-2"
                                 >
-                                    <PhoneCall className="w-4 h-4" />
                                     Ouvrir le rappel
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     )}

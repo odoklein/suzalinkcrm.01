@@ -3,7 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { ReactNode, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ToastProvider } from "@/components/ui";
+import { ConfirmDialogProvider, ToastProvider } from "@/components/ui";
 import { createQueryClient } from "@/lib/query-client";
 import OpenReplayProvider from "./OpenReplayProvider";
 
@@ -22,7 +22,7 @@ export default function Providers({ children }: ProvidersProps) {
             <SessionProvider refetchInterval={60}>
                 <OpenReplayProvider />
                 <ToastProvider position="top-right">
-                    {children}
+                    <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
                 </ToastProvider>
             </SessionProvider>
         </QueryClientProvider>

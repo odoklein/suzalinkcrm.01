@@ -21,12 +21,12 @@ export function LoadingState({
     };
 
     return (
-        <div role="status" className={cn(
+        <div role="status" aria-live="polite" className={cn(
             "flex items-center justify-center py-20",
             className
         )}>
             <div className="flex flex-col items-center gap-3">
-                <Spinner className={cn("text-primary-600", sizes[size])} label={message} />
+                <Spinner className={cn("text-primary-600", sizes[size])} label="" />
                 <p className="text-sm text-ink-3">{message}</p>
             </div>
         </div>

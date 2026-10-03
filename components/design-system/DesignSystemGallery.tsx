@@ -32,6 +32,7 @@ import { Drawer, DrawerSection } from "@/components/ui/Drawer";
 import { Tabs } from "@/components/ui/Tabs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
+import { useConfirm, usePrompt } from "@/components/ui/ConfirmDialog";
 import { Skeleton, TextSkeleton } from "@/components/ui/Skeleton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { IconButton } from "@/components/ui/IconButton";
@@ -113,6 +114,8 @@ function Swatch({ name, varName, className, dark }: { name: string; varName: str
 
 export function DesignSystemGallery({ ramps, identity }: { ramps: RampInfo[]; identity: Identity }) {
     const toast = useToast();
+    const confirm = useConfirm();
+    const prompt = usePrompt();
     const [segment, setSegment] = useState<"day" | "week" | "month">("week");
     const [view, setView] = useState<"grid" | "list">("grid");
     const [tab, setTab] = useState("all");
@@ -642,6 +645,41 @@ export function DesignSystemGallery({ ramps, identity }: { ramps: RampInfo[]; id
                                 <Button variant="secondary" onClick={() => setModalOpen(true)}>Ouvrir une fenêtre</Button>
                                 <Button variant="secondary" onClick={() => setConfirmOpen(true)}>Confirmer une suppression</Button>
                                 <Button variant="secondary" onClick={() => setDrawerOpen(true)}>Ouvrir un panneau</Button>
+                            </div>
+                        </Specimen>
+                        <Specimen label="useConfirm · usePrompt — à la place de window.confirm / prompt">
+                            <div className="flex flex-wrap gap-3">
+                                <Button
+                                    variant="secondary"
+                                    onClick={async () => {
+                                        const ok = await confirm({
+                                            title: "Archiver la mission ?",
+                                            message: "Les SDR ne la verront plus dans leur file d'appels.",
+                                            variant: "warning",
+                                            confirmText: "Archiver",
+                                        });
+                                        if (ok) toast.success("Mission archivée");
+                                    }}
+                                >
+                                    await confirm()
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    onClick={async () => {
+                                        const reason = await prompt({
+                                            title: "Annuler la facture",
+                                            label: "Raison de l'annulation",
+                                            placeholder: "Ex : erreur de montant",
+                                            required: true,
+                                            confirmText: "Annuler la facture",
+                                            cancelText: "Retour",
+                                            variant: "danger",
+                                        });
+                                        if (reason !== null) toast.info("Facture annulée", reason);
+                                    }}
+                                >
+                                    await prompt()
+                                </Button>
                             </div>
                         </Specimen>
                     </Block>

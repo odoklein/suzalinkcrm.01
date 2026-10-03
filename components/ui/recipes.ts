@@ -16,6 +16,10 @@ export type ControlSize = "xs" | "sm" | "md" | "lg";
 export const FOCUS_RING =
     "outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
+/** Keyboard focus for a clickable table row (rings don't draw on <tr>): accent tint + left bar. */
+export const ROW_FOCUS =
+    "outline-none focus-visible:bg-accent-50 focus-visible:shadow-[inset_3px_0_0_var(--ds-accent)]";
+
 /** Focus for controls sitting on the brand surface (sidebar, hero). */
 export const FOCUS_RING_INVERSE =
     "outline-none focus-visible:ring-2 focus-visible:ring-accent-300 focus-visible:ring-offset-2 focus-visible:ring-offset-inverse";

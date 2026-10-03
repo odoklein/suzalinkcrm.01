@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, createContext, useContext, ReactNode } fro
 import { X, ChevronRight, ChevronLeft, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Button from "./Button";
+import { useOverlay } from "./useOverlay";
 
 // ============================================
 // TOUR STEP
@@ -114,18 +115,8 @@ export function Tour({
     setCurrentStep(0);
   };
 
-  // Close on escape key
-  useEffect(() => {
-    if (isOpen) {
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          handleComplete();
-        }
-      };
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isOpen]);
+  // Escape ends the tour when it is the top layer.
+  useOverlay({ open: isOpen, onClose: handleComplete, lockScroll: false, trapFocus: false });
 
   if (!isOpen || !step) return null;
 
