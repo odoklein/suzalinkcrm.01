@@ -4881,3 +4881,253 @@ model HrAuditLog {
   @@index([createdAt])
 }
 
+
+// ============================================
+// SAAS ACCOUNTS — self-serve sign-up, plans, mock payments, onboarding.
+//
+// Customers who sign up from /tarifs live here, NOT in User: an account owner
+// must never get a session on the internal CRM. Plan quotas and prices are
+// defined in code (lib/saas/plans.ts); these tables hold the state.
+// ============================================
+
+enum SaasPlanCode {
+  INDEPENDANT
+  SMALL_BUSINESS
+  MEDIUM_BUSINESS
+}
+
+enum SaasBillingCycle {
+  MONTHLY
+  ANNUAL
+}
+
+enum SaasAccountStatus {
+  PENDING_PAYMENT // paid-only plan, waiting for the first payment
+  TRIALING // 14-day free trial (Indépendant, Small Business)
+  ACTIVE // paid
+  TRIAL_EXPIRED // trial ended without payment
+  CANCELED
+}
+
+enum SaasMemberRole {
+  OWNER
+  ADMIN
+  MANAGER
+  SDR
+  CLOSER
+  CLIENT_VIEWER
+}
+
+enum SaasMemberStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum SaasPaymentStatus {
+  SUCCEEDED
+  FAILED
+}
+
+enum SaasOnboardingStepStatus {
+  PENDING
+  COMPLETED
+  SKIPPED
+}
+
+enum SaasPhoneProvider {
+  ALLO
+  ONOFF
+}
+
+model SaasAccount {
+  id                    String            @id @default(cuid())
+  name                  String
+  slug                  String            @unique
+  planCode              SaasPlanCode
+  billingCycle          SaasBillingCycle  @default(MONTHLY)
+  status                SaasAccountStatus
+  extraSeats            Int               @default(0)
+  trialEndsAt           DateTime?
+  currentPeriodEnd      DateTime?
+  canceledAt            DateTime?
+  setupServiceRequested Boolean           @default(false)
+
+  // Company profile collected at sign-up
+  companySize String?
+  industry    String?
+  country     String  @default("FR")
+  vatNumber   String?
+  siret       String?
+  phone       String?
+  useCase     String?
+
+  // Product configuration written by onboarding
+  settings   Json?
+  whiteLabel Json?
+
+  onboardingStartedAt   DateTime?
+  onboardingCompletedAt DateTime?
+
+  members         SaasMember[]
+  payments        SaasPayment[]
+  onboardingSteps SaasOnboardingStep[]
+  workspaces      SaasWorkspace[]
+  phoneLines      SaasPhoneLine[]
+  contactImports  SaasContactImport[]
+  apiKeys         SaasApiKey[]
+  events          SaasAccountEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([planCode])
+  @@index([trialEndsAt])
+}
+
+model SaasMember {
+  id              String           @id @default(cuid())
+  accountId       String
+  account         SaasAccount      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  email           String           @unique
+  name            String
+  passwordHash    String?
+  role            SaasMemberRole
+  status          SaasMemberStatus @default(ACTIVE)
+  jobTitle        String?
+  inviteTokenHash String?          @unique
+  inviteExpiresAt DateTime?
+  invitedById     String?
+  lastLoginAt     DateTime?
+  // Bumped to revoke every session of this member (logout everywhere, role change).
+  sessionVersion  Int              @default(0)
+  // Per-member product adoption state (dismissed tips, checklist collapsed…)
+  preferences     Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accountId])
+}
+
+model SaasPayment {
+  id             String            @id @default(cuid())
+  accountId      String
+  account        SaasAccount       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  // Client-generated, so a double-click or a retry never charges twice.
+  idempotencyKey String            @unique
+  status         SaasPaymentStatus
+  // Amounts in euro cents, computed server-side from lib/saas/plans.ts
+  subtotalCents  Int
+  vatCents       Int
+  totalCents     Int
+  currency       String            @default("EUR")
+  planCode       SaasPlanCode
+  billingCycle   SaasBillingCycle
+  extraSeats     Int               @default(0)
+  includesSetup  Boolean           @default(false)
+  lines          Json // [{label, amountCents}]
+  // Card data is never stored beyond brand + last 4 digits.
+  cardBrand      String?
+  cardLast4      String?
+  cardholderName String?
+  failureCode    String?
+  failureMessage String?
+  invoiceNumber  String?           @unique
+  periodStart    DateTime?
+  periodEnd      DateTime?
+  createdAt      DateTime          @default(now())
+
+  @@index([accountId, createdAt])
+}
+
+model SaasOnboardingStep {
+  id          String                   @id @default(cuid())
+  accountId   String
+  account     SaasAccount              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  stepKey     String
+  status      SaasOnboardingStepStatus @default(PENDING)
+  data        Json?
+  completedAt DateTime?
+  completedBy String?
+  updatedAt   DateTime                 @updatedAt
+  createdAt   DateTime                 @default(now())
+
+  @@unique([accountId, stepKey])
+  @@index([accountId])
+}
+
+model SaasWorkspace {
+  id          String      @id @default(cuid())
+  accountId   String
+  account     SaasAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  color       String?
+  createdAt   DateTime    @default(now())
+
+  @@unique([accountId, name])
+  @@index([accountId])
+}
+
+model SaasPhoneLine {
+  id           String            @id @default(cuid())
+  accountId    String
+  account      SaasAccount       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  provider     SaasPhoneProvider
+  phoneNumber  String
+  label        String?
+  // Path token of the webhook URL the provider must call.
+  webhookToken String            @unique
+  verifiedAt   DateTime?
+  lastEventAt  DateTime?
+  createdAt    DateTime          @default(now())
+
+  @@unique([accountId, phoneNumber])
+  @@index([accountId])
+}
+
+model SaasContactImport {
+  id             String      @id @default(cuid())
+  accountId      String
+  account        SaasAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  fileName       String
+  rowCount       Int
+  validCount     Int
+  duplicateCount Int         @default(0)
+  mapping        Json
+  sample         Json?
+  createdById    String
+  createdAt      DateTime    @default(now())
+
+  @@index([accountId])
+}
+
+model SaasApiKey {
+  id          String      @id @default(cuid())
+  accountId   String
+  account     SaasAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  name        String
+  prefix      String
+  keyHash     String      @unique
+  revokedAt   DateTime?
+  lastUsedAt  DateTime?
+  createdById String
+  createdAt   DateTime    @default(now())
+
+  @@index([accountId])
+}
+
+model SaasAccountEvent {
+  id        String      @id @default(cuid())
+  accountId String
+  account   SaasAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  actorId   String?
+  type      String
+  details   Json?
+  createdAt DateTime    @default(now())
+
+  @@index([accountId, createdAt])
+  @@index([type])
+}

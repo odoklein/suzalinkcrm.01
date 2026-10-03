@@ -69,7 +69,8 @@ export const config = {
         "/commercial/:path*",
         "/dashboard",
         // All /api routes except /api/auth/* (NextAuth handles its own routes)
-        // and /api/webhooks/* (provider callbacks, each route verifies its own signature)
-        "/api/((?!auth/|webhooks/).*)",
+        // /api/webhooks/* (provider callbacks, each route verifies its own signature)
+        // and /api/saas/* (self-serve customers, guarded by their own session in lib/saas/session.ts)
+        "/api/((?!auth/|webhooks/|saas/).*)",
     ],
 };
