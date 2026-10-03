@@ -35,6 +35,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useConfirm, usePrompt } from "@/components/ui/ConfirmDialog";
 import { Skeleton, TextSkeleton } from "@/components/ui/Skeleton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { DataTable } from "@/components/ui/DataTable";
 import { IconButton } from "@/components/ui/IconButton";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Switch } from "@/components/ui/Switch";
@@ -79,6 +80,16 @@ const NAV = [
     { id: "data", label: "Données" },
     { id: "overlays", label: "Fenêtres" },
     { id: "patterns", label: "Modèles" },
+];
+
+// Fictional rows for the DataTable specimen (6 rows, so pagination at 4 shows).
+const SAMPLE_ROWS = [
+    { id: "1", company: "Atelier Morel", contact: "Claire Morel", calls: 4, status: "RDV pris" },
+    { id: "2", company: "Bâtiplus", contact: "Hugo Bernard", calls: 2, status: "À rappeler" },
+    { id: "3", company: "Cobalt Conseil", contact: "Inès Robert", calls: 1, status: "Barrage" },
+    { id: "4", company: "Delta Logistique", contact: "Tom Petit", calls: 3, status: "À rappeler" },
+    { id: "5", company: "Écovolt", contact: "Zoé Durand", calls: 5, status: "RDV pris" },
+    { id: "6", company: "Forge & Fils", contact: "Max Leroy", calls: 1, status: "Pas intéressé" },
 ];
 
 function Block({ id, title, intro, children }: { id: string; title: string; intro?: ReactNode; children: ReactNode }) {
